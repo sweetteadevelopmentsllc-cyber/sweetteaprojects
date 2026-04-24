@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FieldOps · Foreman</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0F0F0D;
+  --surface: #1A1A17;
+  --surface2: #232320;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #F2F1EE;
+  --text2: #9B9A95;
+  --text3: #5A5955;
+  --gold: #C8973A;
+  --gold-bg: rgba(200,151,58,0.12);
+  --green: #4A9B5F;
+  --green-bg: rgba(74,155,95,0.12);
+  --red: #C45252;
+  --red-bg: rgba(196,82,82,0.12);
+  --blue: #4A7FC1;
+  --blue-bg: rgba(74,127,193,0.12);
+  --amber: #C87A3A;
+  --amber-bg: rgba(200,122,58,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ── SCREENS ── */
+.screen{display:none}
+.screen.active{display:block}
+
+/* ── LOGIN ── */
+#screen-login{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem;
+  background:var(--bg);
+}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:3rem}
+.login-mark{
+  width:44px;height:44px;
+  background:var(--gold);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+}
+.login-mark svg{width:22px;height:22px}
+.login-brand{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--text);letter-spacing:.05em;text-transform:uppercase}
+.login-card{
+  width:100%;max-width:360px;
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  padding:2rem;
+}
+.login-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:600;color:var(--text);margin-bottom:4px;letter-spacing:.02em}
+.login-sub{font-size:13px;color:var(--text2);margin-bottom:1.75rem;line-height:1.5}
+.lf{margin-bottom:14px}
+.lf label{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.lf input{
+  width:100%;padding:11px 14px;
+  border:1px solid var(--border2);
+  border-radius:9px;
+  font-family:'DM Sans',sans-serif;font-size:15px;
+  background:var(--surface2);color:var(--text);outline:none;
+  transition:border-color .15s;
+}
+.lf input:focus{border-color:var(--gold)}
+.lf input[type=password]{letter-spacing:4px;font-size:18px}
+.login-err{font-size:12px;color:var(--red);margin-bottom:10px;display:none;padding:8px 12px;background:var(--red-bg);border-radius:7px}
+.login-err.show{display:block}
+.btn-login{
+  width:100%;padding:13px;
+  background:var(--gold);color:#0F0F0D;
+  border:none;border-radius:9px;
+  font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;
+  cursor:pointer;transition:opacity .15s;
+}
+.btn-login:hover{opacity:.88}
+.btn-login:disabled{opacity:.45;cursor:not-allowed}
+.login-hint{margin-top:16px;text-align:center;font-size:11px;color:var(--text3)}
+
+/* ── TOP BAR ── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;
+}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-mark{width:28px;height:28px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.tb-mark svg{width:14px;height:14px}
+.tb-info{}
+.tb-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;letter-spacing:.03em;line-height:1.1}
+.tb-job{font-size:11px;color:var(--text2)}
+.tb-right{display:flex;gap:8px;align-items:center}
+.tb-badge{font-size:10px;padding:3px 10px;border-radius:20px;background:var(--gold-bg);color:var(--gold);font-weight:500;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em}
+.btn-icon{
+  width:32px;height:32px;background:none;
+  border:1px solid var(--border2);border-radius:7px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:15px;color:var(--text2);
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:#1A1A16;
+  border-top:1px solid rgba(255,255,255,0.2);
+  display:flex;
+  padding:6px 0 max(6px,env(safe-area-inset-bottom));
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 4px;cursor:pointer;border:none;background:none;
+  font-family:'DM Sans',sans-serif;color:white;
+}
+.nav-icon{font-size:22px;line-height:1;display:block}
+.nav-label{font-size:10px;color:rgba(255,255,255,0.75);font-weight:400;letter-spacing:.02em}
+.nav-btn.active .nav-label{color:var(--gold);font-weight:600}
+.nav-dot{position:relative;display:inline-block}
+.nav-dot-badge{
+  position:absolute;top:-2px;right:-5px;
+  width:7px;height:7px;border-radius:50%;
+  background:var(--red);border:1.5px solid var(--surface);
+  display:none;
+}
+.nav-dot-badge.show{display:block}
+
+/* ── MAIN ── */
+.main{padding:16px 16px 90px}
+
+/* ── PAGE HEADER ── */
+.ph{margin-bottom:20px}
+.ph-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;letter-spacing:.02em;margin-bottom:3px}
+.ph-sub{font-size:13px;color:var(--text2)}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.card-hd{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:500;color:var(--text)}
+.card-body{padding:14px 16px}
+
+/* ── BADGES ── */
+.badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;display:inline-block;letter-spacing:.02em}
+.b-gold{background:var(--gold-bg);color:var(--gold)}
+.b-green{background:var(--green-bg);color:var(--green)}
+.b-red{background:var(--red-bg);color:var(--red)}
+.b-blue{background:var(--blue-bg);color:var(--blue)}
+.b-amber{background:var(--amber-bg);color:var(--amber)}
+.b-gray{background:rgba(255,255,255,0.06);color:var(--text3)}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 18px;border-radius:9px;border:none;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--gold);color:#0F0F0D}
+.btn-primary:hover:not(:disabled){opacity:.85}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
+.btn-secondary:hover:not(:disabled){background:rgba(255,255,255,0.08)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(196,82,82,0.2)}
+.btn-success{background:var(--green-bg);color:var(--green);border:1px solid rgba(74,155,95,0.2)}
+.btn-full{width:100%}
+.btn-sm{padding:7px 13px;font-size:12px}
+
+/* ── STAGE LIST ── */
+.stage-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px;margin-bottom:8px;
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  cursor:pointer;transition:border-color .15s;
+}
+.stage-item:hover{border-color:var(--border2)}
+.stage-item.active-stage{border-color:var(--gold);background:var(--gold-bg)}
+.stage-name{font-size:14px;font-weight:500;margin-bottom:3px}
+.stage-meta{font-size:11px;color:var(--text2)}
+.stage-lock{font-size:18px;color:var(--text3)}
+
+/* ── CHECKLIST ── */
+.check-item{
+  display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.check-item:last-child{border-bottom:none}
+.check-box{
+  width:22px;height:22px;border-radius:6px;
+  border:1.5px solid var(--border2);
+  background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;margin-top:1px;
+  transition:all .15s;
+}
+.check-box.checked{background:var(--green);border-color:var(--green)}
+.check-box.checked::after{content:'✓';font-size:12px;color:white;font-weight:700}
+.check-text{font-size:13px;color:var(--text);line-height:1.4}
+.check-text.done{color:var(--text3);text-decoration:line-through}
+.check-tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.check-tag{
+  font-size:10px;padding:2px 7px;border-radius:20px;
+  background:var(--surface2);color:var(--text3);
+  display:inline-flex;align-items:center;gap:3px;
+}
+.check-tag.photo{background:var(--blue-bg);color:var(--blue)}
+.check-tag.verify{background:var(--amber-bg);color:var(--amber)}
+
+/* ── DELAY FORM ── */
+.form-field{margin-bottom:14px}
+.form-label{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.form-input{
+  width:100%;padding:10px 12px;
+  border:1px solid var(--border2);border-radius:8px;
+  background:var(--surface2);color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:13px;outline:none;
+  transition:border-color .15s;
+}
+.form-input:focus{border-color:var(--gold)}
+textarea.form-input{resize:vertical;min-height:80px;line-height:1.5}
+select.form-input option{background:var(--surface2)}
+
+/* ── STAT STRIP ── */
+.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat-cell{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--gold);line-height:1}
+.stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+.empty-msg{font-size:13px;line-height:1.5}
+
+/* ── MODAL ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.7);z-index:200;
+  align-items:flex-end;justify-content:center;
+  padding:0;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:20px 20px 0 0;
+  width:100%;max-width:520px;
+  padding:1.5rem;
+  max-height:90vh;overflow-y:auto;
+}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;margin-bottom:1.25rem;letter-spacing:.02em}
+.modal-footer{display:flex;gap:8px;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+
+/* ── LOADING ── */
+#loading{
+  position:fixed;inset:0;background:var(--bg);z-index:300;
+  display:flex;align-items:center;justify-content:center;
+}
+#loading.hidden{display:none}
+.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── PRINT ── */
+@media print {
+  .no-print{display:none!important}
+  body{background:white;color:#111}
+  .print-sheet{display:block!important}
+}
+.print-sheet{display:none}
+
+
+/* Countdown */
+.countdown-pill {
+  display: inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;
+  margin-top:5px;
+}
+.countdown-pill.ok{background:var(--green-bg);color:var(--green)}
+.countdown-pill.warning{background:var(--amber-bg);color:var(--amber)}
+.countdown-pill.overdue{background:var(--red-bg);color:var(--red);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.stage-item.overdue-stage{border-color:var(--red)!important;background:var(--red-bg)!important}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--surface2);color:var(--text);
+  border:1px solid var(--border2);border-radius:10px;
+  padding:10px 18px;font-size:13px;
+  z-index:500;opacity:0;transition:opacity .2s;pointer-events:none;
+  white-space:nowrap;
+}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <div style="text-align:center">
+    <div style="width:40px;height:40px;background:var(--gold);border-radius:9px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+      <svg width="20" height="20" viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="#0F0F0D"/></svg>
+    </div>
+    <div class="spinner" style="margin:0 auto"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════ -->
+<div class="screen active" id="screen-login">
+  <div class="login-logo">
+    <div class="login-mark">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="#0F0F0D"/></svg>
+    </div>
+    <span class="login-brand">FieldOps</span>
+  </div>
+  <div class="login-card">
+    <div class="login-title">Foreman Sign In</div>
+    <div class="login-sub">Enter your name and PIN to access your assigned jobs.</div>
+    <div class="lf">
+      <label>Full name</label>
+      <input type="text" id="l-name" placeholder="First Last" autocomplete="name" />
+    </div>
+    <div class="lf">
+      <label>PIN</label>
+      <input type="password" id="l-pin" placeholder="••••" inputmode="numeric" maxlength="8"
+        onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <div class="login-err" id="l-err"></div>
+    <button class="btn-login" id="btn-login" onclick="doLogin()">Sign In</button>
+    <div class="login-hint">Contact your project manager if you need your PIN.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MAIN APP SCREEN
+══════════════════════════════════ -->
+<div class="screen" id="screen-app">
+
+  <!-- TOP BAR -->
+  <div class="topbar no-print">
+    <div class="tb-left">
+      <div class="tb-mark">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="#0F0F0D"/></svg>
+      </div>
+      <div class="tb-info">
+        <div class="tb-name" id="tb-name">—</div>
+        <div class="tb-job" id="tb-job">Loading…</div>
+      </div>
+    </div>
+    <div class="tb-right">
+      <span class="tb-badge">Foreman</span>
+      <button class="btn-icon" onclick="doLogout()" title="Sign out">⏏</button>
+    </div>
+  </div>
+
+  <!-- TAB: MY JOB -->
+  <div class="main" id="tab-job">
+    <div class="ph">
+      <div class="ph-title">My Jobs</div>
+      <div class="ph-sub" id="job-address-sub">All assigned projects</div>
+    </div>
+    <div class="stat-strip" id="job-stats"></div>
+    <div class="ph-title" style="font-size:18px;margin-bottom:10px">Stages</div>
+    <div id="stages-list"></div>
+  </div>
+
+  <!-- TAB: DELAYS -->
+  <div class="main" id="tab-delays" style="display:none">
+    <div class="ph">
+      <div class="ph-title">Log a Delay</div>
+      <div class="ph-sub">Report anything slowing down the job.</div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="form-field">
+          <label class="form-label">Project</label>
+          <select class="form-input" id="d-job-sel"></select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Delay type</label>
+          <select class="form-input" id="d-type">
+            <option value="weather">🌧 Weather</option>
+            <option value="material">📦 Material / Delivery</option>
+            <option value="labor">👷 Labor / Crew</option>
+            <option value="inspection">📋 Inspection</option>
+            <option value="design">📐 Design / Plan change</option>
+            <option value="other">⚠️ Other</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Description</label>
+          <textarea class="form-input" id="d-desc" placeholder="Describe the delay in detail…"></textarea>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Days lost (estimated schedule impact)</label>
+          <input class="form-input" type="number" id="d-days" placeholder="0" min="0" step="0.5" />
+        </div>
+        <button class="btn btn-primary btn-full" onclick="submitDelay()">Submit Delay Report</button>
+      </div>
+    </div>
+    <div class="ph-title" style="font-size:18px;margin:16px 0 10px">Recent Delays</div>
+    <div id="delays-list"></div>
+  </div>
+
+  <!-- TAB: PRINT -->
+  <div class="main" id="tab-print" style="display:none">
+    <div class="ph">
+      <div class="ph-title">Print Checklist</div>
+      <div class="ph-sub">Generate a printable crew sheet for any project.</div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="form-field" id="p-job-wrap" style="display:none">
+          <label class="form-label">Project</label>
+          <select class="form-input" id="p-job-sel" onchange="switchPrintJob()"></select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Format</label>
+          <select class="form-input" id="p-format">
+            <option value="stage">By stage — all tasks for one stage</option>
+            <option value="day">By day — today's active tasks only</option>
+          </select>
+        </div>
+        <div class="form-field" id="p-stage-pick">
+          <label class="form-label">Select stage</label>
+          <select class="form-input" id="p-stage-select"></select>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="doPrint()">🖨 Print / Save PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav no-print">
+    <button class="nav-btn active" id="nav-job" onclick="switchTab('job')">
+      <span class="nav-icon">🏗</span>
+      <span class="nav-label">My Job</span>
+    </button>
+    <button class="nav-btn" id="nav-delays" onclick="switchTab('delays')">
+      <span class="nav-icon">
+        <span class="nav-dot">⚠️<span class="nav-dot-badge" id="delay-badge"></span></span>
+      </span>
+      <span class="nav-label">Delays</span>
+    </button>
+    <button class="nav-btn" id="nav-print" onclick="switchTab('print')">
+      <span class="nav-icon">🖨</span>
+      <span class="nav-label">Print</span>
+    </button>
+  </nav>
+
+</div><!-- /screen-app -->
+
+<!-- ══════════════════════════════════
+     STAGE DETAIL MODAL
+══════════════════════════════════ -->
+<div class="modal-overlay" id="stage-modal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
+      <div>
+        <div class="modal-title" id="sm-name">—</div>
+        <span class="badge" id="sm-badge">—</span>
+      </div>
+      <button class="btn-icon" onclick="closeStageModal()">✕</button>
+    </div>
+    <div id="sm-payout" style="font-size:12px;color:var(--text2);margin-bottom:12px"></div>
+    <div id="sm-locked-msg" style="display:none;text-align:center;padding:2rem;color:var(--text3)">
+      🔒<br><br>This stage is locked.<br>Complete and get approval on the previous stage first.
+    </div>
+    <div id="sm-content">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Checklist</div>
+      <div id="sm-checklist"></div>
+      <div id="sm-drive-link" style="margin:12px 0;display:none">
+        <a id="sm-drive-a" href="#" target="_blank" class="btn btn-secondary btn-full btn-sm">📁 Upload Photos to Drive</a>
+      </div>
+      <div id="sm-actions" style="margin-top:14px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRINTABLE SHEET (hidden until print) -->
+<div id="print-area" style="display:none"></div>
+
+<script>
+// ══════════════════════════════════
+// CONFIG
+// ══════════════════════════════════
+const SB_URL = "https://renltrbierztynzlbige.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlbmx0cmJpZXJ6dHluemxiaWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDA5NTUsImV4cCI6MjA5MjM3Njk1NX0.7KLzXIXKFh8kbZIUxT0W9JWbWEJdOe21D8nGCM4FwN4";
+const REST = SB_URL + "/rest/v1";
+const H = {"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY};
+
+// ── fetch helpers ──
+async function sbGet(table, qs="") {
+  const r = await fetch(`${REST}/${table}?${qs}`, {headers:H});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbPost(table, body, prefer="return=representation") {
+  const r = await fetch(`${REST}/${table}`, {method:"POST",headers:{...H,"Prefer":prefer},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(await r.text());
+  const t = await r.text(); return t ? JSON.parse(t) : null;
+}
+async function sbPatch(table, qs, body) {
+  const r = await fetch(`${REST}/${table}?${qs}`,{method:"PATCH",headers:{...H,"Prefer":"return=representation"},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(await r.text());
+  const t = await r.text(); return t ? JSON.parse(t) : null;
+}
+async function sbUpsert(table, body) {
+  const r = await fetch(`${REST}/${table}`,{method:"POST",headers:{...H,"Prefer":"resolution=merge-duplicates,return=representation"},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(await r.text());
+  const t = await r.text(); return t ? JSON.parse(t) : null;
+}
+
+// ══════════════════════════════════
+// STATE
+// ══════════════════════════════════
+let me = null;          // foreman row
+let myJobs = [];         // all assigned jobs
+let myJob = null;        // currently selected job
+let myStages = [];
+let currentStage = null;
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  const saved = sessionStorage.getItem('fo_foreman');
+  if (saved) {
+    try {
+      me = JSON.parse(saved);
+      await bootApp();
+      return;
+    } catch(e) {
+      console.error('bootApp error:', e);
+      sessionStorage.removeItem('fo_foreman');
+      hide('loading');
+      show('screen-login');
+    }
+    return;
+  }
+  hide('loading');
+});
+
+// ══════════════════════════════════
+// LOGIN
+// ══════════════════════════════════
+async function doLogin() {
+  const name = val('l-name').trim();
+  const pin = val('l-pin').trim();
+  if (!name || !pin) { loginErr('Please enter your name and PIN.'); return; }
+
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = 'Checking…';
+  document.getElementById('l-err').classList.remove('show');
+
+  try {
+    const rows = await sbGet('fo_foremen', `pin=eq.${encodeURIComponent(pin)}&select=*`);
+    const match = (rows||[]).find(r => r.name.trim().toLowerCase() === name.toLowerCase());
+    if (!match) { loginErr('Name or PIN not found. Try again.'); btn.disabled=false; btn.textContent='Sign In'; return; }
+    me = match;
+    sessionStorage.setItem('fo_foreman', JSON.stringify(me));
+    await bootApp();
+  } catch(ex) {
+    loginErr('Connection error: ' + ex.message);
+    btn.disabled=false; btn.textContent='Sign In';
+  }
+}
+
+function loginErr(msg) {
+  const el = document.getElementById('l-err');
+  el.textContent = msg; el.classList.add('show');
+}
+
+function doLogout() {
+  sessionStorage.removeItem('fo_foreman');
+  location.reload();
+}
+
+// ══════════════════════════════════
+// BOOT
+// ══════════════════════════════════
+async function bootApp() {
+  show('screen-app'); hide('screen-login');
+  document.getElementById('tb-name').textContent = me.name;
+
+  try {
+    const assigns = await sbGet('fo_assignments', `foreman_id=eq.${me.id}&select=job_id`);
+    if (!assigns || assigns.length === 0) {
+      document.getElementById('tb-job').textContent = 'No jobs assigned';
+      document.getElementById('job-address-sub').textContent = 'Contact your PM to be assigned to a job.';
+      hide('loading'); return;
+    }
+    const jobIds = assigns.map(a => a.job_id);
+    myJobs = await sbGet('fo_jobs', `id=in.(${jobIds.join(',')})&select=*`);
+    if (!myJobs.length) { hide('loading'); return; }
+    myJob = myJobs[0]; // keep a reference for delays/print default
+    // Show all jobs in topbar
+    const tb = document.getElementById('tb-job');
+    tb.textContent = myJobs.length === 1 ? myJobs[0].name : myJobs.length + ' projects';
+    document.getElementById('job-address-sub').textContent =
+      myJobs.length === 1 ? (myJobs[0].address || '') : 'Showing all assigned projects';
+    await Promise.allSettled([loadStages(), loadDelays()]);
+    buildPrintPicker();
+    populateDelayJobSelect();
+  } catch(ex) {
+    document.getElementById('tb-job').textContent = 'Error: ' + ex.message;
+    console.error('bootApp error:', ex);
+  }
+  hide('loading');
+}
+
+function populateDelayJobSelect() {
+  const sel = document.getElementById('d-job-sel');
+  if (!sel) return;
+  sel.innerHTML = myJobs.map(j => `<option value="${j.id}" ${myJob&&myJob.id===j.id?'selected':''}>${j.name}</option>`).join('');
+}
+
+// ══════════════════════════════════
+// STAGES — load across ALL assigned jobs
+// ══════════════════════════════════
+async function loadStages() {
+  if (!myJobs.length) { myStages=[]; renderStages(); renderStats(); return; }
+  try {
+    const ids = myJobs.map(j => j.id).filter(Boolean);
+    if (!ids.length) { myStages=[]; renderStages(); renderStats(); return; }
+    // Supabase REST: single order param with comma-separated columns
+    myStages = await sbGet('fo_stages',
+      `job_id=in.(${ids.join(',')})&order=job_id.asc,order_index.asc&select=*`
+    );
+    if (!Array.isArray(myStages)) myStages = [];
+  } catch(ex) {
+    console.error('loadStages error:', ex);
+    myStages = [];
+  }
+  renderStages();
+  renderStats();
+}
+
+function renderStats() {
+  const done   = myStages.filter(s => s.status === 'approved').length;
+  const active = myStages.filter(s => s.status === 'active' || s.status === 'pending_approval').length;
+  const locked = myStages.filter(s => s.status === 'locked').length;
+  document.getElementById('job-stats').innerHTML = `
+    <div class="stat-cell"><div class="stat-num">${done}</div><div class="stat-lbl">Approved</div></div>
+    <div class="stat-cell"><div class="stat-num" style="color:var(--gold)">${active}</div><div class="stat-lbl">In Progress</div></div>
+    <div class="stat-cell"><div class="stat-num" style="color:var(--text3)">${locked}</div><div class="stat-lbl">Locked</div></div>
+  `;
+}
+
+function renderStages() {
+  const el = document.getElementById('stages-list');
+  if (!myStages.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-msg">No stages set up yet.<br>Contact your PM.</div></div>';
+    return;
+  }
+
+  // Build a job lookup map
+  const jobMap = Object.fromEntries(myJobs.map(j => [j.id, j]));
+  const showHeaders = myJobs.length > 1;
+
+  // Group stages by job_id, preserving order
+  const grouped = [];
+  let lastJobId = null;
+  myStages.forEach(s => {
+    if (s.job_id !== lastJobId) {
+      grouped.push({ job: jobMap[s.job_id] || {name:'Unknown project', id:s.job_id}, stages: [] });
+      lastJobId = s.job_id;
+    }
+    grouped[grouped.length - 1].stages.push(s);
+  });
+
+  let html = '';
+  grouped.forEach(({ job, stages }) => {
+    // Job header — only shown when foreman has multiple jobs
+    if (showHeaders) {
+      html += `<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;
+        color:var(--gold);margin:18px 0 8px;display:flex;align-items:center;gap:8px">
+        <span>📍 ${job.name}</span>
+        <span style="font-weight:400;color:var(--text3)">${job.address||''}</span>
+      </div>`;
+    }
+    stages.forEach(s => {
+      const isActive = s.status === 'active' || s.status === 'pending_approval';
+      const icon = s.status === 'approved' ? '✅'
+        : s.status === 'locked' ? '🔒'
+        : s.status === 'pending_approval' ? '⏳' : '▶️';
+      const badge = statusBadge(s.status);
+      const countdown = buildCountdown(s);
+      const isOverdue = s.deadline_date && new Date(s.deadline_date) < new Date() && s.status === 'active';
+      html += `<div class="stage-item ${isActive?'active-stage':''} ${isOverdue?'overdue-stage':''}" onclick="openStage('${s.id}')">
+        <div>
+          <div class="stage-name">${isOverdue ? '🚨 ' : ''}${s.name}</div>
+          <div class="stage-meta">
+            ${s.payout > 0 ? '$' + Number(s.payout).toFixed(2) + ' payout · ' : ''}
+            <span class="badge ${badge.cls}">${badge.label}</span>
+          </div>
+          ${countdown}
+        </div>
+        <div class="stage-lock">${icon}</div>
+      </div>`;
+    });
+  });
+  el.innerHTML = html;
+}
+
+function buildCountdown(stage) {
+  if (!stage.deadline_date || stage.status === 'approved' || stage.status === 'locked') return '';
+  const now = new Date();
+  const dl = new Date(stage.deadline_date);
+  const diff = Math.ceil((dl - now) / 86400000);
+  if (diff < 0) return `<div class="countdown-pill overdue">🚨 ${Math.abs(diff)} day${Math.abs(diff)!==1?'s':''} overdue — submit ASAP</div>`;
+  if (diff === 0) return `<div class="countdown-pill overdue">🚨 Due today — submit for approval</div>`;
+  if (diff <= 2) return `<div class="countdown-pill warning">⚠️ ${diff} day${diff!==1?'s':''} left</div>`;
+  return `<div class="countdown-pill ok">📅 ${diff} days until deadline</div>`;
+}
+
+function statusBadge(status) {
+  return {
+    locked:   {cls:'b-gray',  label:'Locked'},
+    active:   {cls:'b-gold',  label:'In Progress'},
+    pending_approval: {cls:'b-amber', label:'Awaiting Approval'},
+    approved: {cls:'b-green', label:'Approved'},
+  }[status] || {cls:'b-gray',label:status};
+}
+
+// ══════════════════════════════════
+// STAGE MODAL
+// ══════════════════════════════════
+async function openStage(id) {
+  const stage = myStages.find(s=>s.id===id);
+  if (!stage) return;
+  currentStage = stage;
+
+  document.getElementById('sm-name').textContent = stage.name;
+  const b = statusBadge(stage.status);
+  document.getElementById('sm-badge').className = 'badge '+b.cls;
+  document.getElementById('sm-badge').textContent = b.label;
+  document.getElementById('sm-payout').textContent = stage.payout>0 ? 'Stage payout: $'+Number(stage.payout).toFixed(2) : '';
+
+  if (stage.status==='locked') {
+    show('sm-locked-msg'); hide('sm-content');
+  } else {
+    hide('sm-locked-msg'); show('sm-content');
+    // Load checklist
+    const items = await sbGet('fo_checklist', `stage_id=eq.${stage.id}&order=order_index.asc&select=*`);
+    renderChecklist(items, stage.status);
+    // Drive link
+    if (stage.drive_link) {
+      document.getElementById('sm-drive-a').href = stage.drive_link;
+      show('sm-drive-link');
+    } else { hide('sm-drive-link'); }
+    renderStageActions(stage, items);
+  }
+
+  document.getElementById('stage-modal').classList.add('open');
+}
+
+function renderChecklist(items, stageStatus) {
+  const el = document.getElementById('sm-checklist');
+  if (!items.length) { el.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0">No checklist items for this stage.</div>'; return; }
+  const canCheck = stageStatus==='active';
+  el.innerHTML = items.map(item => `
+    <div class="check-item">
+      <div class="check-box ${item.completed?'checked':''}"
+        ${canCheck?`onclick="toggleCheck('${item.id}',${!item.completed})"`:''} ></div>
+      <div style="width:100%">
+        <div class="check-text ${item.completed?'done':''}">${item.task}</div>
+        ${item.admin_reminder?`<div style="font-size:11px;color:#A07820;background:rgba(200,151,58,0.12);border-radius:5px;padding:5px 8px;margin-top:5px;line-height:1.5">🔍 ${item.admin_reminder}</div>`:''}
+        <div class="check-tags">
+          ${item.requires_photo?'<span class="check-tag photo">📷 Photo required</span>':''}
+          ${item.foreman_must_verify?'<span class="check-tag verify">✅ Foreman verify</span>':''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderStageActions(stage, items) {
+  const el = document.getElementById('sm-actions');
+  const allDone = items.length>0 && items.every(i=>i.completed);
+
+  if (stage.status==='active') {
+    el.innerHTML = `
+      <button class="btn btn-success btn-full ${allDone?'':''}${!allDone?'':''}
+        " onclick="requestApproval()" ${allDone?'':'disabled'}>
+        ${allDone?'✅ Request Approval':'Complete all checklist items first'}
+      </button>`;
+  } else if (stage.status==='pending_approval') {
+    el.innerHTML = `<div style="text-align:center;padding:12px;color:var(--amber);font-size:13px">⏳ Waiting for admin approval…</div>`;
+  } else if (stage.status==='approved') {
+    el.innerHTML = `<div style="text-align:center;padding:12px;color:var(--green);font-size:13px">✅ Stage approved and complete.</div>`;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+async function toggleCheck(itemId, newVal) {
+  try {
+    await sbPatch('fo_checklist', `id=eq.${itemId}`, {
+      completed: newVal,
+      completed_at: newVal ? new Date().toISOString() : null,
+      completed_by: me.name
+    });
+    // Reload stage modal
+    await openStage(currentStage.id);
+  } catch(ex) { toast('Error saving: '+ex.message); }
+}
+
+async function requestApproval() {
+  try {
+    // Use the stage's own job_id — works correctly for multi-job foremen
+    await sbPost('fo_approvals', {
+      stage_id: currentStage.id,
+      job_id: currentStage.job_id,
+      foreman_id: me.id,
+      foreman_name: me.name,
+      status: 'pending'
+    });
+    await sbPatch('fo_stages', `id=eq.${currentStage.id}`, {status:'pending_approval'});
+    await loadStages();
+    closeStageModal();
+    toast('Approval requested! Admin has been notified.');
+  } catch(ex) { toast('Error: '+ex.message); }
+}
+
+function closeStageModal() {
+  document.getElementById('stage-modal').classList.remove('open');
+  currentStage = null;
+}
+
+// ══════════════════════════════════
+// DELAYS
+// ══════════════════════════════════
+async function loadDelays() {
+  if (!myJobs.length) return;
+  const ids = myJobs.map(j=>j.id);
+  const delays = await sbGet('fo_delays', `job_id=in.(${ids.join(',')})&order=created_at.desc&limit=20&select=*`);
+  renderDelays(delays);
+}
+
+function renderDelays(delays) {
+  const el = document.getElementById('delays-list');
+  if (!delays.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-msg">No delays reported yet.</div></div>'; return; }
+  const typeLabels = {weather:'🌧 Weather',material:'📦 Material',labor:'👷 Labor',inspection:'📋 Inspection',design:'📐 Design',other:'⚠️ Other'};
+  const jobMap = Object.fromEntries(myJobs.map(j=>[j.id,j.name]));
+  el.innerHTML = delays.map(d=>`
+    <div class="card">
+      <div class="card-hd">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span class="badge b-amber">${typeLabels[d.delay_type]||d.delay_type}</span>
+          ${myJobs.length>1&&jobMap[d.job_id]?`<span class="badge b-gray">${jobMap[d.job_id]}</span>`:''}
+        </div>
+        <span style="font-size:11px;color:var(--text3)">${fmtDate(d.created_at)}</span>
+      </div>
+      <div class="card-body">
+        <div style="font-size:13px;margin-bottom:4px">${d.description}</div>
+        ${d.days_lost>0?`<div style="font-size:11px;color:var(--text3)">${d.days_lost} day${d.days_lost!==1?'s':''} lost</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+
+async function submitDelay() {
+  const jobId = val('d-job-sel') || (myJob && myJob.id);
+  const type = val('d-type');
+  const desc = val('d-desc').trim();
+  const days = parseFloat(val('d-days'))||0;
+  if (!desc) { toast('Please describe the delay.'); return; }
+  if (!jobId) { toast('Please select a project.'); return; }
+  try {
+    await sbPost('fo_delays', {
+      job_id: jobId,
+      foreman_id: me.id,
+      foreman_name: me.name,
+      delay_type: type,
+      description: desc,
+      days_lost: days,
+      resolved: false
+    });
+    document.getElementById('d-desc').value='';
+    document.getElementById('d-days').value='';
+    await loadDelays();
+    toast('Delay reported.');
+  } catch(ex) { toast('Error: '+ex.message); }
+}
+
+
+// ── Build the print stage picker whenever job/stages change ──
+function buildPrintPicker() {
+  const sel = document.getElementById('p-stage-select');
+  if (!sel) return;
+  if (!myStages || !myStages.length) {
+    sel.innerHTML = '<option value="">No stages available</option>';
+    return;
+  }
+  const jobMap = Object.fromEntries(myJobs.map(j => [j.id, j.name]));
+  sel.innerHTML = myStages.map(s => {
+    const statusLabel = s.status === 'approved' ? '✅ Done' : s.status === 'active' ? '▶ Active' : '🔒 Locked';
+    const jobLabel = myJobs.length > 1 && jobMap[s.job_id] ? ` · ${jobMap[s.job_id]}` : '';
+    return `<option value="${s.id}">${s.name}${jobLabel} (${statusLabel})</option>`;
+  }).join('');
+  // Also add a job picker to the print tab if multiple jobs
+  const printJobWrap = document.getElementById('p-job-wrap');
+  if (printJobWrap) {
+    if (myJobs.length > 1) {
+      printJobWrap.style.display = '';
+      document.getElementById('p-job-sel').innerHTML = myJobs.map(j =>
+        `<option value="${j.id}" ${myJob && myJob.id===j.id?'selected':''}>${j.name}</option>`
+      ).join('');
+    } else {
+      printJobWrap.style.display = 'none';
+    }
+  }
+  // Update p-format change handler
+  const fmt = document.getElementById('p-format');
+  const stagePick = document.getElementById('p-stage-pick');
+  if (fmt && stagePick) {
+    fmt.onchange = () => { stagePick.style.display = fmt.value === 'stage' ? '' : 'none'; };
+  }
+}
+
+async function switchPrintJob() {
+  const sel = document.getElementById('p-job-sel');
+  if (!sel) return;
+  const jid = sel.value;
+  const job = myJobs.find(j => j.id === jid);
+  if (job) {
+    myJob = job;
+    await loadStages();
+    buildPrintPicker();
+  }
+}
+
+async function doPrint() {
+  const format = val('p-format');
+  const area = document.getElementById('print-area');
+
+  if (!myJob) { toast('No project selected.'); return; }
+
+  // If print tab has a job selector, switch job first
+  const printJobSel = document.getElementById('p-job-sel');
+  if (printJobSel && printJobSel.value && printJobSel.value !== myJob.id) {
+    await switchPrintJob();
+  }
+
+  let content = '';
+  if (format === 'stage') {
+    const stageId = val('p-stage-select');
+    if (!stageId) { toast('Select a stage to print.'); return; }
+    const stage = myStages.find(s => s.id === stageId);
+    if (!stage) { toast('Stage not found.'); return; }
+    const items = await sbGet('fo_checklist', `stage_id=eq.${stageId}&order=order_index.asc&select=*`);
+    content = buildStageSheet(stage, items);
+  } else {
+    const active = myStages.find(s => s.status === 'active');
+    if (!active) { toast("No active stage found for today's sheet."); return; }
+    const items = await sbGet('fo_checklist', `stage_id=eq.${active.id}&order=order_index.asc&select=*`);
+    content = buildDaySheet(active, items);
+  }
+
+  // Open in new window so @page print CSS applies correctly
+  const win = window.open('', '_blank', 'width=800,height=900');
+  win.document.write(content);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); }, 400);
+}
+
+function printStyles() {
+  return `
+    <style>
+      @page { margin: 0.75in; size: letter portrait; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10pt; color: #111; line-height: 1.4; }
+      .sheet { max-width: 100%; }
+      /* Header */
+      .sh-header { border-bottom: 2pt solid #111; padding-bottom: 10px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: flex-end; }
+      .sh-company { font-size: 7pt; text-transform: uppercase; letter-spacing: .12em; color: #555; font-weight: 600; }
+      .sh-title { font-size: 17pt; font-weight: 700; letter-spacing: -.3px; margin: 3px 0 2px; line-height: 1.1; }
+      .sh-sub { font-size: 9pt; color: #444; }
+      .sh-meta { text-align: right; font-size: 7.5pt; color: #777; line-height: 1.6; }
+      /* Info strip */
+      .sh-info { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: #ddd; border: 1px solid #ddd; margin-bottom: 14px; }
+      .sh-info-cell { background: #fff; padding: 7px 10px; }
+      .sh-info-label { font-size: 6.5pt; text-transform: uppercase; letter-spacing: .1em; color: #888; font-weight: 600; margin-bottom: 2px; }
+      .sh-info-val { font-size: 9pt; font-weight: 600; color: #111; }
+      /* Section head */
+      .sh-section { font-size: 7pt; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; color: #555; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin: 14px 0 8px; }
+      /* Notice box */
+      .sh-notice { border-left: 3pt solid #111; padding: 7px 10px; background: #f7f7f7; font-size: 8.5pt; margin-bottom: 12px; color: #333; }
+      .sh-notice strong { font-weight: 700; }
+      /* Checklist item */
+      .sh-item { display: grid; grid-template-columns: 14px 1fr; gap: 8px; padding: 7px 0; border-bottom: .5pt solid #e0e0e0; page-break-inside: avoid; }
+      .sh-item:last-child { border-bottom: none; }
+      .sh-box { width: 14px; height: 14px; border: 1.5pt solid #555; margin-top: 1px; flex-shrink: 0; }
+      .sh-box.done { background: #111; border-color: #111; position: relative; }
+      .sh-box.done::after { content: ''; position: absolute; left: 2px; top: -1px; width: 5px; height: 9px; border-right: 2pt solid #fff; border-bottom: 2pt solid #fff; transform: rotate(40deg); }
+      .sh-task { font-size: 9.5pt; font-weight: 600; color: #111; margin-bottom: 2px; }
+      .sh-task.done { color: #888; text-decoration: line-through; font-weight: 400; }
+      .sh-note { font-size: 8pt; color: #555; margin: 3px 0 3px; line-height: 1.45; font-style: italic; padding-left: 8px; border-left: 1.5pt solid #bbb; }
+      .sh-flags { display: flex; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
+      .sh-flag { font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 1px 6px; border: 1pt solid; }
+      .sh-flag.photo { color: #1a5ca8; border-color: #1a5ca8; }
+      .sh-flag.verify { color: #2e7d32; border-color: #2e7d32; }
+      /* Payout row */
+      .sh-payout { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border: 1pt solid #ccc; background: #f9f9f9; margin-bottom: 12px; font-size: 9pt; }
+      .sh-payout-label { color: #555; }
+      .sh-payout-val { font-weight: 700; font-size: 11pt; }
+      /* Signatures */
+      .sh-sigs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 18px; padding-top: 14px; border-top: 1.5pt solid #111; }
+      .sh-sig-label { font-size: 6.5pt; text-transform: uppercase; letter-spacing: .1em; color: #666; font-weight: 600; margin-bottom: 22px; }
+      .sh-sig-line { border-bottom: 1pt solid #555; margin-bottom: 4px; }
+      .sh-sig-sub { font-size: 7pt; color: #888; }
+      /* Footer */
+      .sh-footer { margin-top: 14px; font-size: 7pt; color: #999; display: flex; justify-content: space-between; border-top: .5pt solid #ddd; padding-top: 6px; }
+    </style>`;
+}
+
+function buildStageSheet(stage, items) {
+  const job = myJobs.find(j => j.id === stage.job_id) || myJob || {};
+  const printed = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const hasItems = items.length > 0;
+  const photoItems = items.filter(i => i.requires_photo).length;
+  const verifyItems = items.filter(i => i.foreman_must_verify).length;
+
+  const itemsHtml = hasItems ? items.map(item => `
+    <div class="sh-item">
+      <div class="sh-box"></div>
+      <div>
+        <div class="sh-task">${item.task}</div>
+        ${item.admin_reminder ? `<div class="sh-note">${item.admin_reminder}</div>` : ''}
+        ${(item.requires_photo || item.foreman_must_verify) ? `
+        <div class="sh-flags">
+          ${item.requires_photo ? '<span class="sh-flag photo">Photo Required</span>' : ''}
+          ${item.foreman_must_verify ? '<span class="sh-flag verify">Foreman Sign-Off</span>' : ''}
+        </div>` : ''}
+      </div>
+    </div>`).join('') : '<div style="font-size:9pt;color:#888;padding:8px 0">No checklist items have been added to this stage.</div>';
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">${printStyles()}</head><body>
+  <div class="sheet">
+    <div class="sh-header">
+      <div>
+        <div class="sh-company">Sweet Tea Build &mdash; Stage Checklist</div>
+        <div class="sh-title">${stage.name}</div>
+        <div class="sh-sub">${job.name || ''}${job.address ? ' &nbsp;&bull;&nbsp; ' + job.address : ''}</div>
+      </div>
+      <div class="sh-meta">
+        Printed: ${printed}<br>
+        Foreman: ${me ? me.name : ''}
+      </div>
+    </div>
+
+    <div class="sh-info">
+      <div class="sh-info-cell"><div class="sh-info-label">Stage</div><div class="sh-info-val">${stage.name}</div></div>
+      <div class="sh-info-cell"><div class="sh-info-label">Est. Duration</div><div class="sh-info-val">${stage.estimated_days > 0 ? stage.estimated_days + ' working days' : '&mdash;'}</div></div>
+      <div class="sh-info-cell"><div class="sh-info-label">Stage Payout</div><div class="sh-info-val">${stage.payout > 0 ? '$' + Number(stage.payout).toFixed(2) : '&mdash;'}</div></div>
+    </div>
+
+    <div class="sh-notice">
+      <strong>Required before requesting approval:</strong> All items below must be checked off. Items marked "Photo Required" must have photos uploaded to the project Drive folder. Items marked "Foreman Sign-Off" require your personal verification on site before proceeding.
+    </div>
+
+    <div class="sh-section">Checklist &mdash; ${items.length} item${items.length !== 1 ? 's' : ''}${photoItems > 0 ? ' &nbsp;/&nbsp; ' + photoItems + ' photo' + (photoItems > 1 ? 's' : '') + ' required' : ''}${verifyItems > 0 ? ' &nbsp;/&nbsp; ' + verifyItems + ' foreman sign-off' + (verifyItems > 1 ? 's' : '') : ''}</div>
+    ${itemsHtml}
+
+    <div class="sh-sigs">
+      <div>
+        <div class="sh-sig-label">Foreman Signature</div>
+        <div class="sh-sig-line"></div>
+        <div class="sh-sig-sub">Print name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+      </div>
+      <div>
+        <div class="sh-sig-label">PM / Owner Approval</div>
+        <div class="sh-sig-line"></div>
+        <div class="sh-sig-sub">Print name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+      </div>
+      <div>
+        <div class="sh-sig-label">Stage Approved</div>
+        <div class="sh-sig-line"></div>
+        <div class="sh-sig-sub">Initials &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+      </div>
+    </div>
+
+    <div class="sh-footer">
+      <span>Sweet Tea Build &mdash; Field Operations</span>
+      <span>${job.name || ''} &mdash; ${stage.name} &mdash; ${printed}</span>
+    </div>
+  </div>
+  </body></html>`;
+}
+
+function buildDaySheet(stage, items) {
+  const job = myJobs.find(j => j.id === stage.job_id) || myJob || {};
+  const today = new Date();
+  const todayLong = today.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const todayShort = today.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  const pending = items.filter(i => !i.completed);
+  const done = items.filter(i => i.completed);
+  const photoItems = pending.filter(i => i.requires_photo).length;
+
+  const pendingHtml = pending.length ? pending.map(item => `
+    <div class="sh-item">
+      <div class="sh-box"></div>
+      <div>
+        <div class="sh-task">${item.task}</div>
+        ${item.admin_reminder ? `<div class="sh-note">${item.admin_reminder}</div>` : ''}
+        ${(item.requires_photo || item.foreman_must_verify) ? `
+        <div class="sh-flags">
+          ${item.requires_photo ? '<span class="sh-flag photo">Photo Required</span>' : ''}
+          ${item.foreman_must_verify ? '<span class="sh-flag verify">Foreman Sign-Off</span>' : ''}
+        </div>` : ''}
+      </div>
+    </div>`).join('') : '<div style="font-size:9pt;color:#555;padding:8px 0;font-style:italic">All items for this stage are marked complete.</div>';
+
+  const doneHtml = done.length ? done.map(item => `
+    <div class="sh-item">
+      <div class="sh-box done"></div>
+      <div><div class="sh-task done">${item.task}</div></div>
+    </div>`).join('') : '';
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">${printStyles()}</head><body>
+  <div class="sheet">
+    <div class="sh-header">
+      <div>
+        <div class="sh-company">Sweet Tea Build &mdash; Daily Crew Sheet</div>
+        <div class="sh-title">${todayLong}</div>
+        <div class="sh-sub">${job.name || ''}${job.address ? ' &nbsp;&bull;&nbsp; ' + job.address : ''}</div>
+      </div>
+      <div class="sh-meta">
+        Foreman: ${me ? me.name : ''}<br>
+        Printed: ${todayShort}
+      </div>
+    </div>
+
+    <div class="sh-info">
+      <div class="sh-info-cell"><div class="sh-info-label">Current Stage</div><div class="sh-info-val">${stage.name}</div></div>
+      <div class="sh-info-cell"><div class="sh-info-label">Remaining Tasks</div><div class="sh-info-val">${pending.length} of ${items.length}</div></div>
+      <div class="sh-info-cell"><div class="sh-info-label">Stage Payout</div><div class="sh-info-val">${stage.payout > 0 ? '$' + Number(stage.payout).toFixed(2) + ' upon approval' : '&mdash;'}</div></div>
+    </div>
+
+    <div class="sh-notice">
+      <strong>Do not advance to the next stage</strong> until every item below is checked, all required photos are uploaded, and foreman sign-off is obtained on applicable items.
+    </div>
+
+    <div class="sh-section">Tasks Remaining &mdash; ${pending.length} item${pending.length !== 1 ? 's' : ''}${photoItems > 0 ? ' &nbsp;/&nbsp; ' + photoItems + ' photo' + (photoItems > 1 ? 's' : '') + ' required' : ''}</div>
+    ${pendingHtml}
+
+    ${done.length > 0 ? `
+    <div class="sh-section" style="margin-top:18px">Already Complete &mdash; ${done.length} item${done.length !== 1 ? 's' : ''}</div>
+    ${doneHtml}` : ''}
+
+    <div class="sh-sigs">
+      <div>
+        <div class="sh-sig-label">Foreman Signature</div>
+        <div class="sh-sig-line"></div>
+        <div class="sh-sig-sub">Print name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+      </div>
+      <div>
+        <div class="sh-sig-label">PM / Owner Approval</div>
+        <div class="sh-sig-line"></div>
+        <div class="sh-sig-sub">Print name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+      </div>
+      <div>
+        <div class="sh-sig-label">Stage Approved</div>
+        <div class="sh-sig-line"></div>
+        <div class="sh-sig-sub">Initials &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+      </div>
+    </div>
+
+    <div class="sh-footer">
+      <span>Sweet Tea Build &mdash; Field Operations</span>
+      <span>${job.name || ''} &mdash; ${stage.name} &mdash; ${todayShort}</span>
+    </div>
+  </div>
+  </body></html>`;
+}
+
+// ══════════════════════════════════
+// TABS
+// ══════════════════════════════════
+function switchTab(tab) {
+  ['job','delays','print'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===tab?'block':'none';
+    document.getElementById('nav-'+t).classList.toggle('active', t===tab);
+  });
+  if (tab==='delays') { populateDelayJobSelect(); loadDelays(); }
+  if (tab==='print') buildPrintPicker();
+}
+
+// ══════════════════════════════════
+// UTILS
+// ══════════════════════════════════
+function val(id) { return document.getElementById(id).value; }
+function show(id) { const el=document.getElementById(id); if(el){el.style.display='';el.classList.add('active')} }
+function hide(id) { const el=document.getElementById(id); if(el){el.style.display='none';el.classList.remove('active')} }
+function fmtDate(iso) {
+  if(!iso) return '';
+  return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+}
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// Close modal on backdrop click
+document.getElementById('stage-modal').addEventListener('click',function(e){
+  if(e.target===this) closeStageModal();
+});
+</script>
+</body>
+</html>

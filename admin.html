@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FieldOps · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F4F0;--card:#FFF;--s2:#FAFAF8;--border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);--text:#1A1A17;--text2:#6B6A66;--text3:#ABABAB;--gold:#B8822A;--gold-bg:#FBF3E4;--green:#3A7D4A;--green-bg:#E8F5EC;--red:#A83232;--red-bg:#FCEAEA;--blue:#2A5FA8;--blue-bg:#EAF0FB;--amber:#A86020;--amber-bg:#FBF0E4;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+#screen-login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--text);padding:2rem}
+.lw{width:100%;max-width:380px}
+.ll{display:flex;align-items:center;gap:12px;margin-bottom:2.5rem}
+.lm{width:40px;height:40px;background:var(--gold);border-radius:9px;display:flex;align-items:center;justify-content:center}
+.lm svg{width:20px;height:20px}
+.lb{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:white;letter-spacing:.05em}
+.lc{background:white;border-radius:14px;padding:2rem}
+.lt{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;margin-bottom:4px}
+.ls{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+.lf{margin-bottom:12px}
+.lf label{font-size:11px;color:var(--text3);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.lf input{width:100%;padding:10px 12px;border:1px solid var(--border2);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--s2);color:var(--text);outline:none}
+.lf input:focus{border-color:var(--gold)}
+.l-err{font-size:12px;color:var(--red);background:var(--red-bg);padding:8px 12px;border-radius:7px;margin-bottom:10px;display:none}
+.l-err.show{display:block}
+.btn-login{width:100%;padding:12px;background:var(--gold);color:white;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;letter-spacing:.05em;cursor:pointer;transition:opacity .15s}
+.btn-login:hover{opacity:.88}.btn-login:disabled{opacity:.45}
+.app{display:none;min-height:100vh}.app.active{display:flex}
+.sidebar{width:220px;flex-shrink:0;background:var(--text);min-height:100vh;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:20px 16px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sb-m{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-m svg{width:15px;height:15px}
+.sb-brand{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:white;letter-spacing:.05em;line-height:1.1}
+.sb-role{font-size:10px;color:#666;letter-spacing:.04em}
+.sb-nav{padding:12px 8px;flex:1}
+.sb-sec{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.08em;padding:8px 8px 4px}
+.sb-btn{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:none;background:none;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;color:#aaa;text-align:left;transition:all .15s;position:relative}
+.sb-btn:hover{background:rgba(255,255,255,0.06);color:white}
+.sb-btn.active{background:rgba(184,130,42,0.15);color:var(--gold)}
+.sb-icon{font-size:16px;width:20px;text-align:center}
+.sb-dot{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:var(--red);display:none}.sb-dot.show{display:block}
+.sb-footer{padding:12px 8px;border-top:1px solid rgba(255,255,255,0.08)}
+.sb-user{font-size:12px;color:#666;padding:6px 8px}.sb-user strong{color:#aaa;display:block}
+.content{flex:1;padding:2rem;overflow-x:hidden;min-width:0}
+.page{display:none}.page.active{display:block}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:12px}
+.pt{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;letter-spacing:.01em}
+.ps{font-size:13px;color:var(--text2);margin-top:3px}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.75rem}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.sn{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:700;line-height:1}
+.sn.gold{color:var(--gold)}.sn.green{color:var(--green)}.sn.red{color:var(--red)}
+.sl{font-size:11px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.tw{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.th{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.tt{font-size:14px;font-weight:500}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--s2)}
+td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}tr:hover td{background:var(--s2)}
+.badge{font-size:10px;font-weight:500;padding:3px 9px;border-radius:20px;display:inline-block;letter-spacing:.02em;white-space:nowrap}
+.b-gold{background:var(--gold-bg);color:var(--gold)}.b-green{background:var(--green-bg);color:var(--green)}.b-red{background:var(--red-bg);color:var(--red)}.b-blue{background:var(--blue-bg);color:var(--blue)}.b-amber{background:var(--amber-bg);color:var(--amber)}.b-gray{background:#EEECEA;color:var(--text3)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s;text-decoration:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--gold);color:white}.btn-primary:hover:not(:disabled){opacity:.85}
+.btn-secondary{background:var(--card);color:var(--text2);border:1px solid var(--border2)}.btn-secondary:hover:not(:disabled){background:var(--s2)}
+.btn-success{background:var(--green-bg);color:var(--green);border:1px solid rgba(58,125,74,0.2)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(168,50,50,0.2)}
+.btn-sm{padding:5px 11px;font-size:12px}.btn-full{width:100%;justify-content:center}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-start;justify-content:center;padding:2rem;overflow-y:auto}
+.mo.open{display:flex}
+.mp{background:var(--card);border-radius:14px;width:100%;max-width:560px;padding:2rem;max-height:90vh;overflow-y:auto;position:relative;margin:auto}
+.mp.wide{max-width:680px}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;margin-bottom:1.25rem}
+.mf{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+.ff{margin-bottom:14px}
+.fl{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.fi{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--s2);color:var(--text);outline:none}
+.fi:focus{border-color:var(--gold)}
+textarea.fi{resize:vertical;min-height:70px;line-height:1.5}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ac{background:var(--card);border:1px solid var(--border);border-left:3px solid transparent;border-radius:12px;padding:16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.ac:hover{border-color:var(--border2)}
+.ac.pending{border-left-color:var(--amber)}.ac.approved{border-left-color:var(--green)}.ac.rejected{border-left-color:var(--red)}
+.ac-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;gap:12px}
+.ac-job{font-size:14px;font-weight:500}.ac-stage{font-size:12px;color:var(--text2);margin-top:2px}
+.ac-meta{font-size:11px;color:var(--text3);margin-bottom:10px}
+.cl-item{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);align-items:start}
+.cl-item:last-child{border-bottom:none}
+.cl-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border2);background:var(--s2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:10px;font-weight:700}
+.cl-check.done{background:var(--green);border-color:var(--green);color:white}
+.cl-task{font-size:13px;line-height:1.4}
+.cl-tags{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap}
+.cl-tag{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--s2);color:var(--text3)}
+.cl-tag.photo{background:var(--blue-bg);color:var(--blue)}.cl-tag.verify{background:var(--amber-bg);color:var(--amber)}
+.admin-reminder{font-size:11px;color:#5B21B6;background:#F0EDF8;border-radius:5px;padding:4px 8px;margin-top:5px;line-height:1.4}
+.se-row{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;cursor:default;transition:box-shadow .15s}
+.se-row.dragging{opacity:.4}
+.se-row.drag-over{box-shadow:0 0 0 2px var(--gold);border-color:var(--gold)}
+.drag-handle{cursor:grab;color:var(--text3);padding:0 6px;font-size:16px;line-height:1;user-select:none;flex-shrink:0}
+.drag-handle:active{cursor:grabbing}
+.tmpl-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tmpl-name{font-size:14px;font-weight:500}.tmpl-meta{font-size:11px;color:var(--text3);margin-top:3px}
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3)}.empty-icon{font-size:36px;margin-bottom:10px}.empty-msg{font-size:13px;line-height:1.6}
+#loading{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;align-items:center;justify-content:center}
+#loading.hidden{display:none}
+.spinner{width:28px;height:28px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:white;border-radius:10px;padding:10px 18px;font-size:13px;z-index:500;opacity:0;transition:opacity .2s;pointer-events:none;max-width:320px}
+.toast.show{opacity:1}
+@media(max-width:900px){.sidebar{width:180px}.stat-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.app{flex-direction:column}.sidebar{width:100%;min-height:auto;height:auto;position:relative}.sb-nav{display:flex;flex-wrap:wrap;gap:4px;padding:8px}.sb-sec{display:none}.content{padding:1rem}.fr{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spinner"></div></div>
+<div class="toast" id="toast"></div>
+
+<div id="screen-login">
+  <div class="lw">
+    <div class="ll">
+      <div class="lm"><svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="white"/></svg></div>
+      <div><div class="lb">FieldOps Admin</div></div>
+    </div>
+    <div class="lc">
+      <div class="lt">Owner / PM Login</div>
+      <div class="ls">Enter your name and admin PIN to continue.</div>
+      <div class="lf"><label>Your name</label><input type="text" id="l-name" placeholder="First Last"/></div>
+      <div class="lf"><label>Admin PIN</label><input type="password" id="l-pin" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="l-err" id="l-err"></div>
+      <button class="btn-login" id="btn-login" onclick="doLogin()">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-m"><svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="white"/></svg></div>
+      <div><div class="sb-brand">FieldOps</div><div class="sb-role">Admin Dashboard</div></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-sec">Overview</div>
+      <button class="sb-btn active" id="nav-overview" onclick="showPage('overview')"><span class="sb-icon">📊</span>Overview</button>
+      <button class="sb-btn" id="nav-approvals" onclick="showPage('approvals')"><span class="sb-icon">✅</span>Approvals<span class="sb-dot" id="approvals-dot"></span></button>
+      <div class="sb-sec">Manage</div>
+      <button class="sb-btn" id="nav-jobs" onclick="showPage('jobs')"><span class="sb-icon">🏗</span>Jobs</button>
+      <button class="sb-btn" id="nav-foremen" onclick="showPage('foremen')"><span class="sb-icon">👷</span>Foremen</button>
+      <button class="sb-btn" id="nav-delays" onclick="showPage('delays')"><span class="sb-icon">⚠️</span>Delays</button>
+      <button class="sb-btn" id="nav-templates" onclick="showPage('templates')"><span class="sb-icon">📋</span>Templates</button>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user"><strong id="sb-name">—</strong>Project Manager</div>
+      <button class="sb-btn" onclick="doLogout()"><span class="sb-icon">⏏</span>Sign out</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="page active" id="page-overview">
+      <div class="ph"><div><div class="pt">Overview</div><div class="ps">All active jobs at a glance.</div></div>
+        <button class="btn btn-primary" onclick="showPage('jobs')">+ New Job</button></div>
+      <div class="stat-row" id="overview-stats"></div>
+      <div class="tw"><div class="th"><span class="tt">Active Jobs</span></div>
+        <table><thead><tr><th>Job</th><th>Foreman</th><th>Progress</th><th>Next Deadline</th><th>Pending</th></tr></thead>
+        <tbody id="overview-tbody"></tbody></table></div>
+    </div>
+
+    <div class="page" id="page-approvals">
+      <div class="ph"><div><div class="pt">Approvals</div><div class="ps">Click any request to view full details, checklist, and payout.</div></div></div>
+      <div id="approvals-list"></div>
+    </div>
+
+    <div class="page" id="page-jobs">
+      <div class="ph"><div><div class="pt">Jobs</div><div class="ps">Create jobs or import existing customer portal projects.</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary" onclick="importPortalProjects()">⬇️ Import from Portal</button>
+          <button class="btn btn-primary" onclick="openNewJobModal()">+ New Job</button>
+        </div></div>
+      <div id="jobs-list"></div>
+    </div>
+
+    <div class="page" id="page-foremen">
+      <div class="ph"><div><div class="pt">Foremen</div><div class="ps">Manage accounts and job assignments.</div></div>
+        <button class="btn btn-primary" onclick="openForemanModal()">+ Add Foreman</button></div>
+      <div class="tw"><table><thead><tr><th>Name</th><th>PIN</th><th>Assigned Jobs</th><th>Actions</th></tr></thead>
+      <tbody id="foremen-tbody"></tbody></table></div>
+    </div>
+
+    <div class="page" id="page-delays">
+      <div class="ph"><div><div class="pt">Delays</div><div class="ps">Log delays — automatically adjusts customer ETA and notifies all parties.</div></div>
+        <button class="btn btn-primary" onclick="openDelayModal()">+ Log Delay</button></div>
+      <div class="tw"><table><thead><tr><th>Job</th><th>Type</th><th>Description</th><th>Days Lost</th><th>Logged By</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="delays-tbody"></tbody></table></div>
+    </div>
+
+    <div class="page" id="page-templates">
+      <div class="ph"><div><div class="pt">Phase Templates</div><div class="ps">Speed up job setup with pre-built or custom templates with best-practice checkpoints.</div></div>
+        <button class="btn btn-primary" onclick="openTemplateModal()">+ New Template</button></div>
+      <div id="templates-list"></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="mo" id="modal-job"><div class="mp wide">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+    <div class="modal-title" id="job-modal-title">New Job</div>
+    <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-job')">✕ Close</button>
+  </div>
+  <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Project Details <span style="color:var(--red)">*</span> = required</div>
+  <div class="fr">
+    <div class="ff"><label class="fl">Project name <span style="color:var(--red)">*</span></label><input class="fi" id="j-name" placeholder="Johnson Kitchen Remodel"/></div>
+    <div class="ff"><label class="fl">Address <span style="color:var(--red)">*</span></label><input class="fi" id="j-address" placeholder="123 Main St, Baxley, GA"/></div>
+  </div>
+  <div class="fr">
+    <div class="ff"><label class="fl">Start date <span style="color:var(--red)">*</span></label><input class="fi" type="date" id="j-start" oninput="autoCalcETA()"/></div>
+    <div class="ff">
+      <label class="fl">Est. completion <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:10px">(auto-calculated)</span></label>
+      <input class="fi" id="j-eta" placeholder="Calculated from stages + delays" readonly style="background:#F2F1EE;cursor:default"/>
+      <div style="font-size:10px;color:var(--text3);margin-top:3px" id="j-eta-hint">Add a start date to calculate</div>
+    </div>
+  </div>
+  <div class="ff"><label class="fl">Portal project ID (?project= slug — auto-generated if blank)</label><input class="fi" id="j-pid" placeholder="johnson-kitchen"/></div>
+  <div class="ff"><label class="fl">Apply template (optional)</label><select class="fi" id="j-template"><option value="">— None —</option></select></div>
+  <div class="ff"><label class="fl">Project photos — Google Drive folder link (optional)</label><input class="fi" id="j-drive" placeholder="https://drive.google.com/drive/folders/…"/></div>
+  <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 10px">Project Manager</div>
+  <div class="fr">
+    <div class="ff"><label class="fl">PM name <span style="color:var(--red)">*</span></label><input class="fi" id="j-pm" value="Michael Fedrick"/></div>
+    <div class="ff"><label class="fl">PM phone <span style="color:var(--red)">*</span></label><input class="fi" id="j-phone" value="770-570-9621"/></div>
+  </div>
+  <div class="ff"><label class="fl">PM email <span style="color:var(--red)">*</span></label><input class="fi" id="j-email" value="michael.fedrick@sweetteabuild.com"/></div>
+  <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px">Weekly Updates</div>
+  <div id="j-updates-editor"></div>
+  <button onclick="addJobUpdate()" class="btn btn-secondary btn-sm" style="width:100%;margin-bottom:4px;justify-content:center">+ Add Update</button>
+  <div class="mf">
+    <button class="btn btn-secondary" onclick="closeModal('modal-job')">Cancel</button>
+    <button class="btn btn-primary" onclick="saveJob()">Save &amp; Publish to Portal</button>
+  </div>
+</div></div>
+
+<div class="mo" id="modal-stages"><div class="mp wide">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+    <div class="modal-title" id="stages-title">Edit Stages</div>
+    <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-stages')">✕ Close</button>
+  </div>
+  <div id="stages-editor"></div>
+  <button class="btn btn-secondary btn-full" style="margin-top:8px" onclick="addStageRow()">+ Add Stage</button>
+  <div class="mf"><button class="btn btn-secondary" onclick="closeModal('modal-stages')">Cancel</button><button class="btn btn-primary" onclick="saveStages()">Save Stages</button></div>
+</div></div>
+
+<div class="mo" id="modal-checklist"><div class="mp wide">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+    <div class="modal-title" id="cl-title">Checklist</div>
+    <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-checklist')">✕ Close</button>
+  </div>
+  <div id="cl-editor"></div>
+  <button class="btn btn-secondary btn-full" style="margin-top:8px" onclick="addClRow()">+ Add Item</button>
+  <div class="mf"><button class="btn btn-secondary" onclick="closeModal('modal-checklist')">Cancel</button><button class="btn btn-primary" onclick="saveCl()">Save Checklist</button></div>
+</div></div>
+
+<div class="mo" id="modal-foreman"><div class="mp">
+  <div class="modal-title">Add Foreman</div>
+  <div class="ff"><label class="fl">Full name</label><input class="fi" id="f-name" placeholder="First Last"/></div>
+  <div class="ff"><label class="fl">PIN (4–8 digits)</label><input class="fi" id="f-pin" placeholder="1234" inputmode="numeric"/></div>
+  <div class="mf"><button class="btn btn-secondary" onclick="closeModal('modal-foreman')">Cancel</button><button class="btn btn-primary" onclick="saveForeman()">Save</button></div>
+</div></div>
+
+<div class="mo" id="modal-assign"><div class="mp">
+  <div class="modal-title" id="assign-modal-title">Assign Jobs</div>
+  <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Select one or more jobs for this foreman. They can be active on multiple jobs at once.</div>
+  <div id="assign-jobs-list" style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:4px"></div>
+  <input type="hidden" id="assign-foreman-id"/>
+  <div class="mf"><button class="btn btn-secondary" onclick="closeModal('modal-assign')">Cancel</button><button class="btn btn-primary" onclick="saveAssign()">Save Assignments</button></div>
+</div></div>
+
+<div class="mo" id="modal-delay"><div class="mp">
+  <div class="modal-title" id="delay-modal-title">Log a Delay</div>
+  <input type="hidden" id="d-delay-id"/>
+  <div class="ff"><label class="fl">Job</label><select class="fi" id="d-job"></select></div>
+  <div class="ff"><label class="fl">Delay type</label><select class="fi" id="d-type">
+    <option value="weather">🌧 Weather</option><option value="material">📦 Material / Delivery</option>
+    <option value="labor">👷 Labor / Crew</option><option value="inspection">📋 Inspection</option>
+    <option value="design">📐 Design / Plan change</option><option value="other">⚠️ Other</option>
+  </select></div>
+  <div class="ff"><label class="fl">Description</label><textarea class="fi" id="d-desc" placeholder="Describe the delay…"></textarea></div>
+  <div class="ff"><label class="fl">Days lost (estimated impact on schedule)</label><input class="fi" type="number" id="d-days" placeholder="0" min="0" step="0.5"/></div>
+  <div class="mf"><button class="btn btn-secondary" onclick="closeModal('modal-delay')">Cancel</button><button class="btn btn-primary" onclick="submitDelay()">Save &amp; Update Portal</button></div>
+</div></div>
+
+<div class="mo" id="modal-approval"><div class="mp wide">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem">
+    <div class="modal-title" id="apr-title">Stage Review</div>
+    <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-approval')">✕ Close</button>
+  </div>
+  <div id="apr-content"></div>
+  <div class="ff" style="margin-top:14px" id="apr-notes-wrap">
+    <label class="fl">Notes for foreman (optional)</label>
+    <textarea class="fi" id="apr-notes" placeholder="Any corrections or comments…"></textarea>
+  </div>
+  <input type="hidden" id="apr-id"/><input type="hidden" id="apr-stage-id"/>
+  <input type="hidden" id="apr-job-id"/><input type="hidden" id="apr-status"/>
+  <div class="mf" id="apr-actions"></div>
+</div></div>
+
+<div class="mo" id="modal-template"><div class="mp wide">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+    <div class="modal-title">New Template</div>
+    <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-template')">✕ Close</button>
+  </div>
+  <div class="fr" style="margin-bottom:14px">
+    <div class="ff" style="margin-bottom:0"><label class="fl">Template name</label><input class="fi" id="tmpl-name" placeholder="My Template"/></div>
+    <div class="ff" style="margin-bottom:0"><label class="fl">Category</label><select class="fi" id="tmpl-cat">
+      <option value="custom_build">Custom Home Build</option><option value="remodel">Remodel</option>
+      <option value="roof">Roofing</option><option value="custom">Other</option>
+    </select></div>
+  </div>
+  <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Stages</div>
+  <div id="tmpl-stages-editor"></div>
+  <button class="btn btn-secondary btn-full" style="margin-top:8px" onclick="addTmplStage()">+ Add Stage</button>
+  <div class="mf"><button class="btn btn-secondary" onclick="closeModal('modal-template')">Cancel</button><button class="btn btn-primary" onclick="saveTemplate()">Save Template</button></div>
+</div></div>
+
+<script>
+const SB_URL="https://renltrbierztynzlbige.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlbmx0cmJpZXJ6dHluemxiaWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDA5NTUsImV4cCI6MjA5MjM3Njk1NX0.7KLzXIXKFh8kbZIUxT0W9JWbWEJdOe21D8nGCM4FwN4";
+const ADMIN_PIN="admin2026";
+const REST=SB_URL+"/rest/v1";
+const H={"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY};
+
+async function sbGet(t,q=""){const r=await fetch(`${REST}/${t}?${q}`,{headers:H});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPost(t,b,pref="return=representation"){const r=await fetch(`${REST}/${t}`,{method:"POST",headers:{...H,"Prefer":pref},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());const tx=await r.text();return tx?JSON.parse(tx):null;}
+async function sbPatch(t,q,b){const r=await fetch(`${REST}/${t}?${q}`,{method:"PATCH",headers:{...H,"Prefer":"return=representation"},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());const tx=await r.text();return tx?JSON.parse(tx):null;}
+async function sbDelete(t,q){const r=await fetch(`${REST}/${t}?${q}`,{method:"DELETE",headers:{...H,"Prefer":"return=minimal"}});if(!r.ok)throw new Error(await r.text());}
+async function sbUpsert(t,b){const r=await fetch(`${REST}/${t}`,{method:"POST",headers:{...H,"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
+
+let adminName='',allJobs=[],allForemen=[],allAssigns=[],allTemplates=[];
+let editJobId=null,editStages=[],editStageId=null,editCl=[],editTmplStages=[];
+
+window.addEventListener('DOMContentLoaded',async()=>{
+  const s=sessionStorage.getItem('fo_admin');
+  if(s){adminName=s;await boot();return;}
+  hide('loading');
+});
+
+async function doLogin(){
+  const name=val('l-name').trim(),pin=val('l-pin').trim();
+  if(!name||!pin){loginErr('Enter name and PIN.');return;}
+  const btn=document.getElementById('btn-login');btn.disabled=true;btn.textContent='Checking…';
+  if(pin!==ADMIN_PIN){loginErr('Incorrect PIN.');btn.disabled=false;btn.textContent='Sign In';return;}
+  adminName=name;sessionStorage.setItem('fo_admin',adminName);await boot();btn.disabled=false;btn.textContent='Sign In';
+}
+function loginErr(m){const e=document.getElementById('l-err');e.textContent=m;e.classList.add('show');}
+function doLogout(){sessionStorage.removeItem('fo_admin');location.reload();}
+
+async function boot(){
+  document.getElementById('screen-login').style.display='none';
+  document.getElementById('app').classList.add('active');
+  document.getElementById('sb-name').textContent=adminName;
+  await loadAll();hide('loading');
+}
+
+async function loadAll(){
+  [allJobs,allForemen,allAssigns,allTemplates]=await Promise.all([
+    sbGet('fo_jobs','order=created_at.desc&select=*'),
+    sbGet('fo_foremen','order=name.asc&select=*'),
+    sbGet('fo_assignments','select=*'),
+    sbGet('fo_templates','order=is_system.desc,name.asc&select=*'),
+  ]);
+  renderOverview();renderJobs();renderForemen();renderTemplates();
+  await loadApprovals();await loadDelays();
+}
+
+async function renderOverview(){
+  const [approvals,delays]=await Promise.all([sbGet('fo_approvals','status=eq.pending&select=*'),sbGet('fo_delays','resolved=eq.false&select=*')]);
+  document.getElementById('overview-stats').innerHTML=`
+    <div class="sc"><div class="sn gold">${allJobs.length}</div><div class="sl">Active Jobs</div></div>
+    <div class="sc"><div class="sn">${allForemen.length}</div><div class="sl">Foremen</div></div>
+    <div class="sc"><div class="sn red">${approvals.length}</div><div class="sl">Pending Approvals</div></div>
+    <div class="sc"><div class="sn">${delays.length}</div><div class="sl">Open Delays</div></div>`;
+  document.getElementById('approvals-dot').classList.toggle('show',approvals.length>0);
+  const tbody=document.getElementById('overview-tbody');
+  if(!allJobs.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:2rem">No jobs yet.</td></tr>';return;}
+  const rows=await Promise.all(allJobs.map(async job=>{
+    const stages=await sbGet('fo_stages',`job_id=eq.${job.id}&select=status,estimated_days,deadline_date`);
+    const done=stages.filter(s=>s.status==='approved').length;
+    const pending=stages.filter(s=>s.status==='pending_approval').length;
+    const pct=stages.length?Math.round(done/stages.length*100):0;
+    const asgn=allAssigns.find(a=>a.job_id===job.id);
+    const fm=asgn?allForemen.find(f=>f.id===asgn.foreman_id):null;
+    const active=stages.find(s=>s.status==='active'||s.status==='pending_approval');
+    const dl=active?.deadline_date?new Date(active.deadline_date).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
+    const isOverdue=active?.deadline_date&&new Date(active.deadline_date)<new Date();
+    return `<tr>
+      <td><strong>${job.name}</strong><div style="font-size:11px;color:var(--text2)">${job.address||''}</div></td>
+      <td>${fm?fm.name:'<span style="color:var(--text3)">Unassigned</span>'}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:5px;background:#E8E6E0;border-radius:99px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--gold);border-radius:99px"></div></div><span style="font-size:12px;color:var(--text2)">${pct}%</span></div></td>
+      <td style="font-size:12px;color:${isOverdue?'var(--red)':'var(--text2)'}">${isOverdue?'⚠️ ':''} ${dl}</td>
+      <td>${pending?`<span class="badge b-amber">${pending} waiting</span>`:'<span class="badge b-gray">None</span>'}</td>
+    </tr>`;
+  }));
+  tbody.innerHTML=rows.join('');
+}
+
+async function loadApprovals(){
+  const approvals=await sbGet('fo_approvals','order=created_at.desc&select=*');
+  const pending=approvals.filter(a=>a.status==='pending');
+  document.getElementById('approvals-dot').classList.toggle('show',pending.length>0);
+  const el=document.getElementById('approvals-list');
+  if(!approvals.length){el.innerHTML='<div class="empty"><div class="empty-icon">✅</div><div class="empty-msg">No approval requests yet.</div></div>';return;}
+  const stageIds=[...new Set(approvals.map(a=>a.stage_id).filter(Boolean))];
+  const jobIds=[...new Set(approvals.map(a=>a.job_id).filter(Boolean))];
+  const [stages,jobs]=await Promise.all([
+    stageIds.length?sbGet('fo_stages',`id=in.(${stageIds.join(',')})&select=*`):[],
+    jobIds.length?sbGet('fo_jobs',`id=in.(${jobIds.join(',')})&select=*`):[],
+  ]);
+  const sm=Object.fromEntries(stages.map(s=>[s.id,s]));
+  const jm=Object.fromEntries(jobs.map(j=>[j.id,j]));
+  let html='';
+  if(pending.length){
+    html+=`<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Pending (${pending.length}) — click to review</div>`;
+    html+=pending.map(a=>{const st=sm[a.stage_id]||{};const jb=jm[a.job_id]||{};return `
+      <div class="ac pending" onclick="openApprovalDetail('${a.id}')">
+        <div class="ac-hd"><div><div class="ac-job">${jb.name||'Job'} · <strong>${st.name||'Stage'}</strong></div><div class="ac-stage">By ${a.foreman_name||'Foreman'}</div></div><span class="badge b-amber">Pending</span></div>
+        <div class="ac-meta">${fmtDate(a.created_at)} · ${st.payout>0?'$'+Number(st.payout).toFixed(2)+' payout':'No payout set'}</div>
+        <div><button class="btn btn-success btn-sm" onclick="event.stopPropagation();openApprovalDetail('${a.id}')">Review Full Details →</button></div>
+      </div>`;}).join('');
+  }
+  const reviewed=approvals.filter(a=>a.status!=='pending');
+  if(reviewed.length){
+    html+=`<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin:16px 0 10px">Reviewed — click to view or un-approve</div>`;
+    html+=reviewed.map(a=>{const st=sm[a.stage_id]||{};const jb=jm[a.job_id]||{};return `
+      <div class="ac ${a.status}" onclick="openApprovalDetail('${a.id}')">
+        <div class="ac-hd"><div><div class="ac-job">${jb.name||'Job'} · ${st.name||'Stage'}</div></div>
+          <span class="badge ${a.status==='approved'?'b-green':'b-red'}">${a.status==='approved'?'Approved':'Rejected'}</span></div>
+        <div class="ac-meta">By ${a.reviewer_name||'Admin'} · ${fmtDate(a.reviewed_at)}</div>
+      </div>`;}).join('');
+  }
+  el.innerHTML=html;
+}
+
+async function openApprovalDetail(aprId){
+  const [aprList]=await Promise.all([sbGet('fo_approvals',`id=eq.${aprId}&select=*`)]);
+  const apr=aprList[0];if(!apr)return;
+  const [stages,jobs]=await Promise.all([sbGet('fo_stages',`id=eq.${apr.stage_id}&select=*`),sbGet('fo_jobs',`id=eq.${apr.job_id}&select=*`)]);
+  const stage=stages[0]||{};const job=jobs[0]||{};
+  const clItems=apr.stage_id?await sbGet('fo_checklist',`stage_id=eq.${apr.stage_id}&order=order_index.asc&select=*`):[];
+  document.getElementById('apr-id').value=apr.id;
+  document.getElementById('apr-stage-id').value=apr.stage_id||'';
+  document.getElementById('apr-job-id').value=apr.job_id||'';
+  document.getElementById('apr-status').value=apr.status;
+  document.getElementById('apr-title').textContent=`${stage.name||'Stage'} — ${job.name||'Job'}`;
+  document.getElementById('apr-notes').value=apr.reviewer_notes||'';
+  const isPending=apr.status==='pending';
+  document.getElementById('apr-notes-wrap').style.display=isPending?'':'none';
+  const doneCount=clItems.filter(c=>c.completed).length;
+  let content=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:var(--s2);padding:12px;border-radius:8px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:4px">Job</div>
+        <div style="font-size:14px;font-weight:500">${job.name||'—'}</div>
+        <div style="font-size:12px;color:var(--text2)">${job.address||''}</div>
+      </div>
+      <div style="background:var(--s2);padding:12px;border-radius:8px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:4px">Stage payout</div>
+        <div style="font-size:24px;font-weight:700;font-family:'Barlow Condensed',sans-serif;color:var(--gold)">${stage.payout>0?'$'+Number(stage.payout).toFixed(2):'Not set'}</div>
+        <div style="font-size:11px;color:var(--text2)">${stage.estimated_days>0?stage.estimated_days+' days estimated':''}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:4px">Submitted by</div>
+      <div style="font-size:13px">${apr.foreman_name||'Foreman'} · ${fmtDate(apr.created_at)}</div>
+      ${apr.notes?`<div style="font-size:12px;color:var(--text2);margin-top:4px;font-style:italic">"${apr.notes}"</div>`:''}</div>`;
+  if(clItems.length){
+    content+=`<div style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)">Checklist (${doneCount}/${clItems.length})</div>
+      ${doneCount<clItems.length?'<span class="badge b-amber">⚠️ Incomplete items</span>':'<span class="badge b-green">All complete</span>'}
+    </div>`;
+    content+=clItems.map(c=>`<div class="cl-item">
+      <div class="cl-check ${c.completed?'done':''}">${c.completed?'✓':''}</div>
+      <div><div class="cl-task" style="${!c.completed?'color:var(--text3)':''}">${c.task}</div>
+        <div class="cl-tags">
+          ${c.requires_photo?'<span class="cl-tag photo">📷 Photo</span>':''}
+          ${c.foreman_must_verify?'<span class="cl-tag verify">✅ Foreman verify</span>':''}
+        </div>
+        ${c.admin_reminder?`<div class="admin-reminder">🔍 Admin reminder: ${c.admin_reminder}</div>`:''}
+      </div>
+    </div>`).join('');
+    content+='</div>';
+  }
+  if(!isPending&&apr.reviewer_notes){content+=`<div style="margin-top:12px;padding:10px 12px;background:var(--s2);border-radius:8px;font-size:12px;color:var(--text2)"><strong>Notes on file:</strong> ${apr.reviewer_notes}</div>`;}
+  document.getElementById('apr-content').innerHTML=content;
+  const actEl=document.getElementById('apr-actions');
+  if(isPending){
+    actEl.innerHTML=`<button class="btn btn-secondary" onclick="closeModal('modal-approval')">Cancel</button><button class="btn btn-danger" onclick="reviewApproval('rejected')">Reject</button><button class="btn btn-success" onclick="reviewApproval('approved')">✅ Approve Stage</button>`;
+  } else {
+    actEl.innerHTML=`<button class="btn btn-secondary" onclick="closeModal('modal-approval')">Close</button>${apr.status==='approved'?`<button class="btn btn-danger" onclick="unapproveStage('${apr.id}','${apr.stage_id}','${apr.job_id}')">↩ Un-approve Stage</button>`:''}`;
+  }
+  openModal('modal-approval');
+}
+
+async function reviewApproval(decision){
+  const id=val('apr-id'),stageId=val('apr-stage-id'),jobId=val('apr-job-id'),notes=val('apr-notes');
+  try{
+    await sbPatch('fo_approvals',`id=eq.${id}`,{status:decision,reviewer_name:adminName,reviewer_notes:notes,reviewed_at:new Date().toISOString()});
+    if(decision==='approved'){
+      await sbPatch('fo_stages',`id=eq.${stageId}`,{status:'approved',approved_at:new Date().toISOString()});
+      const allS=await sbGet('fo_stages',`job_id=eq.${jobId}&order=order_index.asc&select=*`);
+      const idx=allS.findIndex(s=>s.id===stageId);
+      if(idx>=0&&idx<allS.length-1&&allS[idx+1].status==='locked')
+        await sbPatch('fo_stages',`id=eq.${allS[idx+1].id}`,{status:'active',started_at:new Date().toISOString()});
+      await syncPortal(jobId,stageId);
+    } else {
+      await sbPatch('fo_stages',`id=eq.${stageId}`,{status:'active'});
+    }
+    closeModal('modal-approval');await loadAll();
+    toast(decision==='approved'?'✅ Approved & synced to customer portal!':'Stage returned to foreman.');
+  }catch(ex){toast('Error: '+ex.message);}
+}
+
+async function unapproveStage(aprId,stageId,jobId){
+  if(!confirm('Un-approve this stage? It returns to In Progress.'))return;
+  try{
+    await sbPatch('fo_approvals',`id=eq.${aprId}`,{status:'pending',reviewed_at:null,reviewer_name:null,reviewer_notes:null});
+    await sbPatch('fo_stages',`id=eq.${stageId}`,{status:'active',approved_at:null});
+    const allS=await sbGet('fo_stages',`job_id=eq.${jobId}&order=order_index.asc&select=*`);
+    const idx=allS.findIndex(s=>s.id===stageId);
+    if(idx>=0&&idx<allS.length-1&&allS[idx+1].status==='active')
+      await sbPatch('fo_stages',`id=eq.${allS[idx+1].id}`,{status:'locked'});
+    await syncPortal(jobId,null);
+    closeModal('modal-approval');await loadAll();toast('Stage un-approved and returned to In Progress.');
+  }catch(ex){toast('Error: '+ex.message);}
+}
+
+async function syncPortal(jobId,approvedStageId){
+  try{
+    const jobs=await sbGet('fo_jobs',`id=eq.${jobId}&select=*`);const job=jobs[0];
+    if(!job?.project_id)return;
+    const pRows=await sbGet('projects',`id=eq.${encodeURIComponent(job.project_id)}&select=data`);
+    // If no portal record exists yet, create a blank one
+    const existing=pRows&&pRows.length?pRows[0].data:{};
+    const portal={...existing};
+
+    // ── KEY FIX: always mirror job name + address from fo_jobs into projects ──
+    portal.title=job.name||portal.title||'';
+    portal.address=job.address||portal.address||'';
+    if(!portal.company)portal.company='Sweet Tea Build';
+    if(!portal.updates)portal.updates=[];
+    if(!portal.photos)portal.photos=[];
+
+    // ── Sync phases from fo_stages (fo_stages is authoritative) ──
+    const freshS=await sbGet('fo_stages',`job_id=eq.${jobId}&order=order_index.asc&select=*`);
+    // Build phases array fresh from fo_stages every time
+    portal.phases=freshS.map(s=>({
+      name:s.name,
+      desc:s.description||'',
+      dur:s.estimated_days>0?s.estimated_days+' days':'',
+      status:s.status==='approved'?'done':s.status==='active'||s.status==='pending_approval'?'active':'pending'
+    }));
+
+    const done=freshS.filter(s=>s.status==='approved').length;
+    portal.pct=freshS.length?Math.round(done/freshS.length*100):0;
+
+    // ── ETA: use ISO start_date from fo_jobs (reliable), sequential stage deadlines ──
+    const delays=await sbGet('fo_delays',`job_id=eq.${jobId}&resolved=eq.false&select=days_lost`);
+    const totalDelayDays=delays.reduce((s,d)=>s+(d.days_lost||0),0);
+
+    // Prefer fo_jobs.start_date (ISO), fall back to portal.start
+    const startIso=job.start_date || null;
+    const startFallback=portal.start?new Date(portal.start.includes('T')?portal.start:portal.start+'T12:00:00'):null;
+    const startDate=startIso?new Date(startIso+'T12:00:00'):startFallback;
+
+    if(startDate&&!isNaN(startDate)&&freshS.length>0){
+      // Sequential: each stage deadline = previous deadline + its days
+      let cursor=new Date(startDate);
+      freshS.forEach((s,i)=>{
+        const days=s.estimated_days||0;
+        const dl=new Date(cursor);
+        dl.setDate(dl.getDate()+days);
+        // Save deadline back to stage if it has an id and differs
+        if(s.id&&days>0){
+          const isoDeadline=dl.toISOString().split('T')[0];
+          if(s.deadline_date!==isoDeadline){
+            // Fire-and-forget update
+            sbPatch('fo_stages',`id=eq.${s.id}`,{deadline_date:isoDeadline}).catch(()=>{});
+            s.deadline_date=isoDeadline;
+          }
+        }
+        if(days>0) cursor=dl; // advance cursor only if stage has duration
+      });
+      // ETA = last stage deadline = cursor
+      portal.eta=cursor.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      // Store as ISO too for reliable re-parsing
+      portal.eta_iso=cursor.toISOString().split('T')[0];
+      // Mirror start date as ISO in portal for foreman/index use
+      portal.start_iso=startDate.toISOString().split('T')[0];
+      // Also update portal.start to a nice formatted string
+      portal.start=startDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+      if(totalDelayDays>0){
+        const adjETA=new Date(cursor);
+        adjETA.setDate(adjETA.getDate()+totalDelayDays);
+        portal.eta_adjusted=adjETA.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      } else {
+        portal.eta_adjusted=null;
+      }
+    } else {portal.eta_adjusted=null;}
+
+    // ── Add update entry on approval ──
+    if(approvedStageId){
+      const sn=freshS.find(s=>s.id===approvedStageId)?.name||'Stage';
+      portal.updates.unshift({date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),text:`${sn} approved and complete. Work is progressing on schedule.`});
+    }
+    await sbUpsert('projects',{id:job.project_id,data:portal});
+  }catch(ex){console.error('Sync error:',ex);}
+}
+
+async function importPortalProjects(){
+  try{
+    const all=await sbGet('projects','select=id,data');
+    const existing=allJobs.map(j=>j.project_id).filter(Boolean);
+    const toImport=all.filter(p=>!existing.includes(p.id));
+    if(!toImport.length){toast('All portal projects already imported.');return;}
+    for(const p of toImport){const d=p.data||{};await sbPost('fo_jobs',{project_id:p.id,name:d.title||p.id,address:d.address||''},'return=minimal');}
+    await loadAll();toast(`Imported ${toImport.length} project(s).`);
+  }catch(ex){toast('Import error: '+ex.message);}
+}
+
+let showArchived = false;
+
+async function renderJobs(){
+  const el=document.getElementById('jobs-list');
+  const visible = showArchived ? allJobs.filter(j=>j.archived) : allJobs.filter(j=>!j.archived);
+
+  // Archive toggle header
+  const activeCount = allJobs.filter(j=>!j.archived).length;
+  const archCount = allJobs.filter(j=>j.archived).length;
+  let header = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="font-size:13px;color:var(--text2)">${showArchived?archCount+' archived job'+(archCount!==1?'s':''):activeCount+' active job'+(activeCount!==1?'s':'')}</div>
+    <div style="display:flex;gap:8px">
+      ${archCount>0?`<button class="btn btn-secondary btn-sm" onclick="showArchived=!showArchived;renderJobs()">${showArchived?'Back to Active':'Archived ('+archCount+')'}</button>`:''}
+    </div>
+  </div>`;
+
+  if(!visible.length){
+    el.innerHTML=header+'<div class="empty"><div class="empty-icon">🏗</div><div class="empty-msg">'+(showArchived?'No archived jobs.':'No jobs yet.<br>Create one or import from the customer portal.')+'</div></div>';
+    return;
+  }
+  const rows=await Promise.all(visible.map(async job=>{
+    const stages=await sbGet('fo_stages',`job_id=eq.${job.id}&select=status,payout`);
+    const approved=stages.filter(s=>s.status==='approved').length;
+    const totalP=stages.reduce((s,st)=>s+(st.payout||0),0);
+    const asgn=allAssigns.find(a=>a.job_id===job.id);
+    const fm=asgn?allForemen.find(f=>f.id===asgn.foreman_id):null;
+    const portalUrl=job.project_id?`${window.location.origin.replace('admin.html','').replace(/\/admin.*$/,'')}/${window.location.pathname.replace(/admin\.html.*/,'')}index.html?project=${job.project_id}`:'';
+    return `<div class="tw" style="margin-bottom:12px${job.archived?';opacity:.6':''}">
+      <div class="th">
+        <div>
+          <div style="font-size:14px;font-weight:500">${job.name}${job.archived?'<span class="badge b-gray" style="margin-left:8px">Archived</span>':''}</div>
+          <div style="font-size:12px;color:var(--text2)">${job.address||''}${job.project_id?' · ?project='+job.project_id:''}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${job.project_id?`<a class="btn btn-secondary btn-sm" href="index.html?project=${job.project_id}" target="_blank">👁 Customer View</a>`:''}
+          <button class="btn btn-secondary btn-sm" onclick="openStagesModal('${job.id}','${esc(job.name)}')">📋 Stages</button>
+          <button class="btn btn-secondary btn-sm" onclick="openEditJob('${job.id}')">✏️ Edit</button>
+          <button class="btn btn-secondary btn-sm" onclick="toggleArchive('${job.id}','${esc(job.name)}',${!!job.archived})">${job.archived?'Unarchive':'Archive'}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteJob('${job.id}','${esc(job.name)}')">Delete</button>
+        </div>
+      </div>
+      <div style="padding:12px 16px;display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:13px;color:var(--text2)">Foreman: <strong style="color:var(--text)">${fm?fm.name:'Unassigned'}</strong></span>
+        <span style="font-size:13px;color:var(--text2)">${approved}/${stages.length} stages approved</span>
+        ${totalP>0?`<span style="font-size:13px;color:var(--green);font-weight:500">$${totalP.toFixed(2)} total payout</span>`:''}
+      </div>
+    </div>`;
+  }));
+  el.innerHTML=header+rows.join('');
+}
+
+// ── in-memory updates list for the job modal ──
+let jobModalUpdates = [];
+
+function addJobUpdate(date='', text='') {
+  jobModalUpdates.unshift({date: date || new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), text});
+  renderJobUpdates();
+}
+
+function removeJobUpdate(i) {
+  jobModalUpdates.splice(i, 1);
+  renderJobUpdates();
+}
+
+function renderJobUpdates() {
+  const el = document.getElementById('j-updates-editor');
+  if (!jobModalUpdates.length) { el.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:6px 0">No updates yet.</div>'; return; }
+  el.innerHTML = jobModalUpdates.map((u, i) => `
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px">
+      <div style="display:grid;grid-template-columns:140px 1fr auto;gap:6px;align-items:start">
+        <input class="fi" style="font-size:12px;padding:6px 8px" id="ju-date-${i}" value="${esc(u.date)}" placeholder="Apr 7, 2026"/>
+        <textarea class="fi" style="font-size:12px;padding:6px 8px;min-height:50px;resize:vertical" id="ju-text-${i}" placeholder="Update text…">${esc(u.text)}</textarea>
+        <button onclick="removeJobUpdate(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px;line-height:1" title="Remove">×</button>
+      </div>
+    </div>`).join('');
+}
+
+function collectJobUpdates() {
+  return jobModalUpdates.map((u, i) => ({
+    date: document.getElementById('ju-date-'+i)?.value || u.date,
+    text: document.getElementById('ju-text-'+i)?.value || u.text,
+  })).filter(u => u.text.trim());
+}
+
+// ── Auto-calculate ETA from start date + stage days + open delays ──
+async function autoCalcETA(jobIdOverride) {
+  const startStr = val('j-start').trim(); // now always YYYY-MM-DD from date picker
+  const hintEl = document.getElementById('j-eta-hint');
+  const etaEl = document.getElementById('j-eta');
+  if (!startStr) { etaEl.value = ''; if(hintEl) hintEl.textContent = 'Pick a start date to auto-calculate'; return; }
+  const start = new Date(startStr + 'T12:00:00'); // noon prevents UTC day-shift
+  if (isNaN(start)) { etaEl.value = ''; if(hintEl) hintEl.textContent = 'Invalid date'; return; }
+
+  let totalStageDays = 0, totalDelayDays = 0;
+  const jid = jobIdOverride || editJobId;
+  if (jid) {
+    try {
+      const stages = await sbGet('fo_stages', `job_id=eq.${jid}&select=estimated_days`);
+      totalStageDays = stages.reduce((s, st) => s + (st.estimated_days || 0), 0);
+      const delays = await sbGet('fo_delays', `job_id=eq.${jid}&resolved=eq.false&select=days_lost`);
+      totalDelayDays = delays.reduce((s, d) => s + (d.days_lost || 0), 0);
+    } catch(e) {}
+  }
+  const totalDays = totalStageDays + totalDelayDays;
+
+  if (totalDays === 0) {
+    etaEl.value = '';
+    if(hintEl) hintEl.textContent = 'Set stage durations to auto-calculate';
+    return;
+  }
+
+  // Straight calendar days (matches what foreman estimates mean)
+  const d = new Date(start+'T12:00:00');
+  d.setDate(d.getDate() + totalDays);
+  const etaStr = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  etaEl.value = etaStr;
+  if(hintEl) hintEl.textContent = `${totalStageDays} stage days + ${totalDelayDays} delay days = ${totalDays} total`;
+}
+
+function openNewJobModal(){
+  editJobId = null;
+  jobModalUpdates = [];
+  document.getElementById('job-modal-title').textContent = 'New Job';
+  ['j-name','j-address','j-pid','j-start','j-drive'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('j-eta').value = '';
+  document.getElementById('j-pm').value = 'Michael Fedrick';
+  document.getElementById('j-phone').value = '770-570-9621';
+  document.getElementById('j-email').value = 'michael.fedrick@sweetteabuild.com';
+  const sel = document.getElementById('j-template');
+  sel.innerHTML = '<option value="">— None, start blank —</option>' + allTemplates.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+  renderJobUpdates();
+  openModal('modal-job');
+}
+
+async function openEditJob(id){
+  const job = allJobs.find(j=>j.id===id); if(!job) return;
+  editJobId = id;
+  document.getElementById('job-modal-title').textContent = 'Edit Job';
+  document.getElementById('j-name').value = job.name || '';
+  document.getElementById('j-address').value = job.address || '';
+  document.getElementById('j-pid').value = job.project_id || '';
+  jobModalUpdates = [];
+  if (job.project_id) {
+    try {
+      const pRows = await sbGet('projects', `id=eq.${encodeURIComponent(job.project_id)}&select=data`);
+      if (pRows && pRows.length) {
+        const d = pRows[0].data || {};
+        // Convert stored date string to ISO for the date picker
+        const storedStart = d.start || '';
+        if (storedStart) {
+          // Try parsing — if it's already ISO just use it, otherwise parse formatted
+          const parsed = new Date(storedStart.includes('T') ? storedStart : storedStart + 'T12:00:00');
+          document.getElementById('j-start').value = !isNaN(parsed)
+            ? parsed.toISOString().split('T')[0] : storedStart;
+        } else {
+          document.getElementById('j-start').value = '';
+        }
+        document.getElementById('j-pm').value = d.pm || 'Michael Fedrick';
+        document.getElementById('j-phone').value = d.phone || '770-570-9621';
+        document.getElementById('j-email').value = d.email || 'michael.fedrick@sweetteabuild.com';
+        document.getElementById('j-drive').value = d.drive_link || '';
+        jobModalUpdates = [...(d.updates || [])];
+      }
+    } catch(e) {}
+  } else {
+    document.getElementById('j-start').value = '';
+    document.getElementById('j-pm').value = 'Michael Fedrick';
+    document.getElementById('j-phone').value = '770-570-9621';
+    document.getElementById('j-email').value = 'michael.fedrick@sweetteabuild.com';
+    document.getElementById('j-drive').value = '';
+  }
+  renderJobUpdates();
+  await autoCalcETA(id);
+  openModal('modal-job');
+}
+
+async function saveJob(){
+  const name = val('j-name').trim();
+  const address = val('j-address').trim();
+  const start = val('j-start').trim();
+  const pm = val('j-pm').trim();
+  const phone = val('j-phone').trim();
+  const email = val('j-email').trim();
+
+  // ── Validation (change 3) ──
+  const missing = [];
+  if (!name) missing.push('Project name');
+  if (!address) missing.push('Address');
+  if (!start) missing.push('Start date');
+  if (!pm) missing.push('PM name');
+  if (!phone) missing.push('PM phone');
+  if (!email) missing.push('PM email');
+  if (missing.length) { toast('Required: ' + missing.join(', ')); return; }
+
+  let pid = val('j-pid').trim().toLowerCase().replace(/[^a-z0-9-]/g,'-');
+  if (!pid && name) pid = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,50);
+  const eta = val('j-eta').trim();
+  const driveLink = val('j-drive').trim();
+  const updates = collectJobUpdates();
+
+  try {
+    let jobId = editJobId;
+    if (editJobId) {
+      await sbPatch('fo_jobs', `id=eq.${editJobId}`, {name, address, project_id:pid, start_date: start||null});
+    } else {
+      const r = await sbPost('fo_jobs', {name, address, project_id:pid, start_date: start||null});
+      jobId = Array.isArray(r) ? r[0]?.id : r?.id;
+      const tmplId = val('j-template');
+      if (tmplId && jobId) await applyTemplate(tmplId, jobId);
+    }
+    // ── Full sync to customer portal blob ──
+    if (pid && jobId) {
+      try {
+        const pRows = await sbGet('projects', `id=eq.${encodeURIComponent(pid)}&select=data`);
+        const existing = pRows && pRows.length ? pRows[0].data : {};
+        const updated = {
+          ...existing,
+          title: name,
+          address,
+          company: 'Sweet Tea Build',
+          // Store start in both display and ISO format
+          start: start ? new Date(start+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : (existing.start||''),
+          start_iso: start || existing.start_iso || '',
+          eta: eta || existing.eta || '',
+          pm, phone, email,
+          drive_link: driveLink || existing.drive_link || '',
+          updates,
+          photos: existing.photos || [],
+          password: existing.password || 'build2026',
+        };
+        await sbUpsert('projects', {id:pid, data:updated});
+      } catch(e) { console.warn('Portal sync failed:', e); }
+    }
+    closeModal('modal-job'); await loadAll(); toast('Job saved and portal updated.');
+  } catch(ex) { toast('Error: ' + ex.message); }
+}
+
+async function applyTemplate(tmplId,jobId){
+  const ts=await sbGet('fo_template_stages',`template_id=eq.${tmplId}&order=order_index.asc&select=*`);
+  for(const s of ts){
+    const sr=await sbPost('fo_stages',{job_id:jobId,name:s.name,description:s.description||'',estimated_days:s.estimated_days||0,payout:0,status:s.order_index===0?'active':'locked',order_index:s.order_index});
+    const sid=Array.isArray(sr)?sr[0]?.id:sr?.id;
+    if(sid){
+      const ci=await sbGet('fo_template_checklist',`template_stage_id=eq.${s.id}&order=order_index.asc&select=*`);
+      for(const c of ci)await sbPost('fo_checklist',{stage_id:sid,task:c.task,admin_reminder:c.admin_reminder||'',requires_photo:c.requires_photo,foreman_must_verify:c.foreman_must_verify,order_index:c.order_index,completed:false},'return=minimal');
+    }
+  }
+}
+async function deleteJob(id, name){
+  if(!confirm(`Permanently delete "${name}"?\n\nThis removes the job, all stages, checklist items, delays, AND the customer portal page. This cannot be undone.`)) return;
+  if(!confirm(`Final confirmation: delete "${name}" forever?`)) return;
+  try{
+    // Grab project_id before deleting
+    const job = allJobs.find(j=>j.id===id);
+    const pid = job?.project_id;
+    // Delete fo_jobs (cascades to stages/delays/approvals/assignments via FK)
+    await sbDelete('fo_jobs',`id=eq.${id}`);
+    // Wipe the customer portal record so it never reimports
+    if(pid) await sbDelete('projects',`id=eq.${encodeURIComponent(pid)}`);
+    await loadAll();
+    toast('Job permanently deleted from all systems.');
+  }catch(ex){toast('Error: '+ex.message);}
+}
+
+async function toggleArchive(id, name, isArchived){
+  try{
+    await sbPatch('fo_jobs',`id=eq.${id}`,{archived: !isArchived});
+    await loadAll();
+    toast(isArchived ? name+' unarchived.' : name+' archived and hidden from active view.');
+  }catch(ex){toast('Error: '+ex.message);}
+}
+
+let originalStageIds = []; // track IDs that existed when modal opened
+
+async function openStagesModal(jobId,name){
+  editJobId=jobId;
+  document.getElementById('stages-title').textContent=`Stages: ${name}`;
+  editStages=await sbGet('fo_stages',`job_id=eq.${jobId}&order=order_index.asc&select=*`);
+  originalStageIds=editStages.map(s=>s.id).filter(Boolean); // snapshot IDs
+  renderStageEditor();
+  openModal('modal-stages');
+}
+function collectStageValues() {
+  editStages.forEach((s,i) => {
+    const n=document.getElementById('sn-'+i);if(n)s.name=n.value||'';
+    const p=document.getElementById('sp-'+i);if(p)s.payout=parseFloat(p.value)||0;
+    const d=document.getElementById('sd-'+i);if(d)s.estimated_days=parseInt(d.value)||0;
+    const st=document.getElementById('ss-'+i);if(st)s.status=st.value;
+    const dd=document.getElementById('sdd-'+i);if(dd)s.deadline_date=dd.value||null;
+    const l=document.getElementById('sl-'+i);if(l)s.drive_link=l.value||'';
+  });
+}
+
+function renderStageEditor(){
+  const el=document.getElementById('stages-editor');
+  if(!editStages.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:8px 0">No stages yet. Add one below.</div>';return;}
+  el.innerHTML=editStages.map((s,i)=>`<div class="se-row" draggable="true" data-idx="${i}"
+    ondragstart="stageDragStart(event,${i})"
+    ondragover="stageDragOver(event)"
+    ondragleave="stageDragLeave(event)"
+    ondrop="stageDrop(event,${i})"
+    ondragend="stageDragEnd(event)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div class="drag-handle" title="Drag to reorder">&#8942;&#8942;</div>
+      <div style="font-size:11px;font-weight:600;color:var(--text3);flex:1;text-transform:uppercase;letter-spacing:.06em">Stage ${i+1}</div>
+      <button class="btn btn-secondary btn-sm" onclick="openClModal('${s.id||'null'}','${esc(s.name)}')">📋 Checklist</button>
+      <button class="btn btn-danger btn-sm" onclick="collectStageValues();removeStageRow(${i})">✕</button>
+    </div>
+    <div class="fr" style="margin-bottom:8px">
+      <div><label class="fl">Stage name</label><input class="fi" id="sn-${i}" value="${esc(s.name)}" placeholder="e.g. Rough Framing"/></div>
+      <div class="fr" style="gap:8px">
+        <div><label class="fl">Payout ($)</label><input class="fi" type="number" id="sp-${i}" value="${s.payout||''}" placeholder="0"/></div>
+        <div><label class="fl">Est. days</label><input class="fi" type="number" id="sd-${i}" value="${s.estimated_days||''}" placeholder="0" oninput="onEstDaysChange(${i})"/></div>
+      </div>
+    </div>
+    <div class="fr" style="margin-bottom:8px">
+      <div><label class="fl">Status</label><select class="fi" id="ss-${i}">
+        <option value="locked" ${s.status==='locked'?'selected':''}>Locked</option>
+        <option value="active" ${s.status==='active'?'selected':''}>Active</option>
+        <option value="approved" ${s.status==='approved'?'selected':''}>Approved</option>
+      </select></div>
+      <div><label class="fl">Deadline <span style="color:var(--text3);font-weight:400;font-size:9px">(auto or override)</span></label>
+        <input class="fi" type="date" id="sdd-${i}" value="${s.deadline_date||''}" oninput="onDeadlineDateChange(${i})"/></div>
+    </div>
+    <div><label class="fl">Google Drive link</label><input class="fi" id="sl-${i}" value="${esc(s.drive_link||'')}" placeholder="https://drive.google.com/…"/></div>
+  </div>`).join('');
+}
+
+// ── Deadline <-> Est. days two-way sync ──
+function getJobStartDate() {
+  // 1. Check the job modal's date picker (most current when modal is open)
+  const startInput = document.getElementById('j-start');
+  if (startInput && startInput.value) return new Date(startInput.value + 'T12:00:00');
+  // 2. Fall back to fo_jobs.start_date from cache
+  if (editJobId) {
+    const job = allJobs.find(j=>j.id===editJobId);
+    if (job && job.start_date) return new Date(job.start_date + 'T12:00:00');
+  }
+  return null;
+}
+
+function addWorkingDays(start, days) {
+  let d = new Date(start); let added = 0;
+  while (added < days) { d.setDate(d.getDate()+1); if(d.getDay()!==0&&d.getDay()!==6) added++; }
+  return d;
+}
+
+function calcDeadlineForStage(idx) {
+  const start = getJobStartDate();
+  if (!start || isNaN(start)) return null;
+  let totalDays = 0;
+  for (let i = 0; i <= idx; i++) {
+    const dEl = document.getElementById('sd-'+i);
+    totalDays += dEl ? (parseInt(dEl.value)||0) : (editStages[i]?.estimated_days||0);
+  }
+  if (totalDays === 0) return null;
+  return addWorkingDays(start, totalDays);
+}
+
+function onEstDaysChange(idx) {
+  for (let i = idx; i < editStages.length; i++) {
+    const dl = calcDeadlineForStage(i);
+    const ddEl = document.getElementById('sdd-'+i);
+    if (ddEl && dl) ddEl.value = dl.toISOString().split('T')[0];
+  }
+}
+
+function onDeadlineDateChange(idx) {
+  const ddEl = document.getElementById('sdd-'+idx);
+  if (!ddEl || !ddEl.value) return;
+  const deadline = new Date(ddEl.value+'T12:00:00');
+  const start = getJobStartDate();
+  if (!start || isNaN(start)) return;
+  const prevDeadline = idx === 0 ? start : (() => {
+    const pd = calcDeadlineForStage(idx-1); return pd || start;
+  })();
+  let workDays = 0;
+  let cur = new Date(prevDeadline);
+  while (cur < deadline) { cur.setDate(cur.getDate()+1); if(cur.getDay()!==0&&cur.getDay()!==6) workDays++; }
+  const sdEl = document.getElementById('sd-'+idx);
+  if (sdEl) sdEl.value = workDays > 0 ? workDays : '';
+}
+
+// ── Drag-and-drop ──
+let dragSrcIdx = null;
+function stageDragStart(e,idx){ collectStageValues(); dragSrcIdx=idx; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; }
+function stageDragOver(e){ e.preventDefault(); e.currentTarget.classList.add('drag-over'); e.dataTransfer.dropEffect='move'; }
+function stageDragLeave(e){ e.currentTarget.classList.remove('drag-over'); }
+function stageDragEnd(e){ e.currentTarget.classList.remove('dragging'); }
+function stageDrop(e,dropIdx){
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  if(dragSrcIdx===null||dragSrcIdx===dropIdx)return;
+  const moved=editStages.splice(dragSrcIdx,1)[0];
+  editStages.splice(dropIdx,0,moved);
+  dragSrcIdx=null; renderStageEditor();
+}
+function addStageRow(){editStages.push({id:null,name:'',payout:0,estimated_days:0,status:'locked',drive_link:'',deadline_date:'',order_index:editStages.length});renderStageEditor();}
+function removeStageRow(i){editStages.splice(i,1);renderStageEditor();}
+async function saveStages(){
+  collectStageValues();
+  editStages.forEach((s,i)=>s.order_index=i);
+  const valid=editStages.filter(s=>s.name.trim());
+  if(!valid.length){toast('Add at least one stage.');return;}
+
+  const btn=document.querySelector('#modal-stages .btn-primary');
+  if(btn){btn.disabled=true;btn.textContent='Saving…';}
+
+  try{
+    // ── DELETE removed stages (diff original vs current) ──
+    const currentIds=valid.map(s=>s.id).filter(Boolean);
+    const toDelete=originalStageIds.filter(id=>!currentIds.includes(id));
+    for(const id of toDelete){
+      // Delete checklist items first (cascade may not be enabled)
+      await sbDelete('fo_checklist',`stage_id=eq.${id}`);
+      await sbDelete('fo_stages',`id=eq.${id}`);
+    }
+
+    // ── UPSERT remaining stages — patch existing, insert new ──
+    for(const s of valid){
+      const b={name:s.name,payout:s.payout||0,estimated_days:s.estimated_days||0,
+               status:s.status,deadline_date:s.deadline_date||null,
+               drive_link:s.drive_link||'',order_index:s.order_index};
+      if(s.id){
+        await sbPatch('fo_stages',`id=eq.${s.id}`,b);
+      } else {
+        // Only insert if this stage doesn't already exist (prevent duplication)
+        const inserted=await sbPost('fo_stages',{job_id:editJobId,...b});
+        const newId=Array.isArray(inserted)?inserted[0]?.id:inserted?.id;
+        if(newId) s.id=newId; // update in-memory so re-saves patch correctly
+      }
+    }
+    originalStageIds=valid.map(s=>s.id).filter(Boolean); // update snapshot
+    await syncPortal(editJobId,null);
+    closeModal('modal-stages');await loadAll();
+    toast('Stages saved.');
+  }catch(ex){toast('Error: '+ex.message);}
+  finally{if(btn){btn.disabled=false;btn.textContent='Save Stages';}}
+}
+
+
+function renderClEditor(){
+  const el=document.getElementById('cl-editor');
+  if(!editCl.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:8px 0">No items yet.</div>';return;}
+  el.innerHTML=editCl.map((c,i)=>`<div style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-bottom:8px">
+      <input class="fi" id="ct-${i}" value="${esc(c.task)}" placeholder="Task description"/>
+      <button class="btn btn-danger btn-sm" onclick="removeClRow(${i})">✕</button>
+    </div>
+    <div style="margin-top:6px">
+      <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#5B21B6;display:block;margin-bottom:4px">🔍 What to look for (shown to foreman + admin)</label>
+      <input class="fi" style="font-size:12px;border-color:#DDD8F5" id="ca-${i}" value="${esc(c.admin_reminder||'')}" placeholder="e.g. Check that anchor bolts are present, look for gaps at eave line…"/>
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="cp-${i}" ${c.requires_photo?'checked':''}/> 📷 Photo required</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="cv-${i}" ${c.foreman_must_verify?'checked':''}/> ✅ Foreman must verify</label>
+    </div>
+  </div>`).join('');
+}
+function addClRow(){editCl.push({id:null,task:'',admin_reminder:'',requires_photo:false,foreman_must_verify:false,order_index:editCl.length,completed:false});renderClEditor();}
+function removeClRow(i){editCl.splice(i,1);renderClEditor();}
+let originalClIds = [];
+
+async function openClModal(stageId,name){
+  editStageId=stageId;
+  document.getElementById('cl-title').textContent=`Checklist: ${name}`;
+  editCl=stageId&&stageId!=='null'?await sbGet('fo_checklist',`stage_id=eq.${stageId}&order=order_index.asc&select=*`):[];
+  originalClIds=editCl.map(c=>c.id).filter(Boolean); // snapshot for delete diff
+  renderClEditor();openModal('modal-checklist');
+}
+
+async function saveCl(){
+  if(!editStageId||editStageId==='null'){toast('Save the stage first.');return;}
+  editCl.forEach((c,i)=>{
+    c.task=document.getElementById('ct-'+i)?.value||'';
+    c.admin_reminder=document.getElementById('ca-'+i)?.value||'';
+    c.requires_photo=document.getElementById('cp-'+i)?.checked||false;
+    c.foreman_must_verify=document.getElementById('cv-'+i)?.checked||false;
+    c.order_index=i;
+  });
+  const valid=editCl.filter(c=>c.task.trim());
+  try{
+    // Delete removed items
+    const currentClIds=valid.map(c=>c.id).filter(Boolean);
+    const toDelete=originalClIds.filter(id=>!currentClIds.includes(id));
+    for(const id of toDelete) await sbDelete('fo_checklist',`id=eq.${id}`);
+    // Upsert remaining
+    for(const c of valid){
+      const b={task:c.task,admin_reminder:c.admin_reminder||'',requires_photo:c.requires_photo,foreman_must_verify:c.foreman_must_verify,order_index:c.order_index};
+      if(c.id) await sbPatch('fo_checklist',`id=eq.${c.id}`,b);
+      else {
+        const ins=await sbPost('fo_checklist',{stage_id:editStageId,completed:false,...b});
+        const newId=Array.isArray(ins)?ins[0]?.id:ins?.id;
+        if(newId) c.id=newId;
+      }
+    }
+    originalClIds=valid.map(c=>c.id).filter(Boolean);
+    closeModal('modal-checklist');toast('Checklist saved.');
+  }catch(ex){toast('Error: '+ex.message);}
+}
+
+async function renderForemen(){
+  const tbody=document.getElementById('foremen-tbody');
+  if(!allForemen.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:2rem">No foremen yet.</td></tr>';return;}
+  tbody.innerHTML=allForemen.map(f=>{
+    const fAssigns=allAssigns.filter(x=>x.foreman_id===f.id);
+    const fJobs=fAssigns.map(a=>allJobs.find(j=>j.id===a.job_id)).filter(Boolean);
+    const jobsHtml=fJobs.length
+      ? fJobs.map(j=>`<span class="badge b-gold" style="margin:2px">${j.name}</span>`).join('')
+      : '<span style="color:var(--text3)">Unassigned</span>';
+    return `<tr><td><strong>${f.name}</strong></td>
+      <td><code style="background:var(--s2);padding:2px 7px;border-radius:5px;font-size:12px">${f.pin}</code></td>
+      <td>${jobsHtml}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="openAssignModal('${f.id}')">Assign Jobs</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteForeman('${f.id}')">Remove</button>
+      </td>
+    </tr>`;}).join('');
+}
+function openForemanModal(){document.getElementById('f-name').value='';document.getElementById('f-pin').value='';openModal('modal-foreman');}
+async function saveForeman(){const name=val('f-name').trim(),pin=val('f-pin').trim();if(!name||!pin){toast('Name and PIN required.');return;}try{await sbPost('fo_foremen',{name,pin},'return=minimal');closeModal('modal-foreman');await loadAll();toast('Foreman added.');}catch(ex){toast('Error: '+ex.message);}}
+async function deleteForeman(id){if(!confirm('Remove this foreman?'))return;try{await sbDelete('fo_foremen',`id=eq.${id}`);await loadAll();toast('Removed.');}catch(ex){toast('Error: '+ex.message);}}
+function openAssignModal(fId){
+  document.getElementById('assign-foreman-id').value=fId;
+  const fm=allForemen.find(f=>f.id===fId);
+  document.getElementById('assign-modal-title').textContent=`Assign Jobs: ${fm?fm.name:'Foreman'}`;
+  const current=allAssigns.filter(a=>a.foreman_id===fId).map(a=>a.job_id);
+  const list=document.getElementById('assign-jobs-list');
+  list.innerHTML=allJobs.map(j=>`
+    <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border)">
+      <input type="checkbox" value="${j.id}" ${current.includes(j.id)?'checked':''} style="width:16px;height:16px;accent-color:var(--gold)"/>
+      <div>
+        <div style="font-size:13px;font-weight:500">${j.name}</div>
+        <div style="font-size:11px;color:var(--text2)">${j.address||''}</div>
+      </div>
+    </label>`).join('');
+  openModal('modal-assign');
+}
+async function saveAssign(){
+  const fId=val('assign-foreman-id');
+  const checked=[...document.querySelectorAll('#assign-jobs-list input[type=checkbox]:checked')].map(cb=>cb.value);
+  try{
+    // Remove all existing assignments for this foreman, then add checked ones
+    await sbDelete('fo_assignments',`foreman_id=eq.${fId}`);
+    for(const jId of checked){
+      await sbPost('fo_assignments',{foreman_id:fId,job_id:jId,is_lead:true},'return=minimal');
+    }
+    closeModal('modal-assign');await loadAll();
+    toast(checked.length?`Assigned to ${checked.length} job(s).`:'All assignments cleared.');
+  }catch(ex){toast('Error: '+ex.message);}
+}
+
+async function loadDelays(){
+  const delays=await sbGet('fo_delays','order=created_at.desc&select=*');
+  const tbody=document.getElementById('delays-tbody');
+  const jm=Object.fromEntries(allJobs.map(j=>[j.id,j.name]));
+  const tL={weather:'🌧 Weather',material:'📦 Material',labor:'👷 Labor',inspection:'📋 Inspection',design:'📐 Design',other:'⚠️ Other'};
+  if(!delays.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:2rem">No delays logged.</td></tr>';return;}
+  tbody.innerHTML=delays.map(d=>`<tr>
+    <td>${jm[d.job_id]||'—'}</td>
+    <td><span class="badge b-amber">${tL[d.delay_type]||d.delay_type}</span></td>
+    <td style="max-width:180px">${d.description}</td>
+    <td>${d.days_lost>0?d.days_lost+'d':'—'}</td>
+    <td>${d.foreman_name||adminName}</td>
+    <td style="color:var(--text3)">${fmtDate(d.created_at)}</td>
+    <td>${d.resolved?'<span class="badge b-green">Resolved</span>':'<span class="badge b-amber">Open</span>'}</td>
+    <td style="display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn btn-secondary btn-sm" onclick="openEditDelayModal('${d.id}','${d.job_id}','${d.delay_type}',${JSON.stringify(d.description).replace(/'/g,"\'")},'${d.days_lost||0}','${d.resolved}')">Edit</button>
+      ${!d.resolved?`<button class="btn btn-success btn-sm" onclick="resolveDelay('${d.id}','${d.job_id}')">Resolve</button>`:''}
+      <button class="btn btn-danger btn-sm" onclick="deleteDelay('${d.id}','${d.job_id}')">Delete</button>
+    </td>
+  </tr>`).join('');
+}
+
+function openDelayModal(){
+  document.getElementById('delay-modal-title').textContent='Log a Delay';
+  document.getElementById('d-delay-id').value='';
+  document.getElementById('d-job').innerHTML=allJobs.map(j=>`<option value="${j.id}">${j.name}</option>`).join('');
+  document.getElementById('d-job').disabled=false;
+  document.getElementById('d-type').value='weather';
+  document.getElementById('d-desc').value='';
+  document.getElementById('d-days').value='';
+  openModal('modal-delay');
+}
+
+function openEditDelayModal(id,jobId,type,desc,days,resolved){
+  document.getElementById('delay-modal-title').textContent='Edit Delay';
+  document.getElementById('d-delay-id').value=id;
+  document.getElementById('d-job').innerHTML=allJobs.map(j=>`<option value="${j.id}" ${j.id===jobId?'selected':''}>${j.name}</option>`).join('');
+  document.getElementById('d-job').disabled=true; // can't change job on edit
+  document.getElementById('d-type').value=type;
+  document.getElementById('d-desc').value=desc;
+  document.getElementById('d-days').value=days;
+  openModal('modal-delay');
+}
+
+async function submitDelay(){
+  const delayId=val('d-delay-id');
+  const jobId=val('d-job'),type=val('d-type'),desc=val('d-desc').trim(),days=parseFloat(val('d-days'))||0;
+  if(!desc){toast('Please describe the delay.');return;}
+  try{
+    if(delayId){
+      // Edit existing
+      await sbPatch('fo_delays',`id=eq.${delayId}`,{delay_type:type,description:desc,days_lost:days});
+      toast('Delay updated.');
+    } else {
+      // New delay
+      await sbPost('fo_delays',{job_id:jobId,delay_type:type,description:desc,days_lost:days,foreman_name:adminName,resolved:false},'return=minimal');
+      toast('Delay logged and customer portal updated.');
+    }
+    await recalcPortalETA(jobId);closeModal('modal-delay');await loadDelays();await renderOverview();
+  }catch(ex){toast('Error: '+ex.message);}
+}
+
+async function resolveDelay(id,jobId){
+  try{await sbPatch('fo_delays',`id=eq.${id}`,{resolved:true});await recalcPortalETA(jobId);await loadDelays();toast('Delay resolved. Portal ETA recalculated.');}
+  catch(ex){toast('Error: '+ex.message);}
+}
+
+async function deleteDelay(id,jobId){
+  if(!confirm('Delete this delay? This will recalculate the project ETA.'))return;
+  try{await sbDelete('fo_delays',`id=eq.${id}`);await recalcPortalETA(jobId);await loadDelays();await renderOverview();toast('Delay deleted.');}
+  catch(ex){toast('Error: '+ex.message);}
+}
+async function recalcPortalETA(jobId){
+  // Full sync — keeps customer portal 1-to-1 with admin
+  try { await syncPortal(jobId, null); } catch(ex) { console.error('ETA recalc error:',ex); }
+}
+
+
+async function renderTemplates(){
+  const el=document.getElementById('templates-list');
+  if(!allTemplates.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-msg">No templates yet.</div></div>';return;}
+  const catL={custom_build:'Custom Home Build',remodel:'Remodel',roof:'Roofing',custom:'Custom'};
+  const sys=allTemplates.filter(t=>t.is_system),custom=allTemplates.filter(t=>!t.is_system);
+  let html='';
+  if(sys.length){html+=`<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Built-in Templates (with best-practice checkpoints)</div>`+sys.map(t=>`<div class="tmpl-card"><div><div class="tmpl-name">${t.name}</div><div class="tmpl-meta">${catL[t.category]||t.category} · System</div></div><button class="btn btn-secondary btn-sm" onclick="previewTemplate('${t.id}','${esc(t.name)}')">Preview Stages</button></div>`).join('');}
+  if(custom.length){html+=`<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin:16px 0 10px">Your Templates</div>`+custom.map(t=>`<div class="tmpl-card"><div><div class="tmpl-name">${t.name}</div><div class="tmpl-meta">${catL[t.category]||t.category}</div></div><div style="display:flex;gap:6px"><button class="btn btn-secondary btn-sm" onclick="previewTemplate('${t.id}','${esc(t.name)}')">Preview</button><button class="btn btn-danger btn-sm" onclick="deleteTemplate('${t.id}')">Delete</button></div></div>`).join('');}
+  el.innerHTML=html;
+}
+async function previewTemplate(id,name){const s=await sbGet('fo_template_stages',`template_id=eq.${id}&order=order_index.asc&select=*`);alert(`${name}\n\n${s.map((st,i)=>`${i+1}. ${st.name}${st.estimated_days?' ('+st.estimated_days+' days)':''}`).join('\n')}`);}
+function openTemplateModal(){editTmplStages=[];document.getElementById('tmpl-name').value='';document.getElementById('tmpl-stages-editor').innerHTML='<div style="color:var(--text3);font-size:13px">Add stages below.</div>';openModal('modal-template');}
+function addTmplStage(){editTmplStages.push({name:'',estimated_days:0,items:[]});renderTmplEditor();}
+function renderTmplEditor(){
+  const el=document.getElementById('tmpl-stages-editor');
+  if(!editTmplStages.length){el.innerHTML='<div style="color:var(--text3);font-size:13px">Add stages below.</div>';return;}
+  el.innerHTML=editTmplStages.map((s,i)=>`
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="display:grid;grid-template-columns:1fr 80px auto;gap:8px;align-items:center;margin-bottom:10px">
+        <input class="fi" id="tsn-${i}" value="${esc(s.name)}" placeholder="Stage name e.g. Rough Framing"/>
+        <input class="fi" type="number" id="tsd-${i}" value="${s.estimated_days||''}" placeholder="Days"/>
+        <button class="btn btn-danger btn-sm" onclick="removeTmplStage(${i})">✕</button>
+      </div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px">Checklist items for this stage</div>
+      <div id="tmpl-cl-${i}"></div>
+      <button onclick="addTmplClItem(${i})" class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;margin-top:4px">+ Add checklist item</button>
+    </div>`).join('');
+  // Render existing checklist items for each stage
+  editTmplStages.forEach((s,si)=>renderTmplClItems(si));
+}
+
+function renderTmplClItems(si){
+  const el=document.getElementById('tmpl-cl-'+si);
+  if(!el)return;
+  const items=editTmplStages[si].items||[];
+  if(!items.length){el.innerHTML='<div style="color:var(--text3);font-size:11px;padding:4px 0">No items — add one below.</div>';return;}
+  el.innerHTML=items.map((item,ii)=>`
+    <div style="background:white;border:1px solid var(--border);border-radius:7px;padding:8px 10px;margin-bottom:5px">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:6px">
+        <input class="fi" style="font-size:12px;padding:5px 8px" id="tcl-task-${si}-${ii}" value="${esc(item.task)}" placeholder="Task description"/>
+        <button onclick="removeTmplClItem(${si},${ii})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 6px">×</button>
+      </div>
+      <div style="margin-bottom:6px">
+        <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#5B21B6;display:block;margin-bottom:3px">🔍 What to look for</label>
+        <input class="fi" style="font-size:11px;padding:5px 8px;border-color:#DDD8F5" id="tcl-note-${si}-${ii}" value="${esc(item.admin_reminder||'')}" placeholder="Guidance for foreman and admin e.g. Check that flashing is woven with shingles…"/>
+      </div>
+      <div style="display:flex;gap:12px">
+        <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer"><input type="checkbox" id="tcl-photo-${si}-${ii}" ${item.requires_photo?'checked':''}/> 📷 Photo required</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer"><input type="checkbox" id="tcl-verify-${si}-${ii}" ${item.foreman_must_verify?'checked':''}/> ✅ Foreman verify</label>
+      </div>
+    </div>`).join('');
+}
+
+function addTmplClItem(si){
+  if(!editTmplStages[si].items)editTmplStages[si].items=[];
+  editTmplStages[si].items.push({task:'',admin_reminder:'',requires_photo:false,foreman_must_verify:false});
+  renderTmplClItems(si);
+}
+
+function removeTmplClItem(si,ii){
+  editTmplStages[si].items.splice(ii,1);
+  renderTmplClItems(si);
+}
+
+function collectTmplStages(){
+  return editTmplStages.map((s,si)=>{
+    s.name=document.getElementById('tsn-'+si)?.value||'';
+    s.estimated_days=parseInt(document.getElementById('tsd-'+si)?.value)||0;
+    s.items=(s.items||[]).map((item,ii)=>({
+      task:document.getElementById(`tcl-task-${si}-${ii}`)?.value||'',
+      admin_reminder:document.getElementById(`tcl-note-${si}-${ii}`)?.value||'',
+      requires_photo:document.getElementById(`tcl-photo-${si}-${ii}`)?.checked||false,
+      foreman_must_verify:document.getElementById(`tcl-verify-${si}-${ii}`)?.checked||false,
+    })).filter(c=>c.task.trim());
+    return s;
+  });
+}
+function removeTmplStage(i){editTmplStages.splice(i,1);renderTmplEditor();}
+async function saveTemplate(){
+  const name=val('tmpl-name').trim(),cat=val('tmpl-cat');
+  if(!name){toast('Name required.');return;}
+  const stages=collectTmplStages().filter(s=>s.name.trim());
+  if(!stages.length){toast('Add at least one stage.');return;}
+  try{
+    const r=await sbPost('fo_templates',{name,category:cat,created_by:adminName,is_system:false});
+    const tid=Array.isArray(r)?r[0]?.id:r?.id;
+    for(let i=0;i<stages.length;i++){
+      const sr=await sbPost('fo_template_stages',{template_id:tid,name:stages[i].name,estimated_days:stages[i].estimated_days,order_index:i});
+      const tsid=Array.isArray(sr)?sr[0]?.id:sr?.id;
+      if(tsid&&stages[i].items?.length){
+        for(let j=0;j<stages[i].items.length;j++){
+          const ci=stages[i].items[j];
+          await sbPost('fo_template_checklist',{template_stage_id:tsid,task:ci.task,admin_reminder:ci.admin_reminder||'',requires_photo:ci.requires_photo,foreman_must_verify:ci.foreman_must_verify,order_index:j},'return=minimal');
+        }
+      }
+    }
+    closeModal('modal-template');await loadAll();toast('Template saved with '+stages.length+' stages.');
+  }catch(ex){toast('Error: '+ex.message);}
+}
+async function deleteTemplate(id){if(!confirm('Delete this template?'))return;try{await sbDelete('fo_templates',`id=eq.${id}`);await loadAll();toast('Deleted.');}catch(ex){toast('Error: '+ex.message);}}
+
+function showPage(p){['overview','approvals','jobs','foremen','delays','templates'].forEach(x=>{document.getElementById('page-'+x).classList.toggle('active',x===p);document.getElementById('nav-'+x).classList.toggle('active',x===p);});if(p==='approvals')loadApprovals();if(p==='jobs')renderJobs();if(p==='overview')renderOverview();if(p==='delays')loadDelays();}
+function val(id){return document.getElementById(id)?.value||'';}
+function show(id){const e=document.getElementById(id);if(e)e.style.display='';}
+function hide(id){const e=document.getElementById(id);if(e)e.style.display='none';}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function esc(s){return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
+document.querySelectorAll('.mo').forEach(el=>{el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
+</script>
+</body>
+</html>
