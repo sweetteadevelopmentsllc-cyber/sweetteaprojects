@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>FieldOps · Foreman</title>
+<title>Checklist · Foreman</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -15,8 +15,8 @@
   --text: #F2F1EE;
   --text2: #9B9A95;
   --text3: #5A5955;
-  --gold: #C8973A;
-  --gold-bg: rgba(200,151,58,0.12);
+  --brand: #E2531C;
+  --brand-bg: rgba(226,83,28,0.1);
   --green: #4A9B5F;
   --green-bg: rgba(74,155,95,0.12);
   --red: #C45252;
@@ -43,7 +43,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .login-logo{display:flex;align-items:center;gap:12px;margin-bottom:3rem}
 .login-mark{
   width:44px;height:44px;
-  background:var(--gold);
+  background:var(--brand);
   border-radius:10px;
   display:flex;align-items:center;justify-content:center;
 }
@@ -68,13 +68,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   background:var(--surface2);color:var(--text);outline:none;
   transition:border-color .15s;
 }
-.lf input:focus{border-color:var(--gold)}
+.lf input:focus{border-color:var(--brand)}
 .lf input[type=password]{letter-spacing:4px;font-size:18px}
 .login-err{font-size:12px;color:var(--red);margin-bottom:10px;display:none;padding:8px 12px;background:var(--red-bg);border-radius:7px}
 .login-err.show{display:block}
 .btn-login{
   width:100%;padding:13px;
-  background:var(--gold);color:#0F0F0D;
+  background:var(--brand);color:#0F0F0D;
   border:none;border-radius:9px;
   font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;
   letter-spacing:.05em;text-transform:uppercase;
@@ -93,13 +93,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   padding:12px 16px;
 }
 .tb-left{display:flex;align-items:center;gap:10px}
-.tb-mark{width:28px;height:28px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.tb-mark{width:28px;height:28px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center}
 .tb-mark svg{width:14px;height:14px}
 .tb-info{}
 .tb-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;letter-spacing:.03em;line-height:1.1}
 .tb-job{font-size:11px;color:var(--text2)}
 .tb-right{display:flex;gap:8px;align-items:center}
-.tb-badge{font-size:10px;padding:3px 10px;border-radius:20px;background:var(--gold-bg);color:var(--gold);font-weight:500;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em}
+.tb-badge{font-size:10px;padding:3px 10px;border-radius:20px;background:var(--brand-bg);color:var(--brand);font-weight:500;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em}
 .btn-icon{
   width:32px;height:32px;background:none;
   border:1px solid var(--border2);border-radius:7px;
@@ -122,7 +122,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 }
 .nav-icon{font-size:22px;line-height:1;display:block}
 .nav-label{font-size:10px;color:rgba(255,255,255,0.75);font-weight:400;letter-spacing:.02em}
-.nav-btn.active .nav-label{color:var(--gold);font-weight:600}
+.nav-btn.active .nav-label{color:var(--brand);font-weight:600}
 .nav-dot{position:relative;display:inline-block}
 .nav-dot-badge{
   position:absolute;top:-2px;right:-5px;
@@ -148,7 +148,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 /* ── BADGES ── */
 .badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;display:inline-block;letter-spacing:.02em}
-.b-gold{background:var(--gold-bg);color:var(--gold)}
+.b-brand{background:var(--brand-bg);color:var(--brand)}
 .b-green{background:var(--green-bg);color:var(--green)}
 .b-red{background:var(--red-bg);color:var(--red)}
 .b-blue{background:var(--blue-bg);color:var(--blue)}
@@ -163,7 +163,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   cursor:pointer;transition:opacity .15s;
 }
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.btn-primary{background:var(--gold);color:#0F0F0D}
+.btn-primary{background:var(--brand);color:#0F0F0D}
 .btn-primary:hover:not(:disabled){opacity:.85}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
 .btn-secondary:hover:not(:disabled){background:rgba(255,255,255,0.08)}
@@ -180,7 +180,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   cursor:pointer;transition:border-color .15s;
 }
 .stage-item:hover{border-color:var(--border2)}
-.stage-item.active-stage{border-color:var(--gold);background:var(--gold-bg)}
+.stage-item.active-stage{border-color:var(--brand);background:var(--brand-bg)}
 .stage-name{font-size:14px;font-weight:500;margin-bottom:3px}
 .stage-meta{font-size:11px;color:var(--text2)}
 .stage-lock{font-size:18px;color:var(--text3)}
@@ -222,14 +222,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   font-family:'DM Sans',sans-serif;font-size:13px;outline:none;
   transition:border-color .15s;
 }
-.form-input:focus{border-color:var(--gold)}
+.form-input:focus{border-color:var(--brand)}
 textarea.form-input{resize:vertical;min-height:80px;line-height:1.5}
 select.form-input option{background:var(--surface2)}
 
 /* ── STAT STRIP ── */
 .stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
 .stat-cell{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
-.stat-num{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--gold);line-height:1}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--brand);line-height:1}
 .stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
 
 /* ── EMPTY STATE ── */
@@ -262,7 +262,7 @@ select.form-input option{background:var(--surface2)}
   display:flex;align-items:center;justify-content:center;
 }
 #loading.hidden{display:none}
-.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── PRINT ── */
@@ -303,7 +303,7 @@ select.form-input option{background:var(--surface2)}
 <!-- LOADING -->
 <div id="loading">
   <div style="text-align:center">
-    <div style="width:40px;height:40px;background:var(--gold);border-radius:9px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+    <div style="width:40px;height:40px;background:var(--brand);border-radius:9px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
       <svg width="20" height="20" viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="#0F0F0D"/></svg>
     </div>
     <div class="spinner" style="margin:0 auto"></div>
@@ -321,7 +321,7 @@ select.form-input option{background:var(--surface2)}
     <div class="login-mark">
       <svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="#0F0F0D"/></svg>
     </div>
-    <span class="login-brand">FieldOps</span>
+    <span class="login-brand">Checklist</span>
   </div>
   <div class="login-card">
     <div class="login-title">Foreman Sign In</div>
@@ -382,6 +382,7 @@ select.form-input option{background:var(--surface2)}
     </div>
     <div class="card">
       <div class="card-body">
+        <input type="hidden" id="d-editing-id" value=""/>
         <div class="form-field">
           <label class="form-label">Project</label>
           <select class="form-input" id="d-job-sel"></select>
@@ -633,11 +634,19 @@ async function loadStages() {
   try {
     const ids = myJobs.map(j => j.id).filter(Boolean);
     if (!ids.length) { myStages=[]; renderStages(); renderStats(); return; }
-    // Supabase REST: single order param with comma-separated columns
     myStages = await sbGet('fo_stages',
       `job_id=in.(${ids.join(',')})&order=job_id.asc,order_index.asc&select=*`
     );
     if (!Array.isArray(myStages)) myStages = [];
+    // Filter out stages that have no checklist items — foreman can't take action
+    if (myStages.length) {
+      const stageIds = myStages.map(s=>s.id);
+      const items = await sbGet('fo_checklist',
+        `stage_id=in.(${stageIds.join(',')})&select=stage_id`
+      ).catch(()=>[]);
+      const hasItems = new Set((items||[]).map(c=>c.stage_id));
+      myStages = myStages.filter(s => hasItems.has(s.id));
+    }
   } catch(ex) {
     console.error('loadStages error:', ex);
     myStages = [];
@@ -646,15 +655,25 @@ async function loadStages() {
   renderStats();
 }
 
+
 function renderStats() {
   const done   = myStages.filter(s => s.status === 'approved').length;
   const active = myStages.filter(s => s.status === 'active' || s.status === 'pending_approval').length;
   const locked = myStages.filter(s => s.status === 'locked').length;
   document.getElementById('job-stats').innerHTML = `
     <div class="stat-cell"><div class="stat-num">${done}</div><div class="stat-lbl">Approved</div></div>
-    <div class="stat-cell"><div class="stat-num" style="color:var(--gold)">${active}</div><div class="stat-lbl">In Progress</div></div>
+    <div class="stat-cell"><div class="stat-num" style="color:var(--brand)">${active}</div><div class="stat-lbl">In Progress</div></div>
     <div class="stat-cell"><div class="stat-num" style="color:var(--text3)">${locked}</div><div class="stat-lbl">Locked</div></div>
   `;
+}
+
+// Track which jobs are collapsed
+const collapsedJobs = new Set();
+
+function toggleJobCollapse(jobId) {
+  if (collapsedJobs.has(jobId)) collapsedJobs.delete(jobId);
+  else collapsedJobs.add(jobId);
+  renderStages();
 }
 
 function renderStages() {
@@ -664,11 +683,10 @@ function renderStages() {
     return;
   }
 
-  // Build a job lookup map
   const jobMap = Object.fromEntries(myJobs.map(j => [j.id, j]));
   const showHeaders = myJobs.length > 1;
 
-  // Group stages by job_id, preserving order
+  // Group stages by job_id
   const grouped = [];
   let lastJobId = null;
   myStages.forEach(s => {
@@ -681,34 +699,51 @@ function renderStages() {
 
   let html = '';
   grouped.forEach(({ job, stages }) => {
-    // Job header — only shown when foreman has multiple jobs
+    const isCollapsed = collapsedJobs.has(job.id);
+    const activeCount = stages.filter(s=>s.status==='active'||s.status==='pending_approval').length;
+    const approvedCount = stages.filter(s=>s.status==='approved').length;
+    const overdueCount = stages.filter(s=>s.deadline_date&&new Date(s.deadline_date)<new Date()&&s.status==='active').length;
+
     if (showHeaders) {
-      html += `<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;
-        color:var(--gold);margin:18px 0 8px;display:flex;align-items:center;gap:8px">
-        <span>📍 ${job.name}</span>
-        <span style="font-weight:400;color:var(--text3)">${job.address||''}</span>
+      html += `<div onclick="toggleJobCollapse('${job.id}')" style="cursor:pointer;
+        background:${isCollapsed?'var(--surface2)':'var(--brand-bg)'};
+        border:1px solid ${isCollapsed?'var(--border)':'rgba(226,83,28,0.25)'};
+        border-radius:10px;padding:10px 14px;margin:14px 0 6px;
+        display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:${isCollapsed?'var(--text2)':'var(--brand)'}">${job.name}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">
+            ${job.address||''} &nbsp;·&nbsp; ${approvedCount}/${stages.length} done
+            ${overdueCount>0?`&nbsp;·&nbsp;<span style="color:var(--red)">⚠️ ${overdueCount} overdue</span>`:''}
+            ${activeCount>0&&!isCollapsed?'':''}
+          </div>
+        </div>
+        <div style="font-size:18px;color:var(--text3);transition:transform .2s;transform:rotate(${isCollapsed?'-90deg':'0deg'})">▾</div>
       </div>`;
     }
-    stages.forEach(s => {
-      const isActive = s.status === 'active' || s.status === 'pending_approval';
-      const icon = s.status === 'approved' ? '✅'
-        : s.status === 'locked' ? '🔒'
-        : s.status === 'pending_approval' ? '⏳' : '▶️';
-      const badge = statusBadge(s.status);
-      const countdown = buildCountdown(s);
-      const isOverdue = s.deadline_date && new Date(s.deadline_date) < new Date() && s.status === 'active';
-      html += `<div class="stage-item ${isActive?'active-stage':''} ${isOverdue?'overdue-stage':''}" onclick="openStage('${s.id}')">
-        <div>
-          <div class="stage-name">${isOverdue ? '🚨 ' : ''}${s.name}</div>
-          <div class="stage-meta">
-            ${s.payout > 0 ? '$' + Number(s.payout).toFixed(2) + ' payout · ' : ''}
-            <span class="badge ${badge.cls}">${badge.label}</span>
+
+    if (!isCollapsed) {
+      stages.forEach(s => {
+        const isActive = s.status === 'active' || s.status === 'pending_approval';
+        const icon = s.status === 'approved' ? '✅'
+          : s.status === 'locked' ? '🔒'
+          : s.status === 'pending_approval' ? '⏳' : '▶️';
+        const badge = statusBadge(s.status);
+        const countdown = buildCountdown(s);
+        const isOverdue = s.deadline_date && new Date(s.deadline_date) < new Date() && s.status === 'active';
+        html += `<div class="stage-item ${isActive?'active-stage':''} ${isOverdue?'overdue-stage':''}" onclick="openStage('${s.id}')">
+          <div>
+            <div class="stage-name">${isOverdue ? '🚨 ' : ''}${s.name}</div>
+            <div class="stage-meta">
+              ${s.payout > 0 ? '$' + Number(s.payout).toFixed(2) + ' payout · ' : ''}
+              <span class="badge ${badge.cls}">${badge.label}</span>
+            </div>
+            ${countdown}
           </div>
-          ${countdown}
-        </div>
-        <div class="stage-lock">${icon}</div>
-      </div>`;
-    });
+          <div class="stage-lock">${icon}</div>
+        </div>`;
+      });
+    }
   });
   el.innerHTML = html;
 }
@@ -727,7 +762,7 @@ function buildCountdown(stage) {
 function statusBadge(status) {
   return {
     locked:   {cls:'b-gray',  label:'Locked'},
-    active:   {cls:'b-gold',  label:'In Progress'},
+    active:   {cls:'b-brand',  label:'In Progress'},
     pending_approval: {cls:'b-amber', label:'Awaiting Approval'},
     approved: {cls:'b-green', label:'Approved'},
   }[status] || {cls:'b-gray',label:status};
@@ -775,7 +810,7 @@ function renderChecklist(items, stageStatus) {
         ${canCheck?`onclick="toggleCheck('${item.id}',${!item.completed})"`:''} ></div>
       <div style="width:100%">
         <div class="check-text ${item.completed?'done':''}">${item.task}</div>
-        ${item.admin_reminder?`<div style="font-size:11px;color:#A07820;background:rgba(200,151,58,0.12);border-radius:5px;padding:5px 8px;margin-top:5px;line-height:1.5">🔍 ${item.admin_reminder}</div>`:''}
+        ${item.admin_reminder?`<div style="font-size:11px;color:#A07820;background:rgba(226,83,28,0.1);border-radius:5px;padding:5px 8px;margin-top:5px;line-height:1.5">🔍 ${item.admin_reminder}</div>`:''}
         <div class="check-tags">
           ${item.requires_photo?'<span class="check-tag photo">📷 Photo required</span>':''}
           ${item.foreman_must_verify?'<span class="check-tag verify">✅ Foreman verify</span>':''}
@@ -852,11 +887,13 @@ function renderDelays(delays) {
   if (!delays.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-msg">No delays reported yet.</div></div>'; return; }
   const typeLabels = {weather:'🌧 Weather',material:'📦 Material',labor:'👷 Labor',inspection:'📋 Inspection',design:'📐 Design',other:'⚠️ Other'};
   const jobMap = Object.fromEntries(myJobs.map(j=>[j.id,j.name]));
-  el.innerHTML = delays.map(d=>`
+  el.innerHTML = delays.map(d=>{
+    const isMine = d.foreman_id === me.id || d.foreman_name === me.name;
+    return `
     <div class="card">
       <div class="card-hd">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span class="badge b-amber">${typeLabels[d.delay_type]||d.delay_type}</span>
+          <span class="badge ${d.resolved?'b-green':'b-amber'}">${d.resolved?'Resolved':typeLabels[d.delay_type]||d.delay_type}</span>
           ${myJobs.length>1&&jobMap[d.job_id]?`<span class="badge b-gray">${jobMap[d.job_id]}</span>`:''}
         </div>
         <span style="font-size:11px;color:var(--text3)">${fmtDate(d.created_at)}</span>
@@ -864,32 +901,81 @@ function renderDelays(delays) {
       <div class="card-body">
         <div style="font-size:13px;margin-bottom:4px">${d.description}</div>
         ${d.days_lost>0?`<div style="font-size:11px;color:var(--text3)">${d.days_lost} day${d.days_lost!==1?'s':''} lost</div>`:''}
+        ${d.resolve_comment?`<div style="font-size:11px;color:var(--green);margin-top:4px">Resolution: ${d.resolve_comment}</div>`:''}
+        ${isMine?`
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="openForemanEditDelay('${d.id}','${d.delay_type}',${JSON.stringify(d.description)},'${d.days_lost||0}','${d.job_id}')">Edit</button>
+          ${d.resolved
+            ? `<button class="btn btn-secondary btn-sm" onclick="foremanUnresolveDelay('${d.id}')">Unresolve</button>`
+            : `<button class="btn btn-success btn-sm" onclick="foremanResolveDelay('${d.id}','${d.job_id}')">Mark Resolved</button>`}
+        </div>`:''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
+
+function openForemanEditDelay(id, type, desc, days, jobId) {
+  // Pre-fill the delay form with existing values
+  populateDelayJobSelect();
+  const sel = document.getElementById('d-job-sel');
+  if (sel) sel.value = jobId;
+  document.getElementById('d-type').value = type;
+  document.getElementById('d-desc').value = desc;
+  document.getElementById('d-days').value = days;
+  // Store editing ID
+  document.getElementById('d-editing-id').value = id;
+  switchTab('delays');
+  toast('Edit your delay below and resubmit.');
+}
+
+async function foremanResolveDelay(id, jobId) {
+  if (!confirm('Mark this delay as resolved?')) return;
+  try {
+    await sbPatch('fo_delays', `id=eq.${id}`, {resolved: true, resolved_at: new Date().toISOString()});
+    await loadDelays();
+    toast('Delay marked resolved.');
+  } catch(ex) { toast('Error: ' + ex.message); }
+}
+
+async function foremanUnresolveDelay(id) {
+  if (!confirm('Reopen this delay?')) return;
+  try {
+    await sbPatch('fo_delays', `id=eq.${id}`, {resolved: false, resolved_at: null, resolve_comment: null});
+    await loadDelays();
+    toast('Delay reopened.');
+  } catch(ex) { toast('Error: ' + ex.message); }
 }
 
 
 async function submitDelay() {
+  const editingId = val('d-editing-id');
   const jobId = val('d-job-sel') || (myJob && myJob.id);
   const type = val('d-type');
   const desc = val('d-desc').trim();
   const days = parseFloat(val('d-days'))||0;
-  if (!desc) { toast('Please describe the delay.'); return; }
+  if (!desc) { toast('Description is required.'); return; }
+  if (!(days > 0)) { toast('Days lost is required.'); return; }
   if (!jobId) { toast('Please select a project.'); return; }
   try {
-    await sbPost('fo_delays', {
-      job_id: jobId,
-      foreman_id: me.id,
-      foreman_name: me.name,
-      delay_type: type,
-      description: desc,
-      days_lost: days,
-      resolved: false
-    });
+    if (editingId) {
+      await sbPatch('fo_delays', `id=eq.${editingId}`, {delay_type:type, description:desc, days_lost:days});
+      toast('Delay updated.');
+    } else {
+      await sbPost('fo_delays', {
+        job_id: jobId,
+        foreman_id: me.id,
+        foreman_name: me.name,
+        delay_type: type,
+        description: desc,
+        days_lost: days,
+        resolved: false
+      });
+      toast('Delay reported.');
+    }
+    document.getElementById('d-editing-id').value='';
     document.getElementById('d-desc').value='';
     document.getElementById('d-days').value='';
     await loadDelays();
-    toast('Delay reported.');
   } catch(ex) { toast('Error: '+ex.message); }
 }
 

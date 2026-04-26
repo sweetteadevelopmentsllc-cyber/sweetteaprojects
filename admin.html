@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FieldOps · Admin</title>
+<title>Checklist · Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F5F4F0;--card:#FFF;--s2:#FAFAF8;--border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);--text:#1A1A17;--text2:#6B6A66;--text3:#ABABAB;--gold:#B8822A;--gold-bg:#FBF3E4;--green:#3A7D4A;--green-bg:#E8F5EC;--red:#A83232;--red-bg:#FCEAEA;--blue:#2A5FA8;--blue-bg:#EAF0FB;--amber:#A86020;--amber-bg:#FBF0E4;}
+:root{--bg:#F5F4F0;--card:#FFF;--s2:#FAFAF8;--border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);--text:#1A1A17;--text2:#6B6A66;--text3:#ABABAB;--brand:#E2531C;--brand-bg:rgba(226,83,28,0.07);--green:#3A7D4A;--green-bg:#E8F5EC;--red:#A83232;--red-bg:#FCEAEA;--blue:#2A5FA8;--blue-bg:#EAF0FB;--amber:#A86020;--amber-bg:#FBF0E4;}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 #screen-login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--text);padding:2rem}
 .lw{width:100%;max-width:380px}
 .ll{display:flex;align-items:center;gap:12px;margin-bottom:2.5rem}
-.lm{width:40px;height:40px;background:var(--gold);border-radius:9px;display:flex;align-items:center;justify-content:center}
+.lm{width:40px;height:40px;background:var(--brand);border-radius:9px;display:flex;align-items:center;justify-content:center}
 .lm svg{width:20px;height:20px}
 .lb{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:white;letter-spacing:.05em}
 .lc{background:white;border-radius:14px;padding:2rem}
@@ -21,15 +21,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .lf{margin-bottom:12px}
 .lf label{font-size:11px;color:var(--text3);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
 .lf input{width:100%;padding:10px 12px;border:1px solid var(--border2);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--s2);color:var(--text);outline:none}
-.lf input:focus{border-color:var(--gold)}
+.lf input:focus{border-color:var(--brand)}
 .l-err{font-size:12px;color:var(--red);background:var(--red-bg);padding:8px 12px;border-radius:7px;margin-bottom:10px;display:none}
 .l-err.show{display:block}
-.btn-login{width:100%;padding:12px;background:var(--gold);color:white;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;letter-spacing:.05em;cursor:pointer;transition:opacity .15s}
+.btn-login{width:100%;padding:12px;background:var(--brand);color:white;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;letter-spacing:.05em;cursor:pointer;transition:opacity .15s}
 .btn-login:hover{opacity:.88}.btn-login:disabled{opacity:.45}
 .app{display:none;min-height:100vh}.app.active{display:flex}
 .sidebar{width:220px;flex-shrink:0;background:var(--text);min-height:100vh;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
 .sb-logo{display:flex;align-items:center;gap:10px;padding:20px 16px;border-bottom:1px solid rgba(255,255,255,0.08)}
-.sb-m{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-m{width:30px;height:30px;background:var(--brand);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sb-m svg{width:15px;height:15px}
 .sb-brand{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:white;letter-spacing:.05em;line-height:1.1}
 .sb-role{font-size:10px;color:#666;letter-spacing:.04em}
@@ -37,7 +37,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .sb-sec{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.08em;padding:8px 8px 4px}
 .sb-btn{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:none;background:none;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;color:#aaa;text-align:left;transition:all .15s;position:relative}
 .sb-btn:hover{background:rgba(255,255,255,0.06);color:white}
-.sb-btn.active{background:rgba(184,130,42,0.15);color:var(--gold)}
+.sb-btn.active{background:rgba(226,83,28,0.15);color:var(--brand)}
 .sb-icon{font-size:16px;width:20px;text-align:center}
 .sb-dot{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:var(--red);display:none}.sb-dot.show{display:block}
 .sb-footer{padding:12px 8px;border-top:1px solid rgba(255,255,255,0.08)}
@@ -50,7 +50,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.75rem}
 .sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
 .sn{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:700;line-height:1}
-.sn.gold{color:var(--gold)}.sn.green{color:var(--green)}.sn.red{color:var(--red)}
+.sn.gold{color:var(--brand)}.sn.green{color:var(--green)}.sn.red{color:var(--red)}
 .sl{font-size:11px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
 .tw{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
 .th{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
@@ -60,10 +60,10 @@ th{padding:10px 14px;text-align:left;font-size:11px;font-weight:500;color:var(--
 td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
 tr:last-child td{border-bottom:none}tr:hover td{background:var(--s2)}
 .badge{font-size:10px;font-weight:500;padding:3px 9px;border-radius:20px;display:inline-block;letter-spacing:.02em;white-space:nowrap}
-.b-gold{background:var(--gold-bg);color:var(--gold)}.b-green{background:var(--green-bg);color:var(--green)}.b-red{background:var(--red-bg);color:var(--red)}.b-blue{background:var(--blue-bg);color:var(--blue)}.b-amber{background:var(--amber-bg);color:var(--amber)}.b-gray{background:#EEECEA;color:var(--text3)}
+.b-brand{background:var(--brand-bg);color:var(--brand)}.b-green{background:var(--green-bg);color:var(--green)}.b-red{background:var(--red-bg);color:var(--red)}.b-blue{background:var(--blue-bg);color:var(--blue)}.b-amber{background:var(--amber-bg);color:var(--amber)}.b-gray{background:#EEECEA;color:var(--text3)}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s;text-decoration:none}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.btn-primary{background:var(--gold);color:white}.btn-primary:hover:not(:disabled){opacity:.85}
+.btn-primary{background:var(--brand);color:white}.btn-primary:hover:not(:disabled){opacity:.85}
 .btn-secondary{background:var(--card);color:var(--text2);border:1px solid var(--border2)}.btn-secondary:hover:not(:disabled){background:var(--s2)}
 .btn-success{background:var(--green-bg);color:var(--green);border:1px solid rgba(58,125,74,0.2)}
 .btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(168,50,50,0.2)}
@@ -77,7 +77,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:var(--s2)}
 .ff{margin-bottom:14px}
 .fl{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
 .fi{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--s2);color:var(--text);outline:none}
-.fi:focus{border-color:var(--gold)}
+.fi:focus{border-color:var(--brand)}
 textarea.fi{resize:vertical;min-height:70px;line-height:1.5}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .ac{background:var(--card);border:1px solid var(--border);border-left:3px solid transparent;border-radius:12px;padding:16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
@@ -97,7 +97,7 @@ textarea.fi{resize:vertical;min-height:70px;line-height:1.5}
 .admin-reminder{font-size:11px;color:#5B21B6;background:#F0EDF8;border-radius:5px;padding:4px 8px;margin-top:5px;line-height:1.4}
 .se-row{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;cursor:default;transition:box-shadow .15s}
 .se-row.dragging{opacity:.4}
-.se-row.drag-over{box-shadow:0 0 0 2px var(--gold);border-color:var(--gold)}
+.se-row.drag-over{box-shadow:0 0 0 2px var(--brand);border-color:var(--brand)}
 .drag-handle{cursor:grab;color:var(--text3);padding:0 6px;font-size:16px;line-height:1;user-select:none;flex-shrink:0}
 .drag-handle:active{cursor:grabbing}
 .tmpl-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -105,7 +105,7 @@ textarea.fi{resize:vertical;min-height:70px;line-height:1.5}
 .empty{text-align:center;padding:3rem 1rem;color:var(--text3)}.empty-icon{font-size:36px;margin-bottom:10px}.empty-msg{font-size:13px;line-height:1.6}
 #loading{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;align-items:center;justify-content:center}
 #loading.hidden{display:none}
-.spinner{width:28px;height:28px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+.spinner{width:28px;height:28px;border:3px solid var(--border2);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:white;border-radius:10px;padding:10px 18px;font-size:13px;z-index:500;opacity:0;transition:opacity .2s;pointer-events:none;max-width:320px}
 .toast.show{opacity:1}
@@ -121,7 +121,7 @@ textarea.fi{resize:vertical;min-height:70px;line-height:1.5}
   <div class="lw">
     <div class="ll">
       <div class="lm"><svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="white"/></svg></div>
-      <div><div class="lb">FieldOps Admin</div></div>
+      <div><div class="lb">Checklist Admin</div></div>
     </div>
     <div class="lc">
       <div class="lt">Owner / PM Login</div>
@@ -138,7 +138,7 @@ textarea.fi{resize:vertical;min-height:70px;line-height:1.5}
   <aside class="sidebar">
     <div class="sb-logo">
       <div class="sb-m"><svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="white"/></svg></div>
-      <div><div class="sb-brand">FieldOps</div><div class="sb-role">Admin Dashboard</div></div>
+      <div><div class="sb-brand">Checklist</div><div class="sb-role">Admin Dashboard</div></div>
     </div>
     <nav class="sb-nav">
       <div class="sb-sec">Overview</div>
@@ -149,6 +149,11 @@ textarea.fi{resize:vertical;min-height:70px;line-height:1.5}
       <button class="sb-btn" id="nav-foremen" onclick="showPage('foremen')"><span class="sb-icon">👷</span>Foremen</button>
       <button class="sb-btn" id="nav-delays" onclick="showPage('delays')"><span class="sb-icon">⚠️</span>Delays</button>
       <button class="sb-btn" id="nav-templates" onclick="showPage('templates')"><span class="sb-icon">📋</span>Templates</button>
+      <div class="sb-sec">Tools</div>
+      <a class="sb-btn" href="index.html" style="text-decoration:none"><span class="sb-icon">🏠</span>Home</a>
+      <div class="sb-sec">Tools</div>
+      <a class="sb-btn" href="quote.html" style="text-decoration:none"><span class="sb-icon">💰</span>Quote Builder</a>
+      <a class="sb-btn" href="materials.html" style="text-decoration:none"><span class="sb-icon">🧱</span>Materials</a>
     </nav>
     <div class="sb-footer">
       <div class="sb-user"><strong id="sb-name">—</strong>Project Manager</div>
@@ -394,7 +399,7 @@ async function renderOverview(){
     return `<tr>
       <td><strong>${job.name}</strong><div style="font-size:11px;color:var(--text2)">${job.address||''}</div></td>
       <td>${fm?fm.name:'<span style="color:var(--text3)">Unassigned</span>'}</td>
-      <td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:5px;background:#E8E6E0;border-radius:99px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--gold);border-radius:99px"></div></div><span style="font-size:12px;color:var(--text2)">${pct}%</span></div></td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:5px;background:#E8E6E0;border-radius:99px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--brand);border-radius:99px"></div></div><span style="font-size:12px;color:var(--text2)">${pct}%</span></div></td>
       <td style="font-size:12px;color:${isOverdue?'var(--red)':'var(--text2)'}">${isOverdue?'⚠️ ':''} ${dl}</td>
       <td>${pending?`<span class="badge b-amber">${pending} waiting</span>`:'<span class="badge b-gray">None</span>'}</td>
     </tr>`;
@@ -463,7 +468,7 @@ async function openApprovalDetail(aprId){
       </div>
       <div style="background:var(--s2);padding:12px;border-radius:8px">
         <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:4px">Stage payout</div>
-        <div style="font-size:24px;font-weight:700;font-family:'Barlow Condensed',sans-serif;color:var(--gold)">${stage.payout>0?'$'+Number(stage.payout).toFixed(2):'Not set'}</div>
+        <div style="font-size:24px;font-weight:700;font-family:'Barlow Condensed',sans-serif;color:var(--brand)">${stage.payout>0?'$'+Number(stage.payout).toFixed(2):'Not set'}</div>
         <div style="font-size:11px;color:var(--text2)">${stage.estimated_days>0?stage.estimated_days+' days estimated':''}</div>
       </div>
     </div>
@@ -651,7 +656,7 @@ async function renderJobs(){
     const totalP=stages.reduce((s,st)=>s+(st.payout||0),0);
     const asgn=allAssigns.find(a=>a.job_id===job.id);
     const fm=asgn?allForemen.find(f=>f.id===asgn.foreman_id):null;
-    const portalUrl=job.project_id?`${window.location.origin.replace('admin.html','').replace(/\/admin.*$/,'')}/${window.location.pathname.replace(/admin\.html.*/,'')}index.html?project=${job.project_id}`:'';
+    const portalUrl=job.project_id?`${window.location.origin.replace('admin.html','').replace(/\/admin.*$/,'')}/${window.location.pathname.replace(/admin\.html.*/,'')}customer-portal.html?project=${job.project_id}`:'';
     return `<div class="tw" style="margin-bottom:12px${job.archived?';opacity:.6':''}">
       <div class="th">
         <div>
@@ -659,7 +664,7 @@ async function renderJobs(){
           <div style="font-size:12px;color:var(--text2)">${job.address||''}${job.project_id?' · ?project='+job.project_id:''}</div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          ${job.project_id?`<a class="btn btn-secondary btn-sm" href="index.html?project=${job.project_id}" target="_blank">👁 Customer View</a>`:''}
+          ${job.project_id?`<a class="btn btn-secondary btn-sm" href="customer-portal.html?project=${job.project_id}" target="_blank">👁 Customer View</a>`:''}
           <button class="btn btn-secondary btn-sm" onclick="openStagesModal('${job.id}','${esc(job.name)}')">📋 Stages</button>
           <button class="btn btn-secondary btn-sm" onclick="openEditJob('${job.id}')">✏️ Edit</button>
           <button class="btn btn-secondary btn-sm" onclick="toggleArchive('${job.id}','${esc(job.name)}',${!!job.archived})">${job.archived?'Unarchive':'Archive'}</button>
@@ -1026,6 +1031,8 @@ async function saveStages(){
   editStages.forEach((s,i)=>s.order_index=i);
   const valid=editStages.filter(s=>s.name.trim());
   if(!valid.length){toast('Add at least one stage.');return;}
+  const missingDays=valid.filter(s=>!(s.estimated_days>0));
+  if(missingDays.length){toast(`Stage "${missingDays[0].name}" needs an Est. Days value.`);return;}
 
   const btn=document.querySelector('#modal-stages .btn-primary');
   if(btn){btn.disabled=true;btn.textContent='Saving…';}
@@ -1152,7 +1159,7 @@ function openAssignModal(fId){
   const list=document.getElementById('assign-jobs-list');
   list.innerHTML=allJobs.map(j=>`
     <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border)">
-      <input type="checkbox" value="${j.id}" ${current.includes(j.id)?'checked':''} style="width:16px;height:16px;accent-color:var(--gold)"/>
+      <input type="checkbox" value="${j.id}" ${current.includes(j.id)?'checked':''} style="width:16px;height:16px;accent-color:var(--brand)"/>
       <div>
         <div style="font-size:13px;font-weight:500">${j.name}</div>
         <div style="font-size:11px;color:var(--text2)">${j.address||''}</div>
@@ -1190,7 +1197,9 @@ async function loadDelays(){
     <td>${d.resolved?'<span class="badge b-green">Resolved</span>':'<span class="badge b-amber">Open</span>'}</td>
     <td style="display:flex;gap:4px;flex-wrap:wrap">
       <button class="btn btn-secondary btn-sm" onclick="openEditDelayModal('${d.id}','${d.job_id}','${d.delay_type}',${JSON.stringify(d.description).replace(/'/g,"\'")},'${d.days_lost||0}','${d.resolved}')">Edit</button>
-      ${!d.resolved?`<button class="btn btn-success btn-sm" onclick="resolveDelay('${d.id}','${d.job_id}')">Resolve</button>`:''}
+      ${!d.resolved
+        ? `<button class="btn btn-success btn-sm" onclick="resolveDelay('${d.id}','${d.job_id}')">Resolve</button>`
+        : `<button class="btn btn-secondary btn-sm" onclick="unresolveDelay('${d.id}','${d.job_id}')">Unresolve</button>`}
       <button class="btn btn-danger btn-sm" onclick="deleteDelay('${d.id}','${d.job_id}')">Delete</button>
     </td>
   </tr>`).join('');
@@ -1221,7 +1230,8 @@ function openEditDelayModal(id,jobId,type,desc,days,resolved){
 async function submitDelay(){
   const delayId=val('d-delay-id');
   const jobId=val('d-job'),type=val('d-type'),desc=val('d-desc').trim(),days=parseFloat(val('d-days'))||0;
-  if(!desc){toast('Please describe the delay.');return;}
+  if(!desc){toast('Description is required.');return;}
+  if(!(days>0)){toast('Days lost is required — enter at least 0.5.');return;}
   try{
     if(delayId){
       // Edit existing
@@ -1236,9 +1246,47 @@ async function submitDelay(){
   }catch(ex){toast('Error: '+ex.message);}
 }
 
-async function resolveDelay(id,jobId){
-  try{await sbPatch('fo_delays',`id=eq.${id}`,{resolved:true});await recalcPortalETA(jobId);await loadDelays();toast('Delay resolved. Portal ETA recalculated.');}
-  catch(ex){toast('Error: '+ex.message);}
+async function resolveDelay(id, jobId){
+  const comment = prompt('Optional: Add a resolution note for the customer (leave blank to skip):', '');
+  if (comment === null) return; // user hit Cancel
+  try{
+    const resolvedAt = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    await sbPatch('fo_delays',`id=eq.${id}`,{
+      resolved: true,
+      resolve_comment: comment.trim() || null,
+      resolved_at: new Date().toISOString()
+    });
+    // Push resolution update to customer portal
+    const job = allJobs.find(j=>j.id===jobId);
+    if(job?.project_id){
+      try{
+        const pRows = await sbGet('projects',`id=eq.${encodeURIComponent(job.project_id)}&select=data`);
+        if(pRows?.length){
+          const portal = {...pRows[0].data};
+          if(!portal.updates) portal.updates=[];
+          const note = comment.trim() ? ` ${comment.trim()}` : '';
+          portal.updates.unshift({
+            date: resolvedAt,
+            text: `Delay resolved.${note} Your project timeline has been updated.`
+          });
+          await sbUpsert('projects',{id:job.project_id,data:portal});
+        }
+      }catch(e){}
+    }
+    await recalcPortalETA(jobId);
+    await loadDelays();
+    toast('Delay resolved and customer notified.');
+  }catch(ex){toast('Error: '+ex.message);}
+}
+
+async function unresolveDelay(id, jobId){
+  if(!confirm('Mark this delay as open again?')) return;
+  try{
+    await sbPatch('fo_delays',`id=eq.${id}`,{resolved:false, resolve_comment:null, resolved_at:null});
+    await recalcPortalETA(jobId);
+    await loadDelays();
+    toast('Delay reopened.');
+  }catch(ex){toast('Error: '+ex.message);}
 }
 
 async function deleteDelay(id,jobId){

@@ -3,843 +3,257 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project Tracker</title>
+<title>Checklist — Sweet Tea Build</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+:root{
+  --brand:#E2531C;--brand2:#F4713D;--brand-dark:#C03C0D;
+  --brand-bg:rgba(226,83,28,0.07);--brand-border:rgba(226,83,28,0.18);
+  --bg:#F7F6F3;--card:#FFFFFF;--s2:#FAFAF8;--s3:#F0EEEA;
+  --sidebar:#0F0F0D;
+  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.12);
+  --text:#1A1A17;--text2:#6B6A66;--text3:#ABABAB;
+  --green:#3A7D4A;--green-bg:#E8F5EC;
+  --red:#A83232;--red-bg:#FCEAEA;
+  --amber:#A86020;--amber-bg:#FBF0E4;
+  --blue:#2A5FA8;--blue-bg:#EAF0FB;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 
-:root {
-  --bg: #F9F8F6;
-  --card: #FFFFFF;
-  --text: #1C1C1A;
-  --text2: #6B6A66;
-  --text3: #ABABAB;
-  --border: rgba(0,0,0,0.07);
-  --border2: rgba(0,0,0,0.12);
-  --green: #3B6D11;
-  --green-bg: #EAF3DE;
-  --green-mid: #639922;
-  --blue: #185FA5;
-  --blue-bg: #E6F1FB;
-  --amber: #854F0B;
-  --amber-bg: #FAEEDA;
-  --accent: #1C1C1A;
-}
+/* SIDEBAR */
+.sidebar{width:240px;flex-shrink:0;background:var(--sidebar);min-height:100vh;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.sb-brand{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:12px}
+.sb-logo{width:36px;height:36px;background:var(--brand);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo svg{width:18px;height:18px}
+.sb-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:white;letter-spacing:.03em;line-height:1}
+.sb-sub{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:.05em;margin-top:2px}
+.sb-section{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,0.25);font-weight:600;padding:16px 20px 6px}
+.sb-link{display:flex;align-items:center;gap:11px;padding:9px 16px 9px 20px;margin:1px 8px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,0.5);font-size:13px;font-weight:400;transition:all .15s;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;width:calc(100% - 16px);text-align:left}
+.sb-link:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9)}
+.sb-link.active{background:rgba(226,83,28,0.18);color:#FF8058}
+.sb-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
+.sb-badge{margin-left:auto;font-size:10px;font-weight:700;background:var(--red);color:white;padding:1px 6px;border-radius:99px;min-width:18px;text-align:center;display:none}
+.sb-badge.show{display:inline-block}
+.sb-footer{margin-top:auto;padding:12px 8px 16px;border-top:1px solid rgba(255,255,255,0.06)}
+.sb-user{padding:8px 12px;font-size:12px;color:rgba(255,255,255,0.3);line-height:1.6}
+.sb-user strong{color:rgba(255,255,255,0.7);display:block;font-size:13px}
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* MAIN */
+.main{margin-left:240px;flex:1;min-height:100vh;display:flex;flex-direction:column}
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
+/* TOPBAR */
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.tb-greeting{font-size:15px;font-weight:500;color:var(--text)}
+.tb-date{font-size:12px;color:var(--text3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.tb-btn:hover{background:var(--card);color:var(--text);border-color:var(--border2)}
+.tb-btn.primary{background:var(--brand);color:white;border-color:var(--brand)}
+.tb-btn.primary:hover{background:var(--brand2);border-color:var(--brand2)}
 
-.page {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem 5rem;
-}
+/* CONTENT */
+.content{padding:2rem;flex:1}
 
-/* Top bar */
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2.5rem;
-}
-.company-mark {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-.mark-box {
-  width: 28px;
-  height: 28px;
-  background: var(--accent);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.mark-box svg { width: 14px; height: 14px; }
-.company-label {
-  font-family: 'Syne', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text2);
-  letter-spacing: 0.02em;
-}
-.admin-btn {
-  font-size: 12px;
-  color: var(--text3);
-  background: none;
-  border: 1px solid var(--border2);
-  border-radius: 6px;
-  padding: 5px 12px;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  transition: all .15s;
-}
-.admin-btn:hover { color: var(--text2); border-color: var(--border2); background: white; }
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:2rem}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:transform .15s,box-shadow .15s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.07)}
+.stat-icon{font-size:20px;margin-bottom:10px}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:800;line-height:1;color:var(--text);margin-bottom:3px}
+.stat-num.brand{color:var(--brand)}.stat-num.green{color:var(--green)}.stat-num.red{color:var(--red)}.stat-num.amber{color:var(--amber)}
+.stat-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);font-weight:500}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px}
 
-/* Project header */
-.project-header { margin-bottom: 2rem; }
-.project-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.5px;
-  line-height: 1.2;
-  margin-bottom: 6px;
-}
-.project-address {
-  font-size: 14px;
-  color: var(--text2);
-}
+/* NAV CARDS */
+.nav-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:2rem}
+.nav-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 20px;text-decoration:none;color:var(--text);transition:all .2s;display:block;position:relative;overflow:hidden}
+.nav-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.09)}
+.nc-stripe{position:absolute;top:0;left:0;right:0;height:3px;background:var(--nc-color,var(--brand));opacity:0;transition:opacity .2s}
+.nav-card:hover .nc-stripe{opacity:1}
+.nav-card:hover{border-color:var(--nc-color,var(--brand))}
+.nc-icon{width:44px;height:44px;border-radius:11px;background:var(--nc-bg,var(--brand-bg));display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.nc-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.02em;margin-bottom:5px}
+.nc-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.nc-arrow{position:absolute;top:20px;right:20px;font-size:16px;color:var(--text3);transition:all .2s}
+.nav-card:hover .nc-arrow{transform:translate(2px,-2px);color:var(--nc-color,var(--brand))}
 
-/* Info strip */
-.info-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 1.75rem;
-}
-.info-cell {
-  background: var(--card);
-  padding: 12px 14px;
-}
-.info-lbl {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text3);
-  margin-bottom: 4px;
-}
-.info-val {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text);
-}
-.info-val.green { color: var(--green); }
+/* SECTION */
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.03em}
+.section-link{font-size:12px;color:var(--brand);text-decoration:none;font-weight:500}
+.section-link:hover{text-decoration:underline}
 
-/* Progress */
-.progress-wrap { margin-bottom: 2rem; }
-.progress-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 7px;
-}
-.progress-lbl { font-size: 12px; color: var(--text2); }
-.progress-num {
-  font-family: 'Syne', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--green);
-}
-.progress-track {
-  height: 6px;
-  background: #E8E6E0;
-  border-radius: 99px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: var(--green-mid);
-  border-radius: 99px;
-  transition: width .8s cubic-bezier(.4,0,.2,1);
-}
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 360px;gap:20px}
 
-/* Section label */
-.section-lbl {
-  font-size: 10px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--text3);
-  margin-bottom: 10px;
-}
+/* JOB CARD */
+.job-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin-bottom:7px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;transition:border-color .15s}
+.job-card:hover{border-color:var(--border2)}
+.jc-name{font-size:13px;font-weight:500;margin-bottom:2px}
+.jc-meta{font-size:11px;color:var(--text3)}
+.jc-progress{display:flex;align-items:center;gap:8px;margin-top:7px}
+.jc-bar{flex:1;height:4px;background:#E8E6E0;border-radius:99px;overflow:hidden}
+.jc-fill{height:100%;background:var(--brand);border-radius:99px;transition:width .5s}
+.jc-pct{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);width:28px;text-align:right}
+.jc-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 
-/* Phases */
-.phases { margin-bottom: 2.5rem; }
-.phase-row {
-  display: grid;
-  grid-template-columns: 22px 1fr auto;
-  gap: 13px;
-  align-items: start;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-  position: relative;
-}
-.phase-row:last-child { border-bottom: none; }
-.phase-node {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-.phase-node.done { background: var(--green-bg); }
-.phase-node.active { background: var(--blue-bg); }
-.phase-node.pending { background: #EEECEA; }
-.node-line {
-  position: absolute;
-  left: 10px;
-  top: 34px;
-  width: 1px;
-  bottom: 0;
-  background: var(--border);
-}
-.node-line.done { background: #C0DD97; }
-.phase-row:last-child .node-line { display: none; }
-.phase-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text);
-  margin-bottom: 2px;
-  line-height: 1.3;
-}
-.phase-name.dim { color: var(--text3); font-weight: 400; }
-.phase-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
-.phase-right { text-align: right; padding-top: 1px; }
-.phase-dur { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
-.badge {
-  font-size: 10px;
-  font-weight: 500;
-  padding: 2px 8px;
-  border-radius: 20px;
-  display: inline-block;
-  letter-spacing: 0.02em;
-}
-.badge.done { background: var(--green-bg); color: var(--green); }
-.badge.active { background: var(--blue-bg); color: var(--blue); }
-.badge.pending { background: #EEECEA; color: var(--text3); }
+/* BADGE */
+.badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;display:inline-block;letter-spacing:.02em;white-space:nowrap}
+.b-brand{background:var(--brand-bg);color:var(--brand)}.b-green{background:var(--green-bg);color:var(--green)}.b-red{background:var(--red-bg);color:var(--red)}.b-amber{background:var(--amber-bg);color:var(--amber)}.b-gray{background:var(--s3);color:var(--text3)}
 
-/* Updates */
-.updates { margin-bottom: 2.5rem; }
-.update-item {
-  display: grid;
-  grid-template-columns: 72px 1fr;
-  gap: 14px;
-  padding: 11px 0;
-  border-bottom: 1px solid var(--border);
-  align-items: start;
-}
-.update-item:last-child { border-bottom: none; }
-.update-date { font-size: 11px; color: var(--text3); padding-top: 2px; line-height: 1.4; }
-.update-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
-.update-text strong { color: var(--text); font-weight: 500; }
+/* LIST ITEMS */
+.list-item{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--li-color,var(--border2));border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.li-title{font-size:12px;font-weight:500;margin-bottom:2px}
+.li-sub{font-size:11px;color:var(--text3)}
+.li-btn{padding:4px 11px;background:var(--li-color,var(--brand));color:white;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-block;transition:opacity .15s;white-space:nowrap}
+.li-btn:hover{opacity:.85}
 
-/* Photos */
-.photos-section { margin-bottom: 2.5rem; }
-.photos-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.photo-item {
-  aspect-ratio: 4/3;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #EEECEA;
-  position: relative;
-}
-.photo-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  cursor: pointer;
-  transition: transform .2s;
-}
-.photo-item img:hover { transform: scale(1.03); }
-.photo-caption {
-  font-size: 10px;
-  color: var(--text3);
-  margin-top: 4px;
-  text-align: center;
-  line-height: 1.3;
-}
+/* QUICK ACTIONS */
+.qa-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:2rem}
+.qa{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;transition:all .15s;border:1px solid var(--border2);background:var(--card);color:var(--text2)}
+.qa:hover{background:var(--brand);color:white;border-color:var(--brand)}
+.qa.primary{background:var(--brand);color:white;border-color:var(--brand)}
+.qa.primary:hover{background:var(--brand2);border-color:var(--brand2)}
 
-/* Lightbox */
-.lightbox {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
-.lightbox.open { display: flex; }
-.lightbox img {
-  max-width: 100%;
-  max-height: 90vh;
-  border-radius: 8px;
-  object-fit: contain;
-}
-.lightbox-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(255,255,255,0.15);
-  border: none;
-  color: white;
-  font-size: 20px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* SKELETON */
+.sk{background:linear-gradient(90deg,#f0eeeb 25%,#e6e3df 50%,#f0eeeb 75%);background-size:200% 100%;animation:sh 1.4s infinite;border-radius:10px}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* Contact */
-.contact-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.contact-lbl { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-.contact-name { font-size: 14px; font-weight: 500; color: var(--text); }
-.contact-links { display: flex; gap: 8px; flex-wrap: wrap; }
-.contact-link {
-  font-size: 12px;
-  color: var(--text2);
-  text-decoration: none;
-  padding: 6px 14px;
-  border: 1px solid var(--border2);
-  border-radius: 7px;
-  background: var(--bg);
-  transition: all .15s;
-}
-.contact-link:hover { background: white; color: var(--text); }
+/* EMPTY */
+.empty-msg{text-align:center;padding:16px;font-size:12px;color:var(--text3);background:var(--s2);border-radius:8px}
+.empty-msg a{color:var(--brand)}
 
-/* ===== ADMIN PANEL ===== */
-.admin-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  z-index: 100;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 2rem 1rem;
-  overflow-y: auto;
-}
-.admin-overlay.open { display: flex; }
-.admin-panel {
-  background: white;
-  border-radius: 14px;
-  width: 100%;
-  max-width: 560px;
-  padding: 2rem;
-  position: relative;
-}
-.admin-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: var(--text);
-}
-.admin-section { margin-bottom: 1.5rem; }
-.admin-lbl {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: var(--text3);
-  margin-bottom: 8px;
-  font-weight: 500;
-}
-.field-row { margin-bottom: 10px; }
-.field-row label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
-.field-row input, .field-row textarea, .field-row select {
-  width: 100%;
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  padding: 8px 10px;
-  border: 1px solid #E0DED8;
-  border-radius: 7px;
-  background: #FAFAF8;
-  color: var(--text);
-  outline: none;
-}
-.field-row input:focus, .field-row textarea:focus, .field-row select:focus {
-  border-color: #B0AFAB;
-  background: white;
-}
-.field-row textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
-
-/* Phase edit rows — full editing */
-.phase-edit-row {
-  background: #FAFAF8;
-  border: 1px solid #E8E6E0;
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-}
-.phase-edit-top {
-  display: grid;
-  grid-template-columns: 1fr 120px 28px;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 6px;
-}
-.phase-edit-top input {
-  font-size: 13px;
-  padding: 6px 8px;
-  border: 1px solid #E0DED8;
-  border-radius: 6px;
-  background: white;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--text);
-  outline: none;
-}
-.phase-edit-top input:focus { border-color: #B0AFAB; }
-.phase-edit-top select {
-  font-size: 12px;
-  padding: 6px 8px;
-  border: 1px solid #E0DED8;
-  border-radius: 6px;
-  background: white;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--text);
-  outline: none;
-}
-.phase-edit-bottom {
-  display: grid;
-  grid-template-columns: 1fr 100px;
-  gap: 8px;
-}
-.phase-edit-bottom input {
-  font-size: 12px;
-  padding: 5px 8px;
-  border: 1px solid #E0DED8;
-  border-radius: 6px;
-  background: white;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--text2);
-  outline: none;
-}
-.phase-edit-bottom input:focus { border-color: #B0AFAB; }
-.phase-delete-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: none;
-  color: var(--text3);
-  cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 5px;
-  transition: all .15s;
-}
-.phase-delete-btn:hover { background: #FEE2E2; color: #A32D2D; }
-
-.add-phase-btn {
-  font-size: 12px;
-  color: var(--text3);
-  background: none;
-  border: 1px dashed var(--border2);
-  border-radius: 7px;
-  padding: 6px 14px;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  margin-top: 4px;
-  width: 100%;
-}
-.add-phase-btn:hover { color: var(--text2); background: var(--bg); }
-
-.admin-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
-}
-.btn-save {
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 9px 22px;
-  cursor: pointer;
-  transition: opacity .15s;
-}
-.btn-save:hover { opacity: .85; }
-.btn-cancel {
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  background: none;
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  padding: 9px 18px;
-  cursor: pointer;
-  color: var(--text2);
-}
-.btn-cancel:hover { background: var(--bg); }
-
-/* Password screen */
-.pw-screen {
-  display: none;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-  padding: 1rem 0 0.5rem;
-}
-.pw-screen.show { display: flex; }
-.pw-screen input {
-  width: 100%;
-  max-width: 280px;
-  font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  padding: 9px 14px;
-  border: 1px solid #E0DED8;
-  border-radius: 8px;
-  text-align: center;
-  letter-spacing: 3px;
-  outline: none;
-}
-.pw-screen input:focus { border-color: #B0AFAB; }
-.pw-err { font-size: 12px; color: #A32D2D; display: none; }
-.pw-err.show { display: block; }
-.btn-pw {
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 9px 24px;
-  cursor: pointer;
-}
-
-.add-update-btn {
-  font-size: 12px;
-  color: var(--text3);
-  background: none;
-  border: 1px dashed var(--border2);
-  border-radius: 7px;
-  padding: 6px 14px;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  margin-top: 8px;
-  width: 100%;
-}
-.add-update-btn:hover { color: var(--text2); background: var(--bg); }
-
-/* Photo upload in admin */
-.photo-upload-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 8px;
-}
-.photo-upload-slot {
-  aspect-ratio: 4/3;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #F2F0EC;
-  border: 1px dashed #D0CEC9;
-  position: relative;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  transition: all .15s;
-}
-.photo-upload-slot:hover { border-color: #ABABAB; background: #EEECEA; }
-.photo-upload-slot.has-photo { border: none; }
-.photo-upload-slot img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.photo-upload-slot input[type="file"] {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-  width: 100%;
-  height: 100%;
-}
-.upload-icon { font-size: 18px; color: var(--text3); }
-.upload-label-text { font-size: 10px; color: var(--text3); }
-.photo-remove-btn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.5);
-  color: white;
-  border: none;
-  font-size: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-  line-height: 1;
-}
-.add-photo-slot-btn {
-  font-size: 12px;
-  color: var(--text3);
-  background: none;
-  border: 1px dashed var(--border2);
-  border-radius: 7px;
-  padding: 6px 14px;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  width: 100%;
-}
-.add-photo-slot-btn:hover { color: var(--text2); background: var(--bg); }
-
-/* Status indicator */
-.save-status {
-  font-size: 12px;
-  color: var(--green);
-  opacity: 0;
-  transition: opacity .3s;
-}
-.save-status.show { opacity: 1; }
-
-/* Auto-progress hint */
-.auto-pct-hint {
-  font-size: 11px;
-  color: var(--text3);
-  margin-top: 4px;
-  font-style: italic;
-}
-
-
-/* Delay banner */
-.delay-banner {
-  background: #FFF3CD;
-  border: 1px solid #FBBF24;
-  border-radius: 10px;
-  padding: 12px 16px;
-  margin-bottom: 1.5rem;
-  display: none;
-}
-.delay-banner.show { display: flex; align-items: flex-start; gap: 10px; }
-.delay-banner-icon { font-size: 18px; flex-shrink: 0; }
-.delay-banner-text { font-size: 13px; color: #854F0B; line-height: 1.5; }
-.delay-banner-text strong { color: #5A3508; }
-
-/* Phase timeline */
-.phase-timeline { font-size: 11px; color: var(--text3); margin-top: 2px; }
-.phase-timeline.overdue { color: var(--amber); }
-
-/* ETA adjusted note */
-.eta-adjusted {
-  font-size: 10px;
-  color: var(--amber);
-  margin-top: 2px;
-}
-
-@media (max-width: 560px) {
-  .info-strip { grid-template-columns: repeat(2, 1fr); }
-  .project-title { font-size: 22px; }
-  .contact-card { flex-direction: column; align-items: flex-start; }
-  .admin-panel { padding: 1.5rem 1.25rem; }
-  .photos-grid { grid-template-columns: repeat(2, 1fr); }
-  .photo-upload-grid { grid-template-columns: repeat(2, 1fr); }
-}
+@media(max-width:1200px){.nav-grid,.stat-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.sidebar{width:56px;overflow:hidden}.sb-name,.sb-sub,.sb-section,.sb-link span,.sb-user{display:none}.sb-link{justify-content:center;padding:12px}.main{margin-left:56px}.two-col{grid-template-columns:1fr}.nav-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 
-<div class="page">
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo"><svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="white"/></svg></div>
+    <div><div class="sb-name">Checklist</div><div class="sb-sub">Sweet Tea Build</div></div>
+  </div>
+
+  <div class="sb-section">Main</div>
+  <a class="sb-link active" href="index.html"><span class="sb-icon">🏠</span><span>Home</span></a>
+  <a class="sb-link" href="admin.html"><span class="sb-icon">📊</span><span>Admin Dashboard</span><span class="sb-badge" id="sb-badge">0</span></a>
+  <a class="sb-link" href="foreman.html"><span class="sb-icon">👷</span><span>Foreman App</span></a>
+
+  <div class="sb-section">Tools</div>
+  <a class="sb-link" href="quote.html"><span class="sb-icon">💰</span><span>Quote Builder</span></a>
+  <a class="sb-link" href="materials.html"><span class="sb-icon">🧱</span><span>Materials</span></a>
+
+  <div class="sb-footer">
+    <div class="sb-user"><strong>Michael Fedrick</strong>Project Manager</div>
+  </div>
+</aside>
+
+<div class="main">
   <div class="topbar">
-    <div class="company-mark">
-      <div class="mark-box">
-        <svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="white"/></svg>
-      </div>
-      <span class="company-label" id="view-company">Your Company Name</span>
-    </div>
-    <button class="admin-btn" onclick="openAdmin()">Edit project</button>
-  </div>
-
-  <div class="project-header">
-    <h1 class="project-title" id="view-title">Johnson Kitchen Remodel</h1>
-    <p class="project-address" id="view-address">123 Maple Street, Atlanta, GA 30301</p>
-  </div>
-
-  <div class="info-strip">
-    <div class="info-cell"><div class="info-lbl">Start date</div><div class="info-val" id="view-start">Apr 7, 2026</div></div>
-    <div class="info-cell"><div class="info-lbl">Est. completion</div><div class="info-val" id="view-eta">May 30, 2026</div></div>
-    <div class="info-cell"><div class="info-lbl">Current phase</div><div class="info-val" id="view-phase">Rough Framing</div></div>
-    <div class="info-cell"><div class="info-lbl">Progress</div><div class="info-val green" id="view-pct">38% complete</div></div>
-  </div>
-
-
-  <div class="delay-banner" id="delay-banner">
-    <div class="delay-banner-icon">⚠️</div>
-    <div class="delay-banner-text" id="delay-banner-text"></div>
-  </div>
-  <div class="progress-wrap">
-    <div class="progress-head">
-      <span class="progress-lbl">Build progress</span>
-      <span class="progress-num" id="view-pct2">38%</span>
-    </div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progress-bar" style="width:38%"></div>
-    </div>
-  </div>
-
-  <div class="phases">
-    <div class="section-lbl">Project phases</div>
-    <div id="phases-view"></div>
-  </div>
-
-  <div id="drive-link-wrap" style="display:none;margin-bottom:2rem">
-    <div class="section-lbl">Job site photos</div>
-    <a id="drive-link-btn" href="#" target="_blank" rel="noopener"
-      style="display:inline-flex;align-items:center;gap:10px;padding:12px 20px;
-             background:white;border:1px solid var(--border2);border-radius:10px;
-             text-decoration:none;color:var(--text);font-size:14px;font-weight:500;
-             transition:background .15s;box-shadow:0 1px 3px rgba(0,0,0,0.06)">
-      <svg width="20" height="20" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg">
-        <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
-        <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
-        <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
-        <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
-        <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
-        <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 27h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
-      </svg>
-      View Project Photos
-    </a>
-  </div>
-
-  <div id="delays-section-wrap" style="margin-bottom:2rem;display:none">
-    <div class="section-lbl">Active Delays</div>
-    <div id="delays-customer-view"></div>
-  </div>
-
-  <div class="updates">
-    <div class="section-lbl">Project updates</div>
-    <div id="updates-view"></div>
-  </div>
-
-  <div class="contact-card">
     <div>
-      <div class="contact-lbl">Your project manager</div>
-      <div class="contact-name" id="view-pm">PM Name · Your Company Name</div>
+      <div class="tb-greeting" id="greeting">Good morning, Michael.</div>
+      <div class="tb-date" id="today-date"></div>
     </div>
-    <div class="contact-links">
-      <a class="contact-link" id="view-phone-link" href="#">📱 (404) 555-0000</a>
-      <a class="contact-link" id="view-email-link" href="#">✉️ Email us</a>
+    <div class="topbar-right">
+      <a class="tb-btn" href="quote.html">+ New Quote</a>
+      <a class="tb-btn primary" href="admin.html">Admin Dashboard →</a>
     </div>
   </div>
-</div>
 
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightbox-img" src="" alt="Job site photo" />
-</div>
+  <div class="content">
 
-<!-- ADMIN OVERLAY -->
-<div class="admin-overlay" id="admin-overlay">
-  <div class="admin-panel">
-
-    <!-- Password screen -->
-    <div id="pw-wrap">
-      <div class="admin-title">Enter admin password</div>
-      <div class="pw-screen show" id="pw-screen">
-        <input type="password" id="pw-input" placeholder="••••••" onkeydown="if(event.key==='Enter')checkPw()" />
-        <div class="pw-err" id="pw-err">Incorrect password</div>
-        <button class="btn-pw" onclick="checkPw()">Unlock</button>
-        <button class="btn-cancel" onclick="closeAdmin()">Cancel</button>
-      </div>
+    <!-- STATS -->
+    <div class="stat-grid" id="stat-grid">
+      <div class="sk" style="height:100px"></div>
+      <div class="sk" style="height:100px"></div>
+      <div class="sk" style="height:100px"></div>
+      <div class="sk" style="height:100px"></div>
     </div>
 
-    <!-- Edit form (hidden until unlocked) -->
-    <div id="edit-form" style="display:none">
-      <div class="admin-title">Edit project</div>
+    <!-- QUICK ACTIONS -->
+    <div class="qa-bar">
+      <a class="qa primary" href="admin.html">📊 Admin Dashboard</a>
+      <a class="qa" href="admin.html">✅ Review Approvals</a>
+      <a class="qa" href="quote.html">💰 New Quote</a>
+      <a class="qa" href="materials.html">🧱 Material List</a>
+      <a class="qa" href="foreman.html">👷 Foreman App</a>
+    </div>
 
-      <div class="admin-section">
-        <div class="admin-lbl">Project details</div>
-        <div class="field-row"><label>Project name</label><input id="e-title" type="text" /></div>
-        <div class="field-row"><label>Address</label><input id="e-address" type="text" /></div>
-        <div class="field-row"><label>Company name</label><input id="e-company" type="text" /></div>
-        <div class="field-row"><label>Start date</label><input id="e-start" type="text" /></div>
-        <div class="field-row"><label>Est. completion</label><input id="e-eta" type="text" /></div>
-        <div class="field-row">
-          <label>Overall progress (0–100) — or leave 0 to auto-calculate from phases</label>
-          <input id="e-pct" type="number" min="0" max="100" />
-          <div class="auto-pct-hint" id="auto-pct-hint"></div>
+    <!-- NAV CARDS -->
+    <div class="section-hd" style="margin-bottom:12px">
+      <div class="section-title">Navigate to</div>
+    </div>
+    <div class="nav-grid">
+      <a class="nav-card" href="admin.html" style="--nc-color:#E2531C;--nc-bg:rgba(226,83,28,0.07)">
+        <div class="nc-stripe"></div>
+        <div class="nc-icon">📊</div>
+        <div class="nc-title">Admin Dashboard</div>
+        <div class="nc-desc">Manage jobs, approve stages, assign foremen, log delays and sync to customers.</div>
+        <div class="nc-arrow">↗</div>
+      </a>
+      <a class="nav-card" href="foreman.html" style="--nc-color:#2A5FA8;--nc-bg:rgba(42,95,168,0.07)">
+        <div class="nc-stripe"></div>
+        <div class="nc-icon">👷</div>
+        <div class="nc-title">Foreman App</div>
+        <div class="nc-desc">Mobile-first field tool. Work through checklists, log delays, request stage approvals.</div>
+        <div class="nc-arrow">↗</div>
+      </a>
+      <a class="nav-card" href="quote.html" style="--nc-color:#3A7D4A;--nc-bg:rgba(58,125,74,0.07)">
+        <div class="nc-stripe"></div>
+        <div class="nc-icon">💰</div>
+        <div class="nc-title">Quote Builder</div>
+        <div class="nc-desc">On-site quick close or detailed post-walkthrough proposals with 33% margin built in.</div>
+        <div class="nc-arrow">↗</div>
+      </a>
+      <a class="nav-card" href="materials.html" style="--nc-color:#A86020;--nc-bg:rgba(168,96,32,0.07)">
+        <div class="nc-stripe"></div>
+        <div class="nc-icon">🧱</div>
+        <div class="nc-title">Material Lists</div>
+        <div class="nc-desc">80+ catalog items, smart estimate by job type, save lists per project.</div>
+        <div class="nc-arrow">↗</div>
+      </a>
+    </div>
+
+    <!-- TWO COLUMN -->
+    <div class="two-col">
+      <div>
+        <div class="section-hd">
+          <div class="section-title">Active Jobs</div>
+          <a class="section-link" href="admin.html">Manage all →</a>
+        </div>
+        <div id="jobs-list">
+          <div class="sk" style="height:72px;margin-bottom:7px"></div>
+          <div class="sk" style="height:72px;margin-bottom:7px"></div>
+          <div class="sk" style="height:72px"></div>
         </div>
       </div>
 
-      <div class="admin-section">
-        <div class="admin-lbl">Project phases</div>
-        <div id="phase-editor"></div>
-        <button class="add-phase-btn" onclick="addPhase()">+ Add phase</button>
-      </div>
-
-      <div class="admin-section">
-        <div class="admin-lbl">Weekly updates</div>
-        <div id="updates-editor"></div>
-        <button class="add-update-btn" onclick="addUpdateField()">+ Add update</button>
-      </div>
-
-      <div class="admin-section">
-        <div class="admin-lbl">Project photos</div>
-        <div class="field-row">
-          <label>Google Drive folder link (optional)</label>
-          <input id="e-drive" type="text" placeholder="https://drive.google.com/drive/folders/…" />
+      <div>
+        <div class="section-hd">
+          <div class="section-title">Pending Approvals</div>
+          <a class="section-link" href="admin.html">Review →</a>
         </div>
-        <div style="font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5">Paste a shared Google Drive folder link. Customers will see a "View Project Photos" button linking directly to this folder.</div>
-      </div>
+        <div id="approvals-list">
+          <div class="sk" style="height:52px;margin-bottom:6px"></div>
+          <div class="sk" style="height:52px"></div>
+        </div>
 
-      <div class="admin-section">
-        <div class="admin-lbl">Contact info</div>
-        <div class="field-row"><label>PM name</label><input id="e-pm" type="text" /></div>
-        <div class="field-row"><label>Phone</label><input id="e-phone" type="text" /></div>
-        <div class="field-row"><label>Email</label><input id="e-email" type="text" /></div>
-      </div>
+        <div class="section-hd" style="margin-top:20px">
+          <div class="section-title">Open Delays</div>
+          <a class="section-link" href="admin.html">Manage →</a>
+        </div>
+        <div id="delays-list">
+          <div class="sk" style="height:52px;margin-bottom:6px"></div>
+        </div>
 
-      <div class="admin-section">
-        <div class="admin-lbl">Change password</div>
-        <div class="field-row"><label>New password (leave blank to keep current)</label><input id="e-pw" type="password" placeholder="New password" /></div>
-      </div>
-
-      <div class="admin-footer">
-        <button class="btn-cancel" onclick="closeAdmin()">Cancel</button>
-        <div style="display:flex;align-items:center;gap:12px">
-          <span class="save-status" id="save-status">✓ Saved</span>
-          <button class="btn-save" onclick="saveChanges()">Save & publish</button>
+        <div class="section-hd" style="margin-top:20px">
+          <div class="section-title">Recent Quotes</div>
+          <a class="section-link" href="quote.html">Open builder →</a>
+        </div>
+        <div id="quotes-list">
+          <div class="sk" style="height:52px"></div>
         </div>
       </div>
     </div>
@@ -848,478 +262,171 @@ body {
 </div>
 
 <script>
-const SB_URL = "https://renltrbierztynzlbige.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlbmx0cmJpZXJ6dHluemxiaWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDA5NTUsImV4cCI6MjA5MjM3Njk1NX0.7KLzXIXKFh8kbZIUxT0W9JWbWEJdOe21D8nGCM4FwN4";
-const REST = SB_URL + "/rest/v1";
-const H = {"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY};
+const SB_URL="https://renltrbierztynzlbige.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlbmx0cmJpZXJ6dHluemxiaWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDA5NTUsImV4cCI6MjA5MjM3Njk1NX0.7KLzXIXKFh8kbZIUxT0W9JWbWEJdOe21D8nGCM4FwN4";
+const REST=SB_URL+"/rest/v1";
+const H={"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY};
+async function sbGet(t,q=""){try{const r=await fetch(`${REST}/${t}?${q}`,{headers:H});if(!r.ok)return[];return await r.json();}catch(e){return[];}}
+function fmt(n){return'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});}
+function fmtAgo(iso){if(!iso)return'';const d=new Date(iso),now=new Date(),diff=Math.floor((now-d)/60000);if(diff<2)return'just now';if(diff<60)return diff+'m ago';if(diff<1440)return Math.floor(diff/60)+'h ago';return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 
-// ── plain fetch helpers ──
-async function sbGet(t, q="") {
-  const r = await fetch(`${REST}/${t}?${q}`, {headers:H});
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
-}
-async function sbPost(t, b, pref="return=representation") {
-  const r = await fetch(`${REST}/${t}`, {method:"POST",headers:{...H,"Prefer":pref},body:JSON.stringify(b)});
-  if (!r.ok) throw new Error(await r.text());
-  const tx = await r.text(); return tx ? JSON.parse(tx) : null;
-}
-async function sbUpsert(t, b) {
-  const r = await fetch(`${REST}/${t}`, {method:"POST",headers:{...H,"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(b)});
-  if (!r.ok) throw new Error(await r.text());
+// Greeting
+function setGreeting(){
+  const h=new Date().getHours();
+  let g='Good morning';
+  if(h>=12&&h<17)g='Good afternoon';
+  if(h>=17)g='Good evening';
+  document.getElementById('greeting').textContent=g+', Michael.';
+  document.getElementById('today-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 }
 
-const _params = new URLSearchParams(window.location.search);
-const PROJECT_ID = (_params.get("project") || "default").toLowerCase().replace(/[^a-z0-9-]/g,"-").slice(0,60);
-const DEFAULT_PW = "build2026";
+async function loadDashboard(){
+  setGreeting();
 
-// ── Defaults for brand-new projects ──
-const defaultData = {
-  password: DEFAULT_PW,
-  company: "Sweet Tea Build",
-  title: "New Project",
-  address: "",
-  start: "",
-  eta: "",
-  pct: 0,
-  pm: "Project Manager",
-  phone: "",
-  email: "",
-  phases: [],
-  updates: [],
-  photos: []
-};
+  const [jobs,approvals,delays,quotes,assignments,foremen]=await Promise.all([
+    sbGet('fo_jobs','archived=eq.false&order=created_at.desc&select=*'),
+    sbGet('fo_approvals','status=eq.pending&select=*'),
+    sbGet('fo_delays','resolved=eq.false&select=*'),
+    sbGet('fo_quotes','order=created_at.desc&limit=4&select=id,customer_name,total,created_at'),
+    sbGet('fo_assignments','select=*'),
+    sbGet('fo_foremen','select=id,name'),
+  ]);
 
-let data = {};
-let liveStages = []; // from fo_stages — authoritative phase source
-
-// ── Load project info from `projects` table ──
-async function loadProjectData() {
-  try {
-    const rows = await sbGet('projects', `id=eq.${encodeURIComponent(PROJECT_ID)}&select=data&limit=1`);
-    if (rows && rows.length > 0 && rows[0].data) {
-      const d = rows[0].data;
-      if (!d.photos) d.photos = [];
-      if (!d.updates) d.updates = [];
-      return d;
-    }
-    // New project — create a blank record
-    const d = JSON.parse(JSON.stringify(defaultData));
-    await sbPost('projects', {id: PROJECT_ID, data: d}, 'return=minimal');
-    return d;
-  } catch(ex) {
-    console.error("loadProjectData error:", ex);
-    return JSON.parse(JSON.stringify(defaultData));
+  // Stages for progress
+  let allStages=[];
+  if(jobs.length){
+    const ids=jobs.map(j=>j.id).join(',');
+    allStages=await sbGet('fo_stages',`job_id=in.(${ids})&select=job_id,status,payout`);
   }
-}
 
-// ── Load live phases from fo_stages (admin is source of truth for phases) ──
-async function loadLiveStages() {
-  try {
-    const jobs = await sbGet('fo_jobs', `project_id=eq.${encodeURIComponent(PROJECT_ID)}&select=id,name,address,start_date`);
-    if (!jobs || !jobs.length) return [];
-    const job = jobs[0];
-    // Sync name/address from fo_jobs → data
-    if (job.name && job.name !== 'New Project') {
-      if (!data.title || data.title === 'New Project') data.title = job.name;
-      if (!data.address && job.address) data.address = job.address;
-    }
-    // Sync start_date from fo_jobs if portal.start is missing
-    if (job.start_date && !data.start_iso) {
-      data.start_iso = job.start_date;
-      const d = new Date(job.start_date + 'T12:00:00');
-      if (!isNaN(d)) data.start = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    }
-    const stages = await sbGet('fo_stages', `job_id=eq.${job.id}&order=order_index.asc&select=*`);
-    return stages || [];
-  } catch(e) {
-    return [];
+  // Stage names for approvals
+  const aprStageIds=[...new Set(approvals.map(a=>a.stage_id).filter(Boolean))];
+  let stageMap={};
+  if(aprStageIds.length){
+    const ss=await sbGet('fo_stages',`id=in.(${aprStageIds.join(',')})&select=id,name,job_id`);
+    ss.forEach(s=>{stageMap[s.id]=s;});
   }
-}
 
-// ── Map fo_stages status → customer-facing badge ──
-function stageToPhase(s) {
-  let status;
-  if (s.status === 'approved') status = 'done';
-  else if (s.status === 'active' || s.status === 'pending_approval') status = 'active';
-  else status = 'pending';
-  return {
-    name: s.name,
-    desc: s.description || '',
-    dur: s.estimated_days > 0 ? s.estimated_days + ' days' : (s.dur || ''),
-    status
-  };
-}
+  const pending=approvals.length;
+  const openDelays=delays.filter(d=>!d.resolved).length;
+  const pendingPayout=allStages.filter(s=>s.status!=='approved').reduce((s,st)=>s+(st.payout||0),0);
+  const jobMap=Object.fromEntries(jobs.map(j=>[j.id,j]));
+  const fmMap=Object.fromEntries(foremen.map(f=>[f.id,f.name]));
+  const asgMap={};assignments.forEach(a=>{if(!asgMap[a.job_id])asgMap[a.job_id]=[];asgMap[a.job_id].push(a.foreman_id);});
 
-// ── Load delays ──
-async function loadLiveDelays() {
-  try {
-    const jobs = await sbGet('fo_jobs', `project_id=eq.${encodeURIComponent(PROJECT_ID)}&select=id`);
-    if (!jobs || !jobs.length) return [];
-    const delays = await sbGet('fo_delays', `job_id=eq.${jobs[0].id}&resolved=eq.false&order=created_at.desc&select=*`);
-    return delays || [];
-  } catch(e) { return []; }
-}
+  // Sidebar badge
+  const badge=document.getElementById('sb-badge');
+  if(pending>0){badge.textContent=pending;badge.classList.add('show');}
 
-// ── Save: only saves project-level info (name, dates, contact, photos, updates) ──
-// Phases come from fo_stages — not stored in projects blob
-async function saveProjectData(d) {
-  // Strip phases from the blob before saving — fo_stages is the authority
-  const toSave = {...d};
-  delete toSave.phases; // never store stale phases in the blob
-  await sbUpsert('projects', {id: PROJECT_ID, data: toSave});
-}
+  // ── STATS ──
+  document.getElementById('stat-grid').innerHTML=`
+    <div class="stat-card">
+      <div class="stat-icon">🏗</div>
+      <div class="stat-num brand">${jobs.length}</div>
+      <div class="stat-lbl">Active Jobs</div>
+      <div class="stat-sub">${allStages.filter(s=>s.status==='approved').length} stages approved</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-num ${pending>0?'amber':'green'}">${pending}</div>
+      <div class="stat-lbl">Pending Approvals</div>
+      <div class="stat-sub">${pending>0?'Needs your review':'All clear ✓'}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-num ${openDelays>0?'red':'green'}">${openDelays}</div>
+      <div class="stat-lbl">Open Delays</div>
+      <div class="stat-sub">${openDelays>0?openDelays+' affecting schedule':'No active delays'}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💵</div>
+      <div class="stat-num green" style="font-size:${pendingPayout>=10000?'26px':'34px'}">${fmt(pendingPayout)}</div>
+      <div class="stat-lbl">Pending Payout</div>
+      <div class="stat-sub">Unapproved stage value</div>
+    </div>`;
 
-function calcAutoPct(phases) {
-  if (!phases || phases.length === 0) return 0;
-  const done = phases.filter(p => p.status === 'done').length;
-  const active = phases.filter(p => p.status === 'active').length;
-  return Math.round(((done + active * 0.5) / phases.length) * 100);
-}
-
-async function init() {
-  data = await loadProjectData();
-  liveStages = await loadLiveStages();
-  // Build phases array from live stages if available, otherwise fall back to stored phases
-  if (liveStages.length > 0) {
-    data.phases = liveStages.map(stageToPhase);
-  } else if (!data.phases || !data.phases.length) {
-    data.phases = defaultData.phases;
-  }
-  const liveDelays = await loadLiveDelays();
-  renderView();
-  renderDelayBanner(liveDelays);
-  renderCustomerDelays(liveDelays);
-}
-
-function renderDelayBanner(delays) {
-  const banner = document.getElementById('delay-banner');
-  const text = document.getElementById('delay-banner-text');
-  const active = (delays||[]).filter(d=>!d.resolved);
-  if (!active.length) { banner.classList.remove('show'); return; }
-  const totalDays = active.reduce((s,d)=>s+(d.days_lost||0),0);
-  const types = [...new Set(active.map(d=>d.delay_type))].join(', ');
-  text.innerHTML = `<strong>${active.length} active delay${active.length>1?'s':''}</strong> reported on this project (${types}). ` +
-    (totalDays>0?`Total impact: ${totalDays} day${totalDays!==1?'s':''} lost. `:'') +
-    `Your estimated completion date has been adjusted to account for these delays.`;
-  banner.classList.add('show');
-}
-
-function renderCustomerDelays(delays) {
-  const wrap = document.getElementById('delays-section-wrap');
-  const el = document.getElementById('delays-customer-view');
-  const active = (delays||[]).filter(d=>!d.resolved);
-  if (!active.length) { wrap.style.display='none'; return; }
-  wrap.style.display='';
-  const typeLabels = {weather:'🌧 Weather',material:'📦 Material/Delivery',labor:'👷 Labor',inspection:'📋 Inspection',design:'📐 Design change',other:'⚠️ Other'};
-  el.innerHTML = active.map(d=>`
-    <div style="padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <span style="font-size:12px;font-weight:500;color:var(--amber)">${typeLabels[d.delay_type]||d.delay_type}</span>
-        <span style="font-size:11px;color:var(--text3)">${d.days_lost||0} day${(d.days_lost||0)!==1?'s':''} impact</span>
-      </div>
-      <div style="font-size:13px;color:var(--text2);margin-top:3px">${d.description}</div>
-    </div>`).join('');
-}
-
-function renderView() {
-  const phases = data.phases || [];
-  const pct = data.pct > 0 ? data.pct : calcAutoPct(phases);
-
-  document.getElementById('view-company').textContent = data.company || 'Sweet Tea Build';
-  document.getElementById('view-title').textContent = data.title || 'Project';
-  document.getElementById('view-address').textContent = data.address || '';
-  document.getElementById('view-start').textContent = data.start || '—';
-
-  const etaEl = document.getElementById('view-eta');
-  if (data.eta_adjusted) {
-    // Show adjusted with a strikethrough of original
-    etaEl.innerHTML = `<span style="text-decoration:line-through;color:var(--text3);font-size:11px">${data.eta}</span><br><span style="color:var(--amber)">${data.eta_adjusted}</span>`;
-    etaEl.title = 'Adjusted for delays';
+  // ── JOBS ──
+  const jEl=document.getElementById('jobs-list');
+  if(!jobs.length){
+    jEl.innerHTML='<div class="empty-msg">No active jobs. <a href="admin.html">Create one →</a></div>';
   } else {
-    etaEl.textContent = data.eta || '—';
-    etaEl.style.color = '';
-  }
-
-  document.getElementById('view-pct').textContent = pct + '% complete';
-  document.getElementById('view-pct2').textContent = pct + '%';
-  document.getElementById('progress-bar').style.width = pct + '%';
-  document.getElementById('view-pm').textContent = (data.pm || 'Project Manager') + ' · ' + (data.company || 'Sweet Tea Build');
-
-  const phoneLink = document.getElementById('view-phone-link');
-  phoneLink.textContent = '📱 ' + (data.phone || '—');
-  phoneLink.href = 'tel:' + (data.phone||'').replace(/\D/g,'');
-
-  document.getElementById('view-email-link').href = 'mailto:' + (data.email || '');
-
-  const activePhase = phases.find(p => p.status === 'active') || phases[phases.length-1];
-  document.getElementById('view-phase').textContent = activePhase ? activePhase.name : '—';
-
-  // Render phases — using live fo_stages data
-  const pv = document.getElementById('phases-view');
-  pv.innerHTML = '';
-  phases.forEach((p, i) => {
-    const isLast = i === phases.length - 1;
-    const iconHtml = p.status === 'done'
-      ? `<svg width="11" height="11" viewBox="0 0 11 11"><polyline points="1,5.5 4.5,9 10,2" fill="none" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-      : p.status === 'active'
-      ? `<div style="width:8px;height:8px;border-radius:50%;background:#378ADD"></div>`
-      : `<div style="width:8px;height:8px;border-radius:50%;background:#D3D1C7"></div>`;
-    const badgeLabel = p.status === 'done' ? 'Complete' : p.status === 'active' ? 'In progress' : 'Upcoming';
-    pv.innerHTML += `
-      <div class="phase-row">
-        ${!isLast ? `<div class="node-line ${p.status === 'done' ? 'done' : ''}"></div>` : ''}
-        <div class="phase-node ${p.status}">${iconHtml}</div>
+    jEl.innerHTML=jobs.map(job=>{
+      const stages=allStages.filter(s=>s.job_id===job.id);
+      const done=stages.filter(s=>s.status==='approved').length;
+      const total=stages.length;
+      const pct=total?Math.round(done/total*100):0;
+      const pendStages=stages.filter(s=>s.status==='pending_approval').length;
+      const fmIds=asgMap[job.id]||[];
+      const fmNames=fmIds.map(id=>fmMap[id]).filter(Boolean);
+      const hasDelay=delays.some(d=>!d.resolved&&d.job_id===job.id);
+      return `<div class="job-card">
         <div>
-          <div class="phase-name ${p.status === 'pending' ? 'dim' : ''}">${p.name}</div>
-          ${p.desc ? `<div class="phase-desc">${p.desc}</div>` : ''}
+          <div class="jc-name">${job.name}${hasDelay?`<span class="badge b-amber" style="margin-left:7px;font-size:9px">Delay</span>`:''}</div>
+          <div class="jc-meta">${job.address||''}${fmNames.length?' · '+fmNames.join(', '):''}</div>
+          <div class="jc-progress">
+            <div class="jc-bar"><div class="jc-fill" style="width:${pct}%"></div></div>
+            <div class="jc-pct">${pct}%</div>
+          </div>
         </div>
-        <div class="phase-right">
-          <div class="phase-dur">${p.dur || ''}</div>
-          <span class="badge ${p.status}">${badgeLabel}</span>
+        <div class="jc-right">
+          ${pendStages>0?`<span class="badge b-amber">${pendStages} waiting</span>`:`<span class="badge b-gray">${done}/${total} done</span>`}
+          ${job.project_id?`<a href="customer-portal.html?project=${job.project_id}" target="_blank" style="font-size:10px;color:var(--text3);text-decoration:none">portal ↗</a>`:''}
         </div>
       </div>`;
-  });
+    }).join('');
+  }
 
-  // Render drive link (replaces photo grid)
-  const driveLinkWrap = document.getElementById('drive-link-wrap');
-  const driveLinkBtn = document.getElementById('drive-link-btn');
-  if (data.drive_link && data.drive_link.trim()) {
-    driveLinkWrap.style.display = '';
-    driveLinkBtn.href = data.drive_link;
+  // ── APPROVALS ──
+  const aprEl=document.getElementById('approvals-list');
+  if(!pending){
+    aprEl.innerHTML='<div class="empty-msg" style="background:var(--green-bg);color:var(--green)">✓ No pending approvals</div>';
   } else {
-    driveLinkWrap.style.display = 'none';
+    aprEl.innerHTML=approvals.slice(0,4).map(a=>{
+      const st=stageMap[a.stage_id]||{};
+      const job=jobMap[a.job_id]||jobMap[st.job_id]||{};
+      return `<div class="list-item" style="--li-color:var(--amber)">
+        <div>
+          <div class="li-title">${st.name||'Stage'}</div>
+          <div class="li-sub">${job.name||''} · ${a.foreman_name||'Foreman'} · ${fmtAgo(a.created_at)}</div>
+        </div>
+        <a class="li-btn" href="admin.html" style="background:var(--amber)">Review</a>
+      </div>`;
+    }).join('') + (approvals.length>4?`<div class="empty-msg"><a href="admin.html">+${approvals.length-4} more →</a></div>`:'');
   }
 
-  // Render updates
-  const uv = document.getElementById('updates-view');
-  uv.innerHTML = '';
-  (data.updates || []).forEach(u => {
-    const parts = u.text.split('.');
-    const bold = parts[0].trim();
-    const rest = parts.slice(1).join('.').trim();
-    uv.innerHTML += `
-      <div class="update-item">
-        <div class="update-date">${u.date}</div>
-        <div class="update-text"><strong>${bold}.</strong> ${rest}</div>
-      </div>`;
-  });
-}
-
-function openLightbox(src) {
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('open');
-}
-
-let unlocked = false;
-
-function openAdmin() {
-  unlocked = false;
-  document.getElementById('pw-wrap').style.display = 'block';
-  document.getElementById('edit-form').style.display = 'none';
-  document.getElementById('pw-screen').classList.add('show');
-  document.getElementById('pw-input').value = '';
-  document.getElementById('pw-err').classList.remove('show');
-  document.getElementById('admin-overlay').classList.add('open');
-  setTimeout(() => document.getElementById('pw-input').focus(), 100);
-}
-
-function closeAdmin() {
-  document.getElementById('admin-overlay').classList.remove('open');
-  unlocked = false;
-}
-
-function checkPw() {
-  const v = document.getElementById('pw-input').value;
-  if (v === data.password) {
-    unlocked = true;
-    document.getElementById('pw-wrap').style.display = 'none';
-    document.getElementById('edit-form').style.display = 'block';
-    populateForm();
+  // ── DELAYS ──
+  const dEl=document.getElementById('delays-list');
+  const openD=delays.filter(d=>!d.resolved);
+  const typeL={weather:'🌧',material:'📦',labor:'👷',inspection:'📋',design:'📐',other:'⚠️'};
+  if(!openD.length){
+    dEl.innerHTML='<div class="empty-msg" style="background:var(--green-bg);color:var(--green)">✓ No open delays</div>';
   } else {
-    document.getElementById('pw-err').classList.add('show');
-    document.getElementById('pw-input').value = '';
-    document.getElementById('pw-input').focus();
+    dEl.innerHTML=openD.slice(0,3).map(d=>`<div class="list-item" style="--li-color:var(--amber)">
+      <div>
+        <div class="li-title">${typeL[d.delay_type]||'⚠️'} ${d.delay_type} ${jobMap[d.job_id]?'· '+jobMap[d.job_id].name:''}</div>
+        <div class="li-sub">${d.days_lost>0?d.days_lost+' days lost · ':''}${fmtAgo(d.created_at)}</div>
+      </div>
+      <a class="li-btn" href="admin.html" style="background:var(--amber)">View</a>
+    </div>`).join('');
+  }
+
+  // ── QUOTES ──
+  const qEl=document.getElementById('quotes-list');
+  if(!quotes.length){
+    qEl.innerHTML='<div class="empty-msg">No saved quotes. <a href="quote.html">Create one →</a></div>';
+  } else {
+    qEl.innerHTML=quotes.map(q=>`<div class="list-item" style="--li-color:var(--green)">
+      <div>
+        <div class="li-title">${q.customer_name||'Quote'}</div>
+        <div class="li-sub">${fmt(q.total)} · ${fmtAgo(q.created_at)}</div>
+      </div>
+      <a class="li-btn" href="quote.html" style="background:var(--green)">Open</a>
+    </div>`).join('');
   }
 }
 
-function populateForm() {
-  document.getElementById('e-title').value = data.title || '';
-  document.getElementById('e-address').value = data.address || '';
-  document.getElementById('e-company').value = data.company || '';
-  document.getElementById('e-start').value = data.start || '';
-  document.getElementById('e-eta').value = data.eta || '';
-  // pct: show auto-calculated value
-  const autoPct = calcAutoPct(data.phases);
-  document.getElementById('e-pct').value = data.pct || 0;
-  document.getElementById('auto-pct-hint').textContent =
-    `Auto-calculated from ${data.phases.length} phases: ${autoPct}%. Set to 0 to use auto.`;
-  document.getElementById('e-pm').value = data.pm || '';
-  document.getElementById('e-phone').value = data.phone || '';
-  document.getElementById('e-email').value = data.email || '';
-  document.getElementById('e-drive').value = data.drive_link || '';
-
-  // Phases are managed by admin — show read-only note in the phase editor area
-  const pe = document.getElementById('phase-editor');
-  pe.innerHTML = `<div style="padding:12px;background:#F5F4F0;border-radius:8px;font-size:12px;color:#6B6A66;line-height:1.5">
-    <strong style="color:#1C1C1A">Phases are managed in the Admin Dashboard.</strong><br>
-    ${data.phases.length > 0
-      ? data.phases.map(p => `<span style="display:inline-block;margin:3px 4px 0 0;padding:2px 8px;border-radius:10px;font-size:11px;background:${p.status==='done'?'#EAF3DE':p.status==='active'?'#E6F1FB':'#EEECEA'};color:${p.status==='done'?'#3B6D11':p.status==='active'?'#185FA5':'#ABABAB'}">${p.name}</span>`).join('')
-      : 'No phases set up yet — add them in the Admin Dashboard.'}
-  </div>`;
-
-  renderUpdateFields();
-  renderPhotoUploadGrid();
-}
-
-// Phase editor — removed (phases managed in admin)
-function addPhase() { /* no-op — phases managed in admin */ }
-function deletePhase(i) { /* no-op */ }
-
-function renderUpdateFields() {
-  const ue = document.getElementById('updates-editor');
-  ue.innerHTML = '';
-  (data.updates || []).forEach((u, i) => {
-    ue.innerHTML += `
-      <div style="margin-bottom:10px;padding:10px;background:#FAFAF8;border-radius:8px;border:1px solid #E8E6E0;">
-        <div class="field-row" style="margin-bottom:6px">
-          <label>Date</label>
-          <input id="ud-${i}" type="text" value="${escHtml(u.date)}" />
-        </div>
-        <div class="field-row" style="margin-bottom:0">
-          <label>Update text</label>
-          <textarea id="ut-${i}">${escHtml(u.text)}</textarea>
-        </div>
-        <button onclick="removeUpdate(${i})" style="font-size:11px;color:#A32D2D;background:none;border:none;cursor:pointer;margin-top:6px;padding:0;">Remove</button>
-      </div>`;
-  });
-}
-
-function addUpdateField() {
-  if (!data.updates) data.updates = [];
-  data.updates.unshift({date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), text: ''});
-  renderUpdateFields();
-}
-
-function removeUpdate(i) {
-  data.updates.splice(i, 1);
-  renderUpdateFields();
-}
-
-function renderPhotoUploadGrid() {
-  const grid = document.getElementById('photo-upload-grid');
-  grid.innerHTML = '';
-  if (!data.photos) data.photos = [];
-  data.photos.forEach((photo, i) => {
-    const slot = document.createElement('div');
-    slot.className = 'photo-upload-slot' + (photo.src ? ' has-photo' : '');
-    if (photo.src) {
-      slot.innerHTML = `
-        <img src="${photo.src}" alt="photo" />
-        <button class="photo-remove-btn" onclick="removePhoto(${i})">×</button>
-        <input type="file" accept="image/*" onchange="handlePhotoUpload(event, ${i})" title="Replace photo" />`;
-    } else {
-      slot.innerHTML = `
-        <div class="upload-icon">📷</div>
-        <div class="upload-label-text">Tap to upload</div>
-        <input type="file" accept="image/*" onchange="handlePhotoUpload(event, ${i})" />`;
-    }
-    grid.appendChild(slot);
-  });
-}
-
-function addPhotoSlot() {
-  if (!data.photos) data.photos = [];
-  data.photos.push({src:'', caption:''});
-  renderPhotoUploadGrid();
-}
-
-function removePhoto(i) {
-  data.photos[i] = {src:'', caption:''};
-  renderPhotoUploadGrid();
-}
-
-function handlePhotoUpload(event, i) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      const MAX = 1200;
-      let w = img.width, h = img.height;
-      if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
-      if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      data.photos[i] = {src: canvas.toDataURL('image/jpeg', 0.75), caption: data.photos[i]?.caption || ''};
-      renderPhotoUploadGrid();
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-async function saveChanges() {
-  // Collect updates
-  (data.updates || []).forEach((u, i) => {
-    const dateEl = document.getElementById('ud-'+i);
-    const textEl = document.getElementById('ut-'+i);
-    if (dateEl) u.date = dateEl.value;
-    if (textEl) u.text = textEl.value;
-  });
-  data.updates = (data.updates || []).filter(u => u.text.trim() !== '');
-
-  // Collect project fields
-  data.title = document.getElementById('e-title').value;
-  data.address = document.getElementById('e-address').value;
-  data.company = document.getElementById('e-company').value;
-  data.start = document.getElementById('e-start').value;
-  data.eta = document.getElementById('e-eta').value;
-  data.pct = parseInt(document.getElementById('e-pct').value) || 0;
-  data.pm = document.getElementById('e-pm').value;
-  data.phone = document.getElementById('e-phone').value;
-  data.email = document.getElementById('e-email').value;
-  data.drive_link = document.getElementById('e-drive').value;
-
-  const newPw = document.getElementById('e-pw').value;
-  if (newPw.trim()) data.password = newPw.trim();
-
-  const btn = document.querySelector('.btn-save');
-  btn.textContent = 'Saving…'; btn.disabled = true;
-
-  try {
-    await saveProjectData(data);
-    // Reload live stages so phases are fresh after save
-    liveStages = await loadLiveStages();
-    if (liveStages.length > 0) data.phases = liveStages.map(stageToPhase);
-    renderView();
-    const status = document.getElementById('save-status');
-    status.classList.add('show');
-    setTimeout(() => status.classList.remove('show'), 2500);
-    closeAdmin();
-  } catch(ex) {
-    console.error(ex);
-    alert("Save failed: " + ex.message);
-  } finally {
-    btn.textContent = 'Save & publish'; btn.disabled = false;
-  }
-}
-
-function escHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-document.getElementById('admin-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeAdmin();
-});
-
-init();
+loadDashboard();
+setInterval(loadDashboard, 90000);
 </script>
 </body>
 </html>

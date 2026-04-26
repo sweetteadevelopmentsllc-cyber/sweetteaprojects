@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist · Quote</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0C0C0A;
+  --surface: #161614;
+  --surface2: #1E1E1B;
+  --surface3: #252522;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #F0EFE8;
+  --text2: #9B9A93;
+  --text3: #55544E;
+  --brand: #E2531C;
+  --brand2: #F4713D;
+  --brand-bg: rgba(226,83,28,0.08);
+  --brand-border: rgba(200,151,58,0.25);
+  --green: #4E9B62;
+  --green-bg: rgba(78,155,98,0.1);
+  --red: #C45252;
+  --red-bg: rgba(196,82,82,0.1);
+  --blue: #4A82C4;
+  --blue-bg: rgba(74,130,196,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── HEADER ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.logo-mark {
+  width: 32px; height: 32px;
+  background: var(--brand);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-mark svg { width: 16px; height: 16px; }
+.logo-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 700;
+  color: var(--text); letter-spacing: .04em;
+}
+.logo-tag { font-size: 11px; color: var(--text3); letter-spacing: .06em; text-transform: uppercase; }
+.header-nav { display: flex; gap: 4px; }
+.nav-link {
+  font-size: 12px; color: var(--text3); padding: 5px 12px;
+  border-radius: 6px; text-decoration: none;
+  transition: all .15s; border: 1px solid transparent;
+}
+.nav-link:hover { color: var(--text2); background: var(--surface2); }
+
+/* ── MODE SWITCHER ── */
+.mode-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.mode-btn {
+  padding: 14px 24px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text3);
+  background: none; border: none; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .15s; position: relative;
+}
+.mode-btn:hover { color: var(--text2); }
+.mode-btn.active { color: var(--brand); border-bottom-color: var(--brand); }
+.mode-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: .06em;
+  background: var(--brand); color: #0C0C0A;
+  padding: 1px 5px; border-radius: 3px;
+  margin-left: 6px; vertical-align: middle;
+}
+
+/* ── MAIN LAYOUT ── */
+.main { display: grid; grid-template-columns: 1fr 340px; min-height: calc(100vh - 97px); }
+.form-col { padding: 2rem; border-right: 1px solid var(--border); overflow-y: auto; }
+.summary-col { padding: 1.5rem; position: sticky; top: 97px; height: calc(100vh - 97px); overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+
+/* ── SECTION ── */
+.section { margin-bottom: 2rem; }
+.section-hd {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.section-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--brand); color: #0C0C0A;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 700;
+  letter-spacing: .04em; color: var(--text);
+}
+.section-sub { font-size: 11px; color: var(--text3); margin-left: auto; }
+
+/* ── FORM FIELDS ── */
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field.full { grid-column: 1 / -1; }
+.field label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--text3); font-weight: 500;
+}
+.field input, .field select, .field textarea {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 8px; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  padding: 9px 12px; outline: none; transition: border-color .15s;
+  width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--brand);
+}
+.field input[type=number] { font-family: 'DM Mono', monospace; }
+.field select option { background: var(--surface2); }
+.field textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+.prefix-input { position: relative; }
+.prefix-input .prefix {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text3);
+}
+.prefix-input input { padding-left: 22px; }
+
+/* ── LABOR TYPE CARDS ── */
+.labor-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.labor-card {
+  background: var(--surface2); border: 1.5px solid var(--border2);
+  border-radius: 10px; padding: 12px 14px; cursor: pointer;
+  transition: all .15s; user-select: none;
+}
+.labor-card:hover { border-color: var(--brand-border); }
+.labor-card.selected { background: var(--brand-bg); border-color: var(--brand); }
+.labor-card-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+.labor-card-rate { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
+.labor-card.selected .labor-card-name { color: var(--brand2); }
+
+/* ── MATERIALS TABLE ── */
+.mat-table { width: 100%; border-collapse: collapse; }
+.mat-table th {
+  font-size: 9px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--text3); font-weight: 500; text-align: left;
+  padding: 6px 8px; border-bottom: 1px solid var(--border);
+}
+.mat-table td { padding: 4px 4px; vertical-align: middle; }
+.mat-table td input, .mat-table td select {
+  background: var(--surface2); border: 1px solid transparent;
+  border-radius: 6px; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 12px;
+  padding: 7px 8px; outline: none; width: 100%;
+  transition: border-color .15s;
+}
+.mat-table td input:focus, .mat-table td select:focus { border-color: var(--brand); }
+.mat-table td input[type=number] { font-family: 'DM Mono', monospace; }
+.mat-total {
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  color: var(--brand); text-align: right; padding: 7px 8px;
+  white-space: nowrap;
+}
+.mat-del {
+  background: none; border: none; color: var(--text3);
+  cursor: pointer; font-size: 16px; padding: 4px 8px;
+  border-radius: 5px; transition: all .15s;
+}
+.mat-del:hover { background: var(--red-bg); color: var(--red); }
+.add-mat-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: 1px dashed var(--border2);
+  border-radius: 8px; color: var(--text3);
+  font-family: 'DM Sans', sans-serif; font-size: 12px;
+  padding: 8px 14px; cursor: pointer; width: 100%;
+  margin-top: 8px; transition: all .15s;
+}
+.add-mat-btn:hover { color: var(--text2); background: var(--surface2); }
+
+/* ── ADJUSTMENTS ── */
+.adj-row {
+  display: grid; grid-template-columns: 1fr auto 120px;
+  gap: 10px; align-items: center; padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.adj-row:last-child { border-bottom: none; }
+.adj-label { font-size: 13px; color: var(--text2); }
+.adj-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.adj-toggle {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text3); cursor: pointer;
+}
+.toggle-switch {
+  width: 32px; height: 17px; background: var(--surface3);
+  border-radius: 99px; position: relative; cursor: pointer;
+  transition: background .2s; flex-shrink: 0;
+}
+.toggle-switch.on { background: var(--brand); }
+.toggle-switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 13px; height: 13px; border-radius: 50%; background: white;
+  transition: transform .2s;
+}
+.toggle-switch.on::after { transform: translateX(15px); }
+
+/* ── SUMMARY PANEL ── */
+.summary-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.summary-hd {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text3);
+}
+.summary-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 16px; border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-row.total {
+  background: var(--brand-bg); border-top: 1px solid var(--brand-border);
+}
+.summary-label { color: var(--text2); }
+.summary-val {
+  font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text);
+}
+.summary-val.gold { color: var(--brand2); font-size: 15px; font-weight: 500; }
+.summary-val.dim { color: var(--text3); }
+.summary-val.green { color: var(--green); }
+
+/* BIG TOTAL */
+.big-total {
+  background: linear-gradient(135deg, var(--brand-bg), rgba(226,83,28,0.04));
+  border: 1px solid var(--brand-border); border-radius: 12px;
+  padding: 20px; text-align: center;
+}
+.big-total-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--text3); margin-bottom: 8px;
+}
+.big-total-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 44px; font-weight: 800; color: var(--brand2);
+  line-height: 1; letter-spacing: -.5px;
+}
+.big-total-margin {
+  font-size: 11px; color: var(--text3); margin-top: 6px;
+}
+.big-total-margin span { color: var(--green); font-weight: 500; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 18px; border-radius: 9px; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .15s; text-decoration: none;
+}
+.btn-gold { background: var(--brand); color: #0C0C0A; }
+.btn-gold:hover { background: var(--brand2); }
+.btn-ghost { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: var(--surface3); }
+.btn-full { width: 100%; justify-content: center; }
+.btn-sm { padding: 7px 13px; font-size: 12px; }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+/* ON-SITE QUICK MODE */
+.quick-result {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px; margin-top: 20px;
+  display: none;
+}
+.quick-result.show { display: block; }
+.quick-estimate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.quick-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.quick-cell-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); margin-bottom: 4px; }
+.quick-cell-val { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--brand2); font-weight: 500; }
+
+/* PROPOSAL HEADER (print) */
+@media print {
+  .header, .mode-bar, .summary-col, .no-print { display: none !important; }
+  .main { display: block; }
+  .form-col { padding: 0; border: none; }
+  body { background: white; color: #111; }
+  .section { page-break-inside: avoid; }
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface2); color: var(--text);
+  border: 1px solid var(--border2); border-radius: 10px;
+  padding: 10px 18px; font-size: 13px; z-index: 500;
+  opacity: 0; transition: opacity .2s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* PROPOSAL PREVIEW MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; padding: 2rem; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 12px; width: 100%; max-width: 720px; max-height: 90vh; overflow-y: auto; color: #111; }
+.modal-actions { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 12px 12px 0 0; }
+.modal-actions .btn-ghost { background: var(--surface2); }
+.proposal-body { padding: 40px 48px; }
+
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; }
+  .summary-col { position: static; height: auto; }
+  .labor-cards { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-mark">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="#0C0C0A"/></svg>
+    </div>
+    <div>
+      <div class="logo-name">Checklist</div>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <a class="nav-link" href="index.html">← Home</a>
+    <a class="nav-link" href="foreman.html">Foreman</a>
+  </nav>
+</div>
+
+<!-- MODE BAR -->
+<div class="mode-bar">
+  <button class="mode-btn active" id="btn-onsite" onclick="setMode('onsite')">
+    On-Site Quick Quote <span class="mode-badge">FAST</span>
+  </button>
+  <button class="mode-btn" id="btn-detailed" onclick="setMode('detailed')">
+    Post-Walkthrough Detailed Quote
+  </button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- FORM COLUMN -->
+  <div class="form-col" id="form-col">
+
+    <!-- ══ ON-SITE MODE ══ -->
+    <div id="mode-onsite">
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-num">1</div>
+          <div class="section-title">Project Info</div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Customer name</label>
+            <input type="text" id="os-customer" placeholder="Jane Smith" oninput="calcOnSite()"/>
+          </div>
+          <div class="field">
+            <label>Address</label>
+            <input type="text" id="os-address" placeholder="123 Main St, Baxley, GA" oninput="calcOnSite()"/>
+          </div>
+          <div class="field">
+            <label>Job type</label>
+            <select id="os-jobtype" onchange="calcOnSite()">
+              <option value="">— Select type —</option>
+              <option value="light_remodel">Light Remodel</option>
+              <option value="mid_remodel">Mid-Level Remodel</option>
+              <option value="heavy_remodel">Heavy Remodel</option>
+              <option value="roof">Roof Replacement</option>
+              <option value="custom">Custom Build / Addition</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Square footage</label>
+            <input type="number" id="os-sqft" placeholder="0" min="0" oninput="calcOnSite()"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-num">2</div>
+          <div class="section-title">Labor & Timeline</div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Foreman duration</label>
+            <select id="os-fm-period" onchange="calcOnSite()">
+              <option value="days">Days ($160/day)</option>
+              <option value="weeks">Weeks ($700/week)</option>
+              <option value="months">Months ($2,200/month)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Number of periods</label>
+            <input type="number" id="os-fm-count" placeholder="0" min="0" oninput="calcOnSite()"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-num">3</div>
+          <div class="section-title">Quick Material Estimate</div>
+          <span class="section-sub">Don't know exact costs yet? Ballpark it.</span>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Estimated material cost ($)</label>
+            <div class="prefix-input">
+              <span class="prefix">$</span>
+              <input type="number" id="os-matcost" placeholder="0" min="0" oninput="calcOnSite()"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Tax rate on materials (%)</label>
+            <input type="number" id="os-taxrate" placeholder="8" value="8" min="0" max="20" step="0.1" oninput="calcOnSite()"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-num">4</div>
+          <div class="section-title">Margin Settings</div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Target margin (%) — Sweet Tea standard: 33%</label>
+            <input type="number" id="os-margin" value="33" min="10" max="60" step="1" oninput="calcOnSite()"/>
+          </div>
+          <div class="field">
+            <label>Waste & misc contingency (%)</label>
+            <input type="number" id="os-waste" value="10" min="0" max="30" step="1" oninput="calcOnSite()"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-result" id="quick-result">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:14px">Quick Estimate Results</div>
+        <div class="quick-estimate-grid">
+          <div class="quick-cell"><div class="quick-cell-lbl">Labor cost</div><div class="quick-cell-val" id="qr-labor">$0</div></div>
+          <div class="quick-cell"><div class="quick-cell-lbl">Materials + tax</div><div class="quick-cell-val" id="qr-mat">$0</div></div>
+          <div class="quick-cell"><div class="quick-cell-lbl">COGS + waste</div><div class="quick-cell-val" id="qr-cogs">$0</div></div>
+          <div class="quick-cell"><div class="quick-cell-lbl">Quote to customer</div><div class="quick-cell-val" style="font-size:22px;color:var(--brand2)" id="qr-total">$0</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:14px" id="qr-note"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-gold" onclick="generateProposal()">Generate Proposal</button>
+          <button class="btn btn-ghost" onclick="switchToDetailed()">Add Detail →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DETAILED MODE ══ -->
+    <div id="mode-detailed" style="display:none">
+
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-num">1</div>
+          <div class="section-title">Project Info</div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Customer name</label>
+            <input type="text" id="d-customer" placeholder="Jane Smith" oninput="calcDetailed()"/>
+          </div>
+          <div class="field">
+            <label>Address</label>
+            <input type="text" id="d-address" placeholder="123 Main St, Baxley, GA" oninput="calcDetailed()"/>
+          </div>
+          <div class="field">
+            <label>Job description</label>
+            <input type="text" id="d-desc" placeholder="Full kitchen remodel with island" oninput="calcDetailed()"/>
+          </div>
+          <div class="field">
+            <label>Date prepared</label>
+            <input type="date" id="d-date" oninput="calcDetailed()"/>
+          </div>
+          <div class="field">
+            <label>Valid until</label>
+            <input type="date" id="d-valid" oninput="calcDetailed()"/>
+          </div>
+          <div class="field">
+            <label>Estimated start date</label>
+            <input type="date" id="d-start" oninput="calcDetailed()"/>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-num">2</div>
+          <div class="section-title">Labor</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Select remodel type and enter square footage. Leave blank if not applicable.</div>
+        <div class="labor-cards" style="margin-bottom:14px">
+          <div class="labor-card" id="lc-light" onclick="selectLaborType('light')">
+            <div class="labor-card-name">Light Remodel</div>
+            <div class="labor-card-rate">$45 / sq ft</div>
+          </div>
+          <div class="labor-card" id="lc-mid" onclick="selectLaborType('mid')">
+            <div class="labor-card-name">Mid-Level Remodel</div>
+            <div class="labor-card-rate">$80 / sq ft</div>
+          </div>
+          <div class="labor-card" id="lc-heavy" onclick="selectLaborType('heavy')">
+            <div class="labor-card-name">Heavy Remodel</div>
+            <div class="labor-card-rate">$111 / sq ft</div>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Square footage</label>
+            <input type="number" id="d-sqft" placeholder="0" min="0" oninput="calcDetailed()"/>
+          </div>
+          <div class="field">
+            <label>Calculated labor cost</label>
+            <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;color:var(--brand2)" id="d-labor-display">$0.00</div>
+          </div>
+        </div>
+        <div class="field-grid" style="margin-top:10px">
+          <div class="field">
+            <label>Additional labor / specialty work ($)</label>
+            <div class="prefix-input">
+              <span class="prefix">$</span>
+              <input type="number" id="d-addlabor" placeholder="0" min="0" oninput="calcDetailed()"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Additional labor note</label>
+            <input type="text" id="d-addlabor-note" placeholder="e.g. Custom tile work, demo" oninput="calcDetailed()"/>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-num">3</div>
+          <div class="section-title">Foreman</div>
+        </div>
+        <div class="field-grid-3">
+          <div class="field">
+            <label>Pay period</label>
+            <select id="d-fm-period" onchange="calcDetailed()">
+              <option value="days">Days ($160/day)</option>
+              <option value="weeks">Weeks ($700/week)</option>
+              <option value="months">Months ($2,200/month)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Periods</label>
+            <input type="number" id="d-fm-count" placeholder="0" min="0" oninput="calcDetailed()"/>
+          </div>
+          <div class="field">
+            <label>Bonus ($)</label>
+            <div class="prefix-input">
+              <span class="prefix">$</span>
+              <input type="number" id="d-fm-bonus" placeholder="0" min="0" oninput="calcDetailed()"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-num">4</div>
+          <div class="section-title">Materials</div>
+          <span class="section-sub" id="mat-total-lbl">$0.00 total</span>
+        </div>
+        <table class="mat-table" id="mat-table">
+          <thead>
+            <tr>
+              <th style="width:22%">Supply / Item</th>
+              <th style="width:18%">Vendor</th>
+              <th style="width:25%">Description</th>
+              <th style="width:8%">Qty</th>
+              <th style="width:12%">Unit Price</th>
+              <th style="width:11%">Total</th>
+              <th style="width:4%"></th>
+            </tr>
+          </thead>
+          <tbody id="mat-body"></tbody>
+        </table>
+        <button class="add-mat-btn" onclick="addMatRow()">+ Add item</button>
+        <div class="field-grid" style="margin-top:14px">
+          <div class="field">
+            <label>Tax rate on materials (%)</label>
+            <input type="number" id="d-taxrate" placeholder="8" value="8" min="0" max="20" step="0.1" oninput="calcDetailed()"/>
+          </div>
+          <div class="field">
+            <label>Materials subtotal (pre-tax)</label>
+            <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;color:var(--text2)" id="d-mat-sub">$0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-num">5</div>
+          <div class="section-title">Adjustments</div>
+        </div>
+        <div class="adj-row">
+          <div>
+            <div class="adj-label">Waste & Misc Contingency</div>
+            <div class="adj-sub">Applied to total COGS — covers unforeseen costs</div>
+          </div>
+          <div class="field" style="width:80px">
+            <input type="number" id="d-waste" value="10" min="0" max="30" step="1" oninput="calcDetailed()" style="text-align:center"/>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3);text-align:right" id="d-waste-val">$0.00</div>
+        </div>
+        <div class="adj-row">
+          <div>
+            <div class="adj-label">Target Margin</div>
+            <div class="adj-sub">33% = divide COGS by 0.67. Sweet Tea standard.</div>
+          </div>
+          <div class="field" style="width:80px">
+            <input type="number" id="d-margin" value="33" min="10" max="60" step="1" oninput="calcDetailed()" style="text-align:center"/>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--green);text-align:right" id="d-margin-val">$0.00 profit</div>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-num">6</div>
+          <div class="section-title">Notes & Terms</div>
+        </div>
+        <div class="field">
+          <label>Scope of work (included in proposal)</label>
+          <textarea id="d-scope" placeholder="Describe what is included in this quote…" oninput="calcDetailed()"></textarea>
+        </div>
+        <div class="field" style="margin-top:10px">
+          <label>Exclusions / not included</label>
+          <textarea id="d-exclusions" placeholder="e.g. Permit fees, structural changes, appliance purchase…" style="min-height:50px" oninput="calcDetailed()"></textarea>
+        </div>
+        <div class="field" style="margin-top:10px">
+          <label>Payment terms</label>
+          <select id="d-terms" onchange="calcDetailed()">
+            <option value="50-50">50% deposit / 50% on completion</option>
+            <option value="33-33-33">33% / 33% / 34% (3 draws)</option>
+            <option value="custom">Custom (specify in notes)</option>
+            <option value="net30">Net 30</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;padding-bottom:2rem">
+        <button class="btn btn-gold" onclick="generateProposal()">Generate Proposal</button>
+        <button class="btn btn-ghost" onclick="resetForm()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY COLUMN -->
+  <div class="summary-col">
+    <div class="big-total">
+      <div class="big-total-label">Invoice Total</div>
+      <div class="big-total-num" id="sum-total">$0</div>
+      <div class="big-total-margin">Margin: <span id="sum-margin-pct">33%</span> · Profit: <span id="sum-profit" style="color:var(--green)">$0</span></div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-hd">Cost Breakdown</div>
+      <div class="summary-row"><span class="summary-label">Project labor</span><span class="summary-val" id="sum-labor">$0.00</span></div>
+      <div class="summary-row"><span class="summary-label">Foreman pay</span><span class="summary-val" id="sum-foreman">$0.00</span></div>
+      <div class="summary-row"><span class="summary-label">Materials</span><span class="summary-val" id="sum-mat">$0.00</span></div>
+      <div class="summary-row"><span class="summary-label">Material taxes</span><span class="summary-val" id="sum-tax">$0.00</span></div>
+      <div class="summary-row"><span class="summary-label">Waste / misc</span><span class="summary-val" id="sum-waste">$0.00</span></div>
+      <div class="summary-row total"><span class="summary-label" style="font-weight:500;color:var(--text)">Total COGS</span><span class="summary-val gold" id="sum-cogs">$0.00</span></div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-hd">Pricing Check</div>
+      <div class="summary-row"><span class="summary-label">COGS</span><span class="summary-val" id="sum-cogs2">$0.00</span></div>
+      <div class="summary-row"><span class="summary-label">÷ (1 − margin)</span><span class="summary-val dim" id="sum-divisor">÷ 0.67</span></div>
+      <div class="summary-row total"><span class="summary-label" style="font-weight:500;color:var(--text)">Invoice total</span><span class="summary-val gold" id="sum-total2">$0.00</span></div>
+    </div>
+
+    <button class="btn btn-gold btn-full" onclick="generateProposal()">Generate Proposal</button>
+    <input type="hidden" id="quote-id"/>
+    <button class="btn btn-ghost btn-full no-print" onclick="saveQuote()">💾 Save Quote</button>
+    <div style="margin-top:14px">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px">Saved Quotes</div>
+      <div id="saved-quotes-list"><div style="font-size:11px;color:var(--text3)">Loading…</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROPOSAL MODAL -->
+<div class="modal-overlay" id="proposal-modal">
+  <div class="modal">
+    <div class="modal-actions">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--text);letter-spacing:.04em">Proposal Preview</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('proposal-modal').classList.remove('open')">Close</button>
+        <button class="btn btn-gold btn-sm" onclick="printProposal()">Print / Save PDF</button>
+      </div>
+    </div>
+    <div class="proposal-body" id="proposal-body"></div>
+  </div>
+</div>
+
+<script>
+// ══ CONFIG ══
+const SB_URL = "https://renltrbierztynzlbige.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlbmx0cmJpZXJ6dHluemxiaWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDA5NTUsImV4cCI6MjA5MjM3Njk1NX0.7KLzXIXKFh8kbZIUxT0W9JWbWEJdOe21D8nGCM4FwN4";
+const REST = SB_URL + "/rest/v1";
+const H = {"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY};
+
+// ══ LABOR RATES (from Sweet Tea workbook) ══
+const LABOR_RATES = { light: 45, mid: 80, heavy: 111 };
+const FM_RATES = { days: 160, weeks: 700, months: 2200 };
+
+// ══ STATE ══
+let currentMode = 'onsite';
+let selectedLaborType = null;
+let matRows = [];
+
+// ══ MODE SWITCHING ══
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('mode-onsite').style.display = mode === 'onsite' ? 'block' : 'none';
+  document.getElementById('mode-detailed').style.display = mode === 'detailed' ? 'block' : 'none';
+  document.getElementById('btn-onsite').classList.toggle('active', mode === 'onsite');
+  document.getElementById('btn-detailed').classList.toggle('active', mode === 'detailed');
+  if (mode === 'onsite') calcOnSite();
+  else calcDetailed();
+}
+
+function switchToDetailed() {
+  // Port on-site values over to detailed mode
+  document.getElementById('d-margin').value = document.getElementById('os-margin').value;
+  document.getElementById('d-waste').value = document.getElementById('os-waste').value;
+  document.getElementById('d-taxrate').value = document.getElementById('os-taxrate').value;
+  document.getElementById('d-customer').value = document.getElementById('os-customer').value;
+  document.getElementById('d-address').value = document.getElementById('os-address').value;
+  setMode('detailed');
+}
+
+// ══ FORMATTING ══
+function fmt(n) { return '$' + Number(n||0).toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtShort(n) { if (n >= 1000) return '$' + (n/1000).toFixed(1) + 'k'; return fmt(n); }
+function num(id) { return parseFloat(document.getElementById(id)?.value)||0; }
+function val(id) { return document.getElementById(id)?.value||''; }
+
+// ══ ON-SITE CALCULATION ══
+function calcOnSite() {
+  const jobtype = val('os-jobtype');
+  const sqft = num('os-sqft');
+  const fmPeriod = val('os-fm-period');
+  const fmCount = num('os-fm-count');
+  const matCost = num('os-matcost');
+  const taxRate = num('os-taxrate') / 100;
+  const margin = num('os-margin') / 100;
+  const wastePct = num('os-waste') / 100;
+
+  // Labor from sqft rates
+  let sqftRate = 0;
+  if (jobtype === 'light_remodel') sqftRate = LABOR_RATES.light;
+  else if (jobtype === 'mid_remodel') sqftRate = LABOR_RATES.mid;
+  else if (jobtype === 'heavy_remodel') sqftRate = LABOR_RATES.heavy;
+  else if (jobtype === 'roof') sqftRate = 55; // estimated roof rate
+  else if (jobtype === 'custom') sqftRate = 95; // estimated custom rate
+
+  const labor = sqft * sqftRate;
+  const fmPay = fmCount * FM_RATES[fmPeriod];
+  const matWithTax = matCost * (1 + taxRate);
+  const cogs = labor + fmPay + matWithTax;
+  const cogsWithWaste = cogs * (1 + wastePct);
+  const invoice = margin > 0 ? cogsWithWaste / (1 - margin) : cogsWithWaste;
+  const profit = invoice - cogsWithWaste;
+
+  document.getElementById('qr-labor').textContent = fmtShort(labor + fmPay);
+  document.getElementById('qr-mat').textContent = fmtShort(matWithTax);
+  document.getElementById('qr-cogs').textContent = fmtShort(cogsWithWaste);
+  document.getElementById('qr-total').textContent = fmtShort(invoice);
+  document.getElementById('qr-note').textContent =
+    invoice > 0 ? `COGS ${fmt(cogsWithWaste)} ÷ ${(1-margin).toFixed(2)} = ${fmt(invoice)} · Profit: ${fmt(profit)}` : '';
+
+  const hasData = invoice > 0;
+  document.getElementById('quick-result').classList.toggle('show', hasData);
+  updateSummary(labor, fmPay, matCost, matCost * taxRate, cogs * wastePct, cogsWithWaste, invoice, profit, margin);
+}
+
+// ══ DETAILED CALCULATION ══
+function calcDetailed() {
+  const sqft = num('d-sqft');
+  const sqftRate = selectedLaborType ? LABOR_RATES[selectedLaborType] : 0;
+  const labor = sqft * sqftRate;
+  const addLabor = num('d-addlabor');
+  const totalLabor = labor + addLabor;
+
+  const fmPeriod = val('d-fm-period');
+  const fmCount = num('d-fm-count');
+  const fmBonus = num('d-fm-bonus');
+  const fmBase = fmCount * FM_RATES[fmPeriod];
+  const fmTotal = fmBase + fmBonus;
+
+  // Materials
+  let matSub = 0;
+  matRows.forEach((_, i) => {
+    const qty = parseFloat(document.getElementById('mq-'+i)?.value)||0;
+    const price = parseFloat(document.getElementById('mp-'+i)?.value)||0;
+    const rowTotal = qty * price;
+    matSub += rowTotal;
+    const totEl = document.getElementById('mt-'+i);
+    if (totEl) totEl.textContent = fmt(rowTotal);
+  });
+
+  const taxRate = num('d-taxrate') / 100;
+  const matTax = matSub * taxRate;
+  const matTotal = matSub + matTax;
+
+  const wastePct = num('d-waste') / 100;
+  const margin = num('d-margin') / 100;
+
+  const cogs = totalLabor + fmTotal + matTotal;
+  const waste = cogs * wastePct;
+  const cogsWithWaste = cogs + waste;
+  const invoice = margin > 0 ? cogsWithWaste / (1 - margin) : cogsWithWaste;
+  const profit = invoice - cogsWithWaste;
+
+  document.getElementById('d-labor-display').textContent = fmt(labor);
+  document.getElementById('d-mat-sub').textContent = fmt(matSub);
+  document.getElementById('d-waste-val').textContent = fmt(waste);
+  document.getElementById('d-margin-val').textContent = fmt(profit) + ' profit';
+  document.getElementById('mat-total-lbl').textContent = fmt(matSub) + ' subtotal';
+
+  updateSummary(totalLabor, fmTotal, matSub, matTax, waste, cogsWithWaste, invoice, profit, margin);
+}
+
+function updateSummary(labor, foreman, mat, tax, waste, cogs, invoice, profit, margin) {
+  document.getElementById('sum-labor').textContent = fmt(labor);
+  document.getElementById('sum-foreman').textContent = fmt(foreman);
+  document.getElementById('sum-mat').textContent = fmt(mat);
+  document.getElementById('sum-tax').textContent = fmt(tax);
+  document.getElementById('sum-waste').textContent = fmt(waste);
+  document.getElementById('sum-cogs').textContent = fmt(cogs);
+  document.getElementById('sum-cogs2').textContent = fmt(cogs);
+  document.getElementById('sum-divisor').textContent = '÷ ' + (1 - margin).toFixed(2);
+  document.getElementById('sum-total').textContent = fmtShort(invoice);
+  document.getElementById('sum-total2').textContent = fmt(invoice);
+  document.getElementById('sum-margin-pct').textContent = Math.round(margin*100) + '%';
+  document.getElementById('sum-profit').textContent = fmt(profit);
+}
+
+// ══ LABOR TYPE SELECTION ══
+function selectLaborType(type) {
+  selectedLaborType = type;
+  ['light','mid','heavy'].forEach(t => {
+    document.getElementById('lc-'+t).classList.toggle('selected', t === type);
+  });
+  calcDetailed();
+}
+
+// ══ MATERIALS ══
+function addMatRow(supply='', vendor='', desc='', qty='', price='') {
+  const i = matRows.length;
+  matRows.push({});
+  const tbody = document.getElementById('mat-body');
+  const tr = document.createElement('tr');
+  tr.id = 'mat-row-' + i;
+  tr.innerHTML = `
+    <td><input type="text" id="mn-${i}" value="${supply}" placeholder="Item name" oninput="calcDetailed()"/></td>
+    <td><select id="mv-${i}" onchange="calcDetailed()">
+      <option value="">— Vendor —</option>
+      <option value="Lowe's" ${vendor==="Lowe's"?'selected':''}>Lowe's</option>
+      <option value="Ace Hardware" ${vendor==="Ace Hardware"?'selected':''}>Ace Hardware</option>
+      <option value="Home Depot" ${vendor==="Home Depot"?'selected':''}>Home Depot</option>
+      <option value="Other" ${vendor==="Other"?'selected':''}>Other</option>
+    </select></td>
+    <td><input type="text" id="md-${i}" value="${desc}" placeholder="Description" oninput="calcDetailed()"/></td>
+    <td><input type="number" id="mq-${i}" value="${qty}" placeholder="0" min="0" oninput="calcDetailed()"/></td>
+    <td><div class="prefix-input"><span class="prefix" style="color:var(--text3);font-size:11px">$</span><input type="number" id="mp-${i}" value="${price}" placeholder="0.00" min="0" step="0.01" oninput="calcDetailed()"/></div></td>
+    <td class="mat-total" id="mt-${i}">$0.00</td>
+    <td><button class="mat-del" onclick="removeMatRow(${i})">×</button></td>`;
+  tbody.appendChild(tr);
+  calcDetailed();
+}
+
+function removeMatRow(i) {
+  const row = document.getElementById('mat-row-' + i);
+  if (row) row.remove();
+  matRows.splice(i, 1);
+  // Rebuild all IDs (simplest approach — remove and re-add)
+  const tbody = document.getElementById('mat-body');
+  const rows = [...tbody.querySelectorAll('tr')];
+  matRows = [];
+  rows.forEach(r => {
+    const ni = matRows.length;
+    matRows.push({});
+    // Re-id inputs
+    ['mn','mv','md','mq','mp','mt'].forEach(prefix => {
+      const el = r.querySelector(`[id^="${prefix}-"]`);
+      if (el) { el.id = `${prefix}-${ni}`; if (el.tagName==='INPUT') el.setAttribute('oninput','calcDetailed()'); }
+    });
+    const del = r.querySelector('.mat-del');
+    if (del) del.setAttribute('onclick', `removeMatRow(${ni})`);
+    r.id = 'mat-row-' + ni;
+  });
+  calcDetailed();
+}
+
+// ══ PROPOSAL GENERATION ══
+function getQuoteData() {
+  const mode = currentMode;
+  if (mode === 'onsite') {
+    return {
+      customer: val('os-customer') || 'Valued Customer',
+      address: val('os-address'),
+      desc: val('os-jobtype').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),
+      date: new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),
+      validUntil: new Date(Date.now()+30*86400000).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),
+      scope: '',
+      exclusions: '',
+      terms: '50-50',
+      mode: 'onsite'
+    };
+  }
+  return {
+    customer: val('d-customer') || 'Valued Customer',
+    address: val('d-address'),
+    desc: val('d-desc'),
+    date: val('d-date') ? new Date(val('d-date')+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),
+    validUntil: val('d-valid') ? new Date(val('d-valid')+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '',
+    startDate: val('d-start') ? new Date(val('d-start')+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '',
+    scope: val('d-scope'),
+    exclusions: val('d-exclusions'),
+    terms: val('d-terms'),
+    mode: 'detailed'
+  };
+}
+
+function generateProposal() {
+  const info = getQuoteData();
+  const invoice = parseFloat(document.getElementById('sum-total2').textContent.replace(/[$,]/g,''))||0;
+  const cogs = parseFloat(document.getElementById('sum-cogs').textContent.replace(/[$,$]/g,''))||0;
+  const labor = parseFloat(document.getElementById('sum-labor').textContent.replace(/[$,]/g,''))||0;
+  const foreman = parseFloat(document.getElementById('sum-foreman').textContent.replace(/[$,]/g,''))||0;
+  const mat = parseFloat(document.getElementById('sum-mat').textContent.replace(/[$,]/g,''))||0;
+  const tax = parseFloat(document.getElementById('sum-tax').textContent.replace(/[$,]/g,''))||0;
+  const waste = parseFloat(document.getElementById('sum-waste').textContent.replace(/[$,]/g,''))||0;
+
+  const termsMap = {
+    '50-50': '50% deposit due at signing, 50% due upon project completion.',
+    '33-33-33': '33% deposit at signing, 33% at project midpoint, 34% upon completion.',
+    'custom': 'As agreed — see project contract.',
+    'net30': 'Net 30 days from project completion.',
+  };
+  const termsText = termsMap[info.terms] || info.terms;
+
+  // Build materials table if detailed
+  let matLines = '';
+  if (currentMode === 'detailed') {
+    matRows.forEach((_, i) => {
+      const name = document.getElementById('mn-'+i)?.value;
+      const vendor = document.getElementById('mv-'+i)?.value;
+      const desc = document.getElementById('md-'+i)?.value;
+      const qty = parseFloat(document.getElementById('mq-'+i)?.value)||0;
+      const price = parseFloat(document.getElementById('mp-'+i)?.value)||0;
+      const total = qty * price;
+      if (name && total > 0) {
+        matLines += `<tr>
+          <td style="padding:7px 8px;font-size:11pt;border-bottom:1px solid #eee">${name}</td>
+          <td style="padding:7px 8px;font-size:11pt;border-bottom:1px solid #eee;color:#666">${vendor||''}</td>
+          <td style="padding:7px 8px;font-size:11pt;border-bottom:1px solid #eee;color:#666">${desc||''}</td>
+          <td style="padding:7px 8px;font-size:11pt;border-bottom:1px solid #eee;text-align:right">${qty}</td>
+          <td style="padding:7px 8px;font-size:11pt;border-bottom:1px solid #eee;text-align:right">${fmt(price)}</td>
+          <td style="padding:7px 8px;font-size:11pt;border-bottom:1px solid #eee;text-align:right;font-weight:600">${fmt(total)}</td>
+        </tr>`;
+      }
+    });
+  }
+
+  const proposal = `
+    <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#111;max-width:100%">
+      <!-- Letterhead -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3pt solid #F4713D;padding-bottom:20px;margin-bottom:24px">
+        <div>
+          <div style="font-size:9pt;text-transform:uppercase;letter-spacing:.12em;color:#888;font-weight:600;margin-bottom:4px">Sweet Tea Build</div>
+          <div style="font-size:28pt;font-weight:800;letter-spacing:-1px;line-height:1;color:#111;font-family:Georgia,serif">Proposal</div>
+          <div style="font-size:10pt;color:#555;margin-top:6px">${info.desc || 'Residential Construction'}</div>
+        </div>
+        <div style="text-align:right;font-size:9pt;color:#666;line-height:1.8">
+          <div><strong style="color:#111">Sweet Tea Build LLC</strong></div>
+          <div>michael.fedrick@sweetteabuild.com</div>
+          <div>770-570-9621</div>
+          <div style="margin-top:6px">Date: ${info.date}</div>
+          ${info.validUntil?`<div>Valid until: ${info.validUntil}</div>`:''}
+        </div>
+      </div>
+
+      <!-- Client info -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
+        <div style="background:#f9f8f5;padding:16px;border-radius:6px">
+          <div style="font-size:8pt;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:600;margin-bottom:6px">Prepared for</div>
+          <div style="font-size:14pt;font-weight:700;color:#111">${info.customer}</div>
+          ${info.address?`<div style="font-size:10pt;color:#555;margin-top:3px">${info.address}</div>`:''}
+        </div>
+        <div style="background:#f9f8f5;padding:16px;border-radius:6px">
+          <div style="font-size:8pt;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:600;margin-bottom:6px">Project details</div>
+          ${info.startDate?`<div style="font-size:10pt;color:#555">Estimated start: <strong style="color:#111">${info.startDate}</strong></div>`:''}
+          <div style="font-size:10pt;color:#555;margin-top:3px">Payment: ${termsText.split('.')[0]}.</div>
+        </div>
+      </div>
+
+      ${info.scope?`
+      <div style="margin-bottom:20px">
+        <div style="font-size:9pt;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:600;border-bottom:1px solid #ddd;padding-bottom:6px;margin-bottom:10px">Scope of Work</div>
+        <div style="font-size:11pt;color:#333;line-height:1.6">${info.scope}</div>
+      </div>`:''}
+
+      <!-- Cost breakdown -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:9pt;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:600;border-bottom:1px solid #ddd;padding-bottom:6px;margin-bottom:10px">Cost Summary</div>
+        <table style="width:100%;border-collapse:collapse">
+          ${labor>0?`<tr><td style="padding:8px 0;font-size:11pt;border-bottom:1px solid #f0f0f0;color:#333">Project Labor</td><td style="padding:8px 0;font-size:11pt;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${fmt(labor)}</td></tr>`:''}
+          ${foreman>0?`<tr><td style="padding:8px 0;font-size:11pt;border-bottom:1px solid #f0f0f0;color:#333">Supervision & Foreman</td><td style="padding:8px 0;font-size:11pt;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${fmt(foreman)}</td></tr>`:''}
+          ${mat>0?`<tr><td style="padding:8px 0;font-size:11pt;border-bottom:1px solid #f0f0f0;color:#333">Materials & Supplies</td><td style="padding:8px 0;font-size:11pt;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600">${fmt(mat)}</td></tr>`:''}
+          ${tax>0?`<tr><td style="padding:8px 0;font-size:11pt;border-bottom:1px solid #f0f0f0;color:#555">Material Taxes</td><td style="padding:8px 0;font-size:11pt;border-bottom:1px solid #f0f0f0;text-align:right;color:#555">${fmt(tax)}</td></tr>`:''}
+          ${waste>0?`<tr><td style="padding:8px 0;font-size:11pt;border-bottom:1px solid #f0f0f0;color:#555">Contingency & Misc</td><td style="padding:8px 0;font-size:11pt;border-bottom:1px solid #f0f0f0;text-align:right;color:#555">${fmt(waste)}</td></tr>`:''}
+        </table>
+      </div>
+
+      ${matLines?`
+      <div style="margin-bottom:20px">
+        <div style="font-size:9pt;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:600;border-bottom:1px solid #ddd;padding-bottom:6px;margin-bottom:10px">Materials Detail</div>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr>
+            <th style="padding:6px 8px;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;font-weight:600;text-align:left;border-bottom:1.5px solid #ddd">Item</th>
+            <th style="padding:6px 8px;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;font-weight:600;text-align:left;border-bottom:1.5px solid #ddd">Vendor</th>
+            <th style="padding:6px 8px;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;font-weight:600;text-align:left;border-bottom:1.5px solid #ddd">Description</th>
+            <th style="padding:6px 8px;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;font-weight:600;text-align:right;border-bottom:1.5px solid #ddd">Qty</th>
+            <th style="padding:6px 8px;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;font-weight:600;text-align:right;border-bottom:1.5px solid #ddd">Unit</th>
+            <th style="padding:6px 8px;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;font-weight:600;text-align:right;border-bottom:1.5px solid #ddd">Total</th>
+          </tr></thead>
+          <tbody>${matLines}</tbody>
+        </table>
+      </div>`:''}
+
+      <!-- Total box -->
+      <div style="background:#F4713D;border-radius:8px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div style="font-size:13pt;font-weight:700;color:white">Total Project Investment</div>
+        <div style="font-size:28pt;font-weight:800;color:white;letter-spacing:-1px;font-family:Georgia,serif">${fmt(invoice)}</div>
+      </div>
+
+      ${info.exclusions?`
+      <div style="margin-bottom:20px">
+        <div style="font-size:9pt;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:600;border-bottom:1px solid #ddd;padding-bottom:6px;margin-bottom:10px">Not Included / Exclusions</div>
+        <div style="font-size:10.5pt;color:#555;line-height:1.6">${info.exclusions}</div>
+      </div>`:''}
+
+      <!-- Terms -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:9pt;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:600;border-bottom:1px solid #ddd;padding-bottom:6px;margin-bottom:10px">Payment Terms</div>
+        <div style="font-size:10.5pt;color:#333">${termsText}</div>
+      </div>
+
+      <!-- Signature -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:32px;padding-top:24px;border-top:1.5px solid #ddd">
+        <div>
+          <div style="font-size:8pt;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:600;margin-bottom:36px">Client Acceptance</div>
+          <div style="border-bottom:1px solid #333;margin-bottom:6px"></div>
+          <div style="font-size:9pt;color:#888">Signature &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+          <div style="margin-top:16px;border-bottom:1px solid #333;margin-bottom:6px"></div>
+          <div style="font-size:9pt;color:#888">Print name</div>
+        </div>
+        <div>
+          <div style="font-size:8pt;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:600;margin-bottom:36px">Sweet Tea Build</div>
+          <div style="border-bottom:1px solid #333;margin-bottom:6px"></div>
+          <div style="font-size:9pt;color:#888">Michael Fedrick &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+        </div>
+      </div>
+
+      <div style="margin-top:32px;padding-top:16px;border-top:1px solid #eee;font-size:8pt;color:#aaa;text-align:center">
+        Sweet Tea Build LLC · michael.fedrick@sweetteabuild.com · 770-570-9621 · This proposal is valid for 30 days from the date above.
+      </div>
+    </div>`;
+
+  document.getElementById('proposal-body').innerHTML = proposal;
+  document.getElementById('proposal-modal').classList.add('open');
+}
+
+function printProposal() {
+  const content = document.getElementById('proposal-body').innerHTML;
+  const win = window.open('', '_blank', 'width=850,height=1000');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <style>
+      @page { margin: 0.75in; size: letter; }
+      body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; color: #111; }
+      * { box-sizing: border-box; }
+    </style></head><body>${content}</body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 500);
+}
+
+async function saveQuote() {
+  const info = getQuoteData();
+  const total = parseFloat(document.getElementById('sum-total2').textContent.replace(/[$,]/g,''))||0;
+  const state = {
+    mode: currentMode,
+    // on-site fields
+    os_customer: val('os-customer'), os_address: val('os-address'),
+    os_jobtype: val('os-jobtype'), os_sqft: val('os-sqft'),
+    os_fm_period: val('os-fm-period'), os_fm_count: val('os-fm-count'),
+    os_matcost: val('os-matcost'), os_taxrate: val('os-taxrate'),
+    os_margin: val('os-margin'), os_waste: val('os-waste'),
+    // detailed fields
+    d_customer: val('d-customer'), d_address: val('d-address'),
+    d_desc: val('d-desc'), d_date: val('d-date'),
+    d_valid: val('d-valid'), d_start: val('d-start'),
+    d_sqft: val('d-sqft'), selectedLaborType,
+    d_addlabor: val('d-addlabor'), d_addlabor_note: val('d-addlabor_note'),
+    d_fm_period: val('d-fm-period'), d_fm_count: val('d-fm-count'),
+    d_fm_bonus: val('d-fm-bonus'),
+    d_taxrate: val('d-taxrate'), d_waste: val('d-waste'), d_margin: val('d-margin'),
+    d_scope: val('d-scope'), d_exclusions: val('d-exclusions'), d_terms: val('d-terms'),
+    matRows: matRows.map((_,i) => ({
+      name: document.getElementById('mn-'+i)?.value||'',
+      vendor: document.getElementById('mv-'+i)?.value||'',
+      desc: document.getElementById('md-'+i)?.value||'',
+      qty: document.getElementById('mq-'+i)?.value||0,
+      price: document.getElementById('mp-'+i)?.value||0,
+    })),
+  };
+
+  try {
+    const resp = await fetch(REST+'/fo_quotes', {
+      method: 'POST',
+      headers: {...H, 'Prefer':'resolution=merge-duplicates,return=representation'},
+      body: JSON.stringify({
+        customer_name: info.customer,
+        address: info.address,
+        mode: currentMode,
+        data: state,
+        total: total,
+      })
+    });
+    if (!resp.ok) throw new Error(await resp.text());
+    const saved = await resp.json();
+    const id = Array.isArray(saved) ? saved[0]?.id : saved?.id;
+    // Store ID in page so re-saves update the same record
+    document.getElementById('quote-id').value = id || '';
+    toast('Quote saved! You can reload it from the Saved Quotes list.');
+    loadSavedQuotes();
+  } catch(e) {
+    toast('Save failed: ' + e.message);
+  }
+}
+
+async function loadSavedQuotes() {
+  try {
+    const rows = await fetch(REST+'/fo_quotes?order=updated_at.desc&limit=10&select=id,customer_name,address,total,mode,updated_at', {headers:H}).then(r=>r.json());
+    const el = document.getElementById('saved-quotes-list');
+    if (!rows?.length) { el.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">No saved quotes yet.</div>'; return; }
+    el.innerHTML = rows.map(q=>`
+      <div onclick="loadQuote('${q.id}')" style="padding:8px;border:1px solid var(--border);border-radius:7px;margin-bottom:5px;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:12px;font-weight:500;color:var(--text)">${q.customer_name||'Unnamed'}</div>
+        <div style="font-size:11px;color:var(--text2)">${q.address||''}</div>
+        <div style="display:flex;justify-content:space-between;margin-top:3px">
+          <span style="font-size:10px;color:var(--text3)">${q.mode==='onsite'?'Quick':'Detailed'} · ${new Date(q.updated_at).toLocaleDateString()}</span>
+          <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--brand)">\$${Number(q.total||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+        </div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function loadQuote(id) {
+  try {
+    const rows = await fetch(REST+`/fo_quotes?id=eq.${id}&select=*`, {headers:H}).then(r=>r.json());
+    if (!rows?.length) return;
+    const q = rows[0]; const s = q.data || {};
+    document.getElementById('quote-id').value = q.id;
+    setMode(s.mode||'onsite');
+    // Restore on-site fields
+    const osFields = {
+      'os-customer':s.os_customer,'os-address':s.os_address,'os-jobtype':s.os_jobtype,
+      'os-sqft':s.os_sqft,'os-fm-period':s.os_fm_period,'os-fm-count':s.os_fm_count,
+      'os-matcost':s.os_matcost,'os-taxrate':s.os_taxrate,'os-margin':s.os_margin,'os-waste':s.os_waste,
+    };
+    Object.entries(osFields).forEach(([id,v])=>{ if(v!==undefined && document.getElementById(id)) document.getElementById(id).value=v; });
+    // Restore detailed fields
+    const dFields = {
+      'd-customer':s.d_customer,'d-address':s.d_address,'d-desc':s.d_desc,'d-date':s.d_date,
+      'd-valid':s.d_valid,'d-start':s.d_start,'d-sqft':s.d_sqft,
+      'd-addlabor':s.d_addlabor,'d-fm-period':s.d_fm_period,'d-fm-count':s.d_fm_count,
+      'd-fm-bonus':s.d_fm_bonus,'d-taxrate':s.d_taxrate,'d-waste':s.d_waste,'d-margin':s.d_margin,
+      'd-scope':s.d_scope,'d-exclusions':s.d_exclusions,'d-terms':s.d_terms,
+    };
+    Object.entries(dFields).forEach(([id,v])=>{ if(v!==undefined && document.getElementById(id)) document.getElementById(id).value=v; });
+    if (s.selectedLaborType) selectLaborType(s.selectedLaborType);
+    // Restore materials
+    document.getElementById('mat-body').innerHTML=''; matRows=[];
+    (s.matRows||[]).forEach(m=>addMatRow(m.name,m.vendor,m.desc,m.qty,m.price));
+    calcOnSite(); calcDetailed();
+    toast('Quote loaded.');
+  } catch(e) { toast('Load failed: '+e.message); }
+}
+
+async function deleteQuote(id) {
+  if (!confirm('Delete this saved quote?')) return;
+  try {
+    await fetch(REST+`/fo_quotes?id=eq.${id}`, {method:'DELETE',headers:H});
+    loadSavedQuotes(); toast('Quote deleted.');
+  } catch(e) { toast('Error: '+e.message); }
+}
+
+function resetForm() {
+  if (!confirm('Reset all fields?')) return;
+  document.querySelectorAll('#mode-detailed input, #mode-detailed select, #mode-detailed textarea').forEach(el => {
+    if (el.type === 'number') { if (el.id === 'd-margin') el.value = '33'; else if (el.id === 'd-waste') el.value = '10'; else if (el.id === 'd-taxrate') el.value = '8'; else el.value = ''; }
+    else if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+  selectedLaborType = null;
+  ['light','mid','heavy'].forEach(t => document.getElementById('lc-'+t)?.classList.remove('selected'));
+  document.getElementById('mat-body').innerHTML = '';
+  matRows = [];
+  calcDetailed();
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Close modal on backdrop
+document.getElementById('proposal-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
+
+// ══ INIT ══
+document.getElementById('d-date').value = new Date().toISOString().split('T')[0];
+loadSavedQuotes();
+const validDate = new Date(); validDate.setDate(validDate.getDate() + 30);
+document.getElementById('d-valid').value = validDate.toISOString().split('T')[0];
+// Start with 3 blank material rows in detailed mode
+addMatRow(); addMatRow(); addMatRow();
+calcOnSite();
+</script>
+</body>
+</html>

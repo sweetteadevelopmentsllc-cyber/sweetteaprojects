@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist · Materials</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F4F0;--card:#FFF;--s2:#FAFAF8;--s3:#F2F1ED;
+  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);
+  --text:#1A1A17;--text2:#6B6A66;--text3:#ABABAB;
+  --brand:#E2531C;--brand2:#F4713D;--brand-bg:rgba(226,83,28,0.07);--brand-border:rgba(226,83,28,0.2);
+  --green:#3A7D4A;--green-bg:#E8F5EC;
+  --red:#A83232;--red-bg:#FCEAEA;
+  --blue:#2A5FA8;--blue-bg:#EAF0FB;
+  --amber:#A86020;--amber-bg:#FBF0E4;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── HEADER ── */
+.hdr{background:var(--text);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 1.5rem;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.hdr-left{display:flex;align-items:center;gap:10px}
+.logo{width:30px;height:30px;background:var(--brand2);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo svg{width:15px;height:15px}
+.brand{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:white;letter-spacing:.04em}
+.hdr-nav{display:flex;gap:4px}
+.hn{font-size:12px;color:rgba(255,255,255,0.4);padding:5px 11px;border-radius:6px;text-decoration:none;transition:all .15s}
+.hn:hover{color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.06)}
+
+/* ── TOOLBAR ── */
+.toolbar{background:var(--card);border-bottom:1px solid var(--border);padding:10px 1.5rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tb-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.03em;color:var(--text);margin-right:6px}
+.tb-sep{width:1px;height:20px;background:var(--border2);margin:0 2px}
+.tb-job-sel{font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 10px;border:1px solid var(--border2);border-radius:7px;background:var(--s2);color:var(--text);outline:none;min-width:160px}
+.tb-job-sel:focus{border-color:var(--brand)}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:260px 1fr 280px;min-height:calc(100vh - 88px);gap:0}
+.left-col{background:var(--card);border-right:1px solid var(--border);padding:0;overflow-y:auto}
+.center-col{padding:0;overflow-y:auto}
+.right-col{background:var(--card);border-left:1px solid var(--border);padding:1rem;overflow-y:auto;position:sticky;top:88px;height:calc(100vh - 88px)}
+
+/* ── LEFT: CATALOG ── */
+.cat-search{padding:10px 12px;border-bottom:1px solid var(--border)}
+.cat-search input{width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--s2);color:var(--text);outline:none}
+.cat-search input:focus{border-color:var(--brand)}
+.cat-section{border-bottom:1px solid var(--border)}
+.cat-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;cursor:pointer;background:var(--s2);user-select:none}
+.cat-hd:hover{background:var(--s3)}
+.cat-hd-name{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text2)}
+.cat-hd-count{font-size:10px;color:var(--text3);background:var(--bg);padding:1px 6px;border-radius:10px}
+.cat-items{display:none}
+.cat-items.open{display:block}
+.cat-item{display:flex;align-items:center;justify-content:space-between;padding:7px 12px 7px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s}
+.cat-item:hover{background:var(--brand-bg)}
+.cat-item:last-child{border-bottom:none}
+.ci-name{font-size:12px;color:var(--text);flex:1;line-height:1.3}
+.ci-price{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);white-space:nowrap;margin:0 8px}
+.ci-add{width:20px;height:20px;border-radius:50%;background:var(--brand-bg);border:1px solid var(--brand-border);color:var(--brand);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.cat-item:hover .ci-add{background:var(--brand);color:white}
+
+/* ── CENTER: LIST ── */
+.list-toolbar{padding:10px 1rem;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:10}
+.lt-tabs{display:flex;gap:2px;background:var(--s3);border-radius:8px;padding:2px}
+.lt-tab{padding:5px 12px;font-size:12px;font-weight:500;color:var(--text3);background:none;border:none;border-radius:6px;cursor:pointer;transition:all .15s}
+.lt-tab.active{background:white;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+
+.mat-list{padding:0.75rem}
+.mat-cat-header{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);padding:8px 6px 4px;margin-top:4px}
+.mat-row{display:grid;grid-template-columns:1fr 70px 90px 100px 28px;gap:6px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 8px;margin-bottom:4px;transition:border-color .15s}
+.mat-row:hover{border-color:var(--border2)}
+.mr-name{font-size:13px;color:var(--text);min-width:0}
+.mr-name-input{width:100%;font-family:'DM Sans',sans-serif;font-size:12px;background:none;border:none;outline:none;color:var(--text);padding:2px 0}
+.mr-name-input:focus{background:var(--s2);border-radius:4px;padding:2px 6px}
+.mr-unit{font-size:10px;color:var(--text3);padding:2px 0}
+.mr-input{width:100%;font-family:'DM Mono',monospace;font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--s2);color:var(--text);text-align:right;outline:none}
+.mr-input:focus{border-color:var(--brand);background:white}
+.mr-price-wrap{position:relative}
+.mr-price-wrap .currency{position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text3)}
+.mr-input.price{padding-left:14px}
+.mr-total{font-family:'DM Mono',monospace;font-size:12px;color:var(--brand);text-align:right;white-space:nowrap}
+.mr-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;border-radius:4px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.mr-del:hover{background:var(--red-bg);color:var(--red)}
+.mr-ai-btn{font-size:9px;background:var(--blue-bg);color:var(--blue);border:1px solid rgba(42,95,168,0.15);border-radius:4px;padding:2px 5px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.mr-ai-btn:hover{background:var(--blue);color:white}
+.mr-ai-btn.loading{opacity:.5;cursor:not-allowed}
+.mr-verified{font-size:9px;color:var(--green);margin-top:2px}
+
+/* ── SMART ESTIMATE PANEL ── */
+.smart-panel{background:linear-gradient(135deg,var(--brand-bg),#fff8ef);border:1px solid var(--brand-border);border-radius:12px;padding:1rem;margin:0.75rem;margin-bottom:0}
+.sp-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;color:var(--brand);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.sp-field label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);display:block;margin-bottom:3px}
+.sp-field input,.sp-field select{width:100%;padding:7px 9px;border:1px solid var(--brand-border);border-radius:7px;background:white;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text);outline:none}
+.sp-field input:focus,.sp-field select:focus{border-color:var(--brand)}
+
+/* ── RIGHT: SUMMARY ── */
+.sum-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.sum-total-box{background:var(--brand-bg);border:1px solid var(--brand-border);border-radius:10px;padding:14px;text-align:center;margin-bottom:12px}
+.sum-total-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:var(--amber);margin-bottom:4px}
+.sum-total-num{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:800;color:var(--brand);line-height:1}
+.sum-total-tax{font-size:11px;color:var(--amber);margin-top:3px}
+.sum-cat-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.sum-cat-row:last-child{border-bottom:none}
+.sum-cat-name{color:var(--text2);display:flex;align-items:center;gap:5px}
+.sum-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sum-cat-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--text)}
+.sum-count{font-size:11px;color:var(--text3);padding:4px 0;margin-bottom:8px}
+.sum-divider{border:none;border-top:1px solid var(--border);margin:10px 0}
+.sum-notes textarea{width:100%;padding:8px;border:1px solid var(--border2);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text);background:var(--s2);resize:vertical;min-height:60px;outline:none}
+.sum-notes textarea:focus{border-color:var(--brand)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;text-decoration:none}
+.btn-gold{background:var(--brand);color:white}.btn-gold:hover{opacity:.88}
+.btn-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(58,125,74,0.2)}.btn-green:hover{background:var(--green);color:white}
+.btn-ghost{background:var(--card);color:var(--text2);border:1px solid var(--border2)}.btn-ghost:hover{background:var(--s2)}
+.btn-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(42,95,168,0.15)}.btn-blue:hover{background:var(--blue);color:white}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-full{width:100%;justify-content:center}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── AI STATUS ── */
+.ai-status{background:var(--blue-bg);border:1px solid rgba(42,95,168,0.15);border-radius:8px;padding:10px 12px;margin:0.75rem;display:none;font-size:12px;color:var(--blue)}
+.ai-status.show{display:flex;align-items:center;gap:8px}
+.ai-spinner{width:14px;height:14px;border:2px solid rgba(42,95,168,0.2);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── EMPTY ── */
+.empty-list{text-align:center;padding:3rem 1rem;color:var(--text3)}
+.empty-icon{font-size:32px;margin-bottom:10px}
+.empty-msg{font-size:13px;line-height:1.6}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:white;border-radius:9px;padding:9px 16px;font-size:13px;z-index:500;opacity:0;transition:opacity .2s;pointer-events:none;max-width:300px}
+.toast.show{opacity:1}
+
+/* ── PRICE BADGE ── */
+.price-source{font-size:9px;padding:1px 5px;border-radius:3px;margin-left:4px;vertical-align:middle}
+.ps-lowes{background:#0066CC;color:white}
+.ps-estimate{background:var(--s3);color:var(--text3)}
+.ps-ai{background:#7C3AED;color:white}
+
+@media(max-width:1100px){.layout{grid-template-columns:220px 1fr 240px}}
+@media(max-width:800px){.layout{grid-template-columns:1fr};.left-col,.right-col{display:none}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="logo"><svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="#0C0C0A"/></svg></div>
+    <span class="brand">Checklist · Materials</span>
+  </div>
+  <nav class="hdr-nav">
+    <a class="hn" href="index.html">← Home</a>
+    <a class="hn" href="quote.html">Quote Builder</a>
+  </nav>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <span class="tb-title">Material List Builder</span>
+  <div class="tb-sep"></div>
+  <select class="tb-job-sel" id="job-select" onchange="loadListForJob()">
+    <option value="">— Link to job (optional) —</option>
+  </select>
+  <div class="tb-sep"></div>
+  <button class="btn btn-blue btn-sm" onclick="checkAllPricesAI()" id="btn-ai-all">🔍 Search Prices at Lowe's</button>
+  <button class="btn btn-green btn-sm" onclick="saveList()">💾 Save List</button>
+  <button class="btn btn-gold btn-sm" onclick="exportToQuote()">→ Export to Quote</button>
+  <button class="btn btn-ghost btn-sm" onclick="clearList()">Clear</button>
+  <div style="flex:1"></div>
+  <div style="font-size:11px;color:var(--text3)" id="last-saved"></div>
+</div>
+
+<!-- AI STATUS -->
+<div class="ai-status" id="ai-status">
+  <div class="ai-spinner"></div>
+  <span id="ai-status-text">Searching current prices…</span>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT: CATALOG -->
+  <div class="left-col">
+    <div class="cat-search">
+      <input type="text" placeholder="Search materials…" id="cat-search" oninput="filterCatalog(this.value)"/>
+    </div>
+    <!-- Smart Estimate -->
+    <div class="smart-panel">
+      <div class="sp-title">⚡ Smart Estimate</div>
+      <div class="sp-grid">
+        <div class="sp-field">
+          <label>Job type</label>
+          <select id="se-type">
+            <option value="">— Select —</option>
+            <option value="roof_asphalt">Roof — Asphalt Shingles</option>
+            <option value="roof_metal">Roof — Metal</option>
+            <option value="kitchen_remodel">Kitchen Remodel</option>
+            <option value="bathroom_remodel">Bathroom Remodel</option>
+            <option value="framing_addition">Addition / Framing</option>
+            <option value="drywall_paint">Drywall & Paint</option>
+            <option value="flooring_lvp">Flooring — LVP</option>
+            <option value="flooring_tile">Flooring — Tile</option>
+            <option value="full_remodel">Full Interior Remodel</option>
+          </select>
+        </div>
+        <div class="sp-field">
+          <label>Square footage</label>
+          <input type="number" id="se-sqft" placeholder="e.g. 1200" min="0"/>
+        </div>
+        <div class="sp-field">
+          <label>Waste factor (%)</label>
+          <input type="number" id="se-waste" value="10" min="0" max="30"/>
+        </div>
+        <div class="sp-field">
+          <label>Vendor preference</label>
+          <select id="se-vendor">
+            <option value="Lowe's">Lowe's</option>
+            <option value="Home Depot">Home Depot</option>
+            <option value="Any">Best price</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-gold btn-full btn-sm" onclick="runSmartEstimate()">Generate Material List</button>
+    </div>
+    <!-- Catalog items rendered here -->
+    <div id="catalog"></div>
+  </div>
+
+  <!-- CENTER: MATERIAL LIST -->
+  <div class="center-col">
+    <div class="list-toolbar">
+      <div class="lt-tabs">
+        <button class="lt-tab active" onclick="filterView('all',this)">All</button>
+        <button class="lt-tab" onclick="filterView('roofing',this)">Roofing</button>
+        <button class="lt-tab" onclick="filterView('framing',this)">Framing</button>
+        <button class="lt-tab" onclick="filterView('drywall',this)">Drywall</button>
+        <button class="lt-tab" onclick="filterView('flooring',this)">Flooring</button>
+        <button class="lt-tab" onclick="filterView('other',this)">Other</button>
+      </div>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost btn-sm" onclick="addCustomRow()">+ Custom item</button>
+    </div>
+    <div class="mat-list" id="mat-list">
+      <div class="empty-list">
+        <div class="empty-icon">🧱</div>
+        <div class="empty-msg">Add items from the catalog on the left,<br>or use Smart Estimate to auto-generate a list.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: SUMMARY -->
+  <div class="right-col">
+    <div class="sum-title">Cost Summary</div>
+    <div class="sum-total-box">
+      <div class="sum-total-lbl">Total Material Cost</div>
+      <div class="sum-total-num" id="sum-total">$0</div>
+      <div class="sum-total-tax" id="sum-with-tax">+ tax: $0 → $0 total</div>
+    </div>
+    <div class="sum-count" id="sum-count">0 items</div>
+    <div id="sum-cats"></div>
+    <hr class="sum-divider"/>
+    <div style="margin-bottom:8px">
+      <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);display:block;margin-bottom:4px">Tax rate on materials (%)</label>
+      <input type="number" id="tax-rate" value="8" min="0" max="20" step="0.1" oninput="recalc()"
+        style="width:100%;padding:7px;border:1px solid var(--border2);border-radius:7px;font-family:'DM Mono',monospace;font-size:13px;background:var(--s2);color:var(--text);outline:none"/>
+    </div>
+    <hr class="sum-divider"/>
+    <div class="sum-notes" style="margin-bottom:10px">
+      <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);display:block;margin-bottom:4px">Notes</label>
+      <textarea id="list-notes" placeholder="Material notes, vendor contacts, special orders…"></textarea>
+    </div>
+    <button class="btn btn-gold btn-full" onclick="saveList()" style="margin-bottom:6px">💾 Save List</button>
+    <button class="btn btn-ghost btn-full" onclick="printList()">🖨 Print List</button>
+    <div style="margin-top:12px;padding:10px;background:var(--blue-bg);border-radius:8px;font-size:10px;color:var(--blue);line-height:1.5">
+      <strong>🔍 Price Check</strong> opens a Lowe's or Home Depot search for any item. Find the current price, then type it in. Baseline prices are sourced from Q1 2026 market data.
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ CONFIG ══
+const SB_URL="https://renltrbierztynzlbige.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlbmx0cmJpZXJ6dHluemxiaWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDA5NTUsImV4cCI6MjA5MjM3Njk1NX0.7KLzXIXKFh8kbZIUxT0W9JWbWEJdOe21D8nGCM4FwN4";
+const REST=SB_URL+"/rest/v1";
+const H={"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY};
+async function sbGet(t,q=""){const r=await fetch(`${REST}/${t}?${q}`,{headers:H});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbUpsert(t,b){const r=await fetch(`${REST}/${t}`,{method:"POST",headers:{...H,"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
+
+// ══ CATALOG DATA (current market pricing ~Q1 2026) ══
+const CATALOG = [
+  // ROOFING
+  {cat:'roofing',name:'Architectural shingles 30yr (bundle = 33sqft)',unit:'bundle',price:42.00,vendor:"Lowe's",note:'3 bundles = 1 square (100sqft)'},
+  {cat:'roofing',name:'Synthetic underlayment (10 square roll)',unit:'roll',price:68.00,vendor:"Lowe's"},
+  {cat:'roofing',name:'15lb felt underlayment (4 square roll)',unit:'roll',price:29.00,vendor:"Lowe's"},
+  {cat:'roofing',name:'Ice & water shield (2 square roll)',unit:'roll',price:98.00,vendor:"Lowe's"},
+  {cat:'roofing',name:'Ridge cap shingles (bundle)',unit:'bundle',price:67.00,vendor:"Lowe's"},
+  {cat:'roofing',name:'Starter strip shingles (bundle)',unit:'bundle',price:59.00,vendor:"Lowe's"},
+  {cat:'roofing',name:'Aluminum drip edge 10ft',unit:'pc',price:4.98,vendor:"Lowe's"},
+  {cat:'roofing',name:'Step flashing (25-piece bundle)',unit:'bundle',price:28.00,vendor:"Lowe's"},
+  {cat:'roofing',name:'3" pipe boot flashing',unit:'ea',price:19.50,vendor:"Lowe's"},
+  {cat:'roofing',name:'Valley flashing roll',unit:'roll',price:24.00,vendor:"Lowe's"},
+  {cat:'roofing',name:'1-3/4" roofing nails coil (5lb)',unit:'box',price:14.00,vendor:"Lowe's"},
+  {cat:'roofing',name:'Roofing caulk / sealant',unit:'tube',price:8.50,vendor:"Lowe's"},
+  // FRAMING & LUMBER
+  {cat:'framing',name:'2x4x8 stud',unit:'ea',price:4.78,vendor:"Lowe's"},
+  {cat:'framing',name:'2x4x10',unit:'ea',price:6.25,vendor:"Lowe's"},
+  {cat:'framing',name:'2x6x8',unit:'ea',price:7.48,vendor:"Lowe's"},
+  {cat:'framing',name:'2x6x10',unit:'ea',price:9.85,vendor:"Lowe's"},
+  {cat:'framing',name:'2x8x16',unit:'ea',price:18.50,vendor:"Lowe's"},
+  {cat:'framing',name:'2x10x16',unit:'ea',price:24.00,vendor:"Lowe's"},
+  {cat:'framing',name:'2x12x16',unit:'ea',price:34.00,vendor:"Lowe's"},
+  {cat:'framing',name:'OSB sheathing 7/16" 4x8',unit:'sheet',price:18.50,vendor:"Lowe's"},
+  {cat:'framing',name:'OSB 5/8" 4x8 (subfloor)',unit:'sheet',price:29.00,vendor:"Lowe's"},
+  {cat:'framing',name:'Plywood 3/4" 4x8',unit:'sheet',price:52.00,vendor:"Lowe's"},
+  {cat:'framing',name:'LVL beam 1-3/4"x9-1/2" 10ft',unit:'ea',price:74.00,vendor:"Lowe's"},
+  {cat:'framing',name:'Simpson LUS210 joist hanger',unit:'ea',price:3.48,vendor:"Lowe's"},
+  {cat:'framing',name:'Simpson LUS26 hanger',unit:'ea',price:2.75,vendor:"Lowe's"},
+  {cat:'framing',name:'Framing nails 3-1/4" (5lb box)',unit:'box',price:22.00,vendor:"Lowe's"},
+  {cat:'framing',name:'Construction screws 3" (5lb)',unit:'box',price:26.00,vendor:"Lowe's"},
+  {cat:'framing',name:'Post anchor (post base)',unit:'ea',price:14.50,vendor:"Lowe's"},
+  // DRYWALL
+  {cat:'drywall',name:'Drywall 1/2" 4x8 sheet',unit:'sheet',price:13.50,vendor:"Lowe's"},
+  {cat:'drywall',name:'Drywall 1/2" 4x12 sheet',unit:'sheet',price:19.00,vendor:"Lowe's"},
+  {cat:'drywall',name:'Drywall 5/8" Type X fire 4x8',unit:'sheet',price:16.50,vendor:"Lowe's"},
+  {cat:'drywall',name:'Joint compound 5-gallon bucket',unit:'bucket',price:24.00,vendor:"Lowe's"},
+  {cat:'drywall',name:'Paper tape 250ft roll',unit:'roll',price:6.50,vendor:"Lowe's"},
+  {cat:'drywall',name:'Fiberglass mesh tape 300ft',unit:'roll',price:8.00,vendor:"Lowe's"},
+  {cat:'drywall',name:'Corner bead 8ft',unit:'ea',price:2.75,vendor:"Lowe's"},
+  {cat:'drywall',name:'Drywall screws 1-5/8" (1lb)',unit:'box',price:7.50,vendor:"Lowe's"},
+  {cat:'drywall',name:'Cement board 1/2" 3x5',unit:'sheet',price:16.00,vendor:"Lowe's"},
+  // FLOORING
+  {cat:'flooring',name:'LVP luxury vinyl plank (20sqft/box)',unit:'box',price:48.00,vendor:"Lowe's",note:'~$2.40/sqft'},
+  {cat:'flooring',name:'Porcelain tile 12x24 (15sqft/box)',unit:'box',price:56.00,vendor:"Lowe's"},
+  {cat:'flooring',name:'Ceramic tile 12x12 (16sqft/box)',unit:'box',price:32.00,vendor:"Lowe's"},
+  {cat:'flooring',name:'Tile adhesive / thinset 50lb',unit:'bag',price:29.00,vendor:"Lowe's"},
+  {cat:'flooring',name:'Unsanded grout 25lb',unit:'bag',price:26.00,vendor:"Lowe's"},
+  {cat:'flooring',name:'Sanded grout 25lb',unit:'bag',price:22.00,vendor:"Lowe's"},
+  {cat:'flooring',name:'Grout sealer 1qt',unit:'bottle',price:18.00,vendor:"Lowe's"},
+  {cat:'flooring',name:'Foam underlayment 100sqft roll',unit:'roll',price:27.00,vendor:"Lowe's"},
+  {cat:'flooring',name:'Hardwood transition strip 36"',unit:'ea',price:19.00,vendor:"Lowe's"},
+  {cat:'flooring',name:'Flooring nailer staples (1000ct)',unit:'box',price:18.00,vendor:"Lowe's"},
+  // INSULATION
+  {cat:'insulation',name:'R-13 kraft batt insulation (39sqft)',unit:'bag',price:28.00,vendor:"Lowe's"},
+  {cat:'insulation',name:'R-19 kraft batt insulation (49sqft)',unit:'bag',price:39.00,vendor:"Lowe's"},
+  {cat:'insulation',name:'R-38 batt ceiling insulation (40sqft)',unit:'bag',price:68.00,vendor:"Lowe's"},
+  {cat:'insulation',name:'Rigid foam R-5 4x8 sheet',unit:'sheet',price:29.00,vendor:"Lowe's"},
+  {cat:'insulation',name:'Spray foam can (12oz)',unit:'can',price:7.50,vendor:"Lowe's"},
+  // EXTERIOR
+  {cat:'exterior',name:'Vinyl siding panel 8" (100sqft/sq)',unit:'square',price:95.00,vendor:"Lowe's"},
+  {cat:'exterior',name:'Hardie fiber cement board 8.25" 12ft',unit:'ea',price:20.00,vendor:"Lowe's"},
+  {cat:'exterior',name:'Housewrap Tyvek 9x100 (900sqft)',unit:'roll',price:175.00,vendor:"Lowe's"},
+  {cat:'exterior',name:'Exterior trim board 1x4x16',unit:'ea',price:24.00,vendor:"Lowe's"},
+  {cat:'exterior',name:'Exterior silicone caulk',unit:'tube',price:6.50,vendor:"Lowe's"},
+  {cat:'exterior',name:'Exterior paint (1 gallon)',unit:'gallon',price:52.00,vendor:"Lowe's"},
+  // CONCRETE & MASONRY
+  {cat:'concrete',name:'80lb concrete bag',unit:'bag',price:6.98,vendor:"Lowe's"},
+  {cat:'concrete',name:'60lb concrete bag',unit:'bag',price:5.48,vendor:"Lowe's"},
+  {cat:'concrete',name:'Rebar #4 20ft',unit:'ea',price:14.50,vendor:"Lowe's"},
+  {cat:'concrete',name:'Wire mesh 4x8 (6x6)',unit:'sheet',price:29.00,vendor:"Lowe's"},
+  {cat:'concrete',name:'Vapor barrier 6mil 20x100',unit:'roll',price:68.00,vendor:"Lowe's"},
+  // PLUMBING
+  {cat:'plumbing',name:'1/2" PEX tubing 100ft',unit:'roll',price:46.00,vendor:"Lowe's"},
+  {cat:'plumbing',name:'3/4" PEX tubing 100ft',unit:'roll',price:72.00,vendor:"Lowe's"},
+  {cat:'plumbing',name:'1/2" copper pipe 10ft',unit:'ea',price:29.00,vendor:"Lowe's"},
+  {cat:'plumbing',name:'3" PVC DWV pipe 10ft',unit:'ea',price:15.00,vendor:"Lowe's"},
+  {cat:'plumbing',name:'4" PVC DWV pipe 10ft',unit:'ea',price:22.00,vendor:"Lowe's"},
+  {cat:'plumbing',name:'PVC primer & cement kit',unit:'kit',price:14.00,vendor:"Lowe's"},
+  {cat:'plumbing',name:'SharkBite 1/2" elbow fitting',unit:'ea',price:8.50,vendor:"Lowe's"},
+  // ELECTRICAL
+  {cat:'electrical',name:'12/2 NM-B wire 250ft',unit:'roll',price:74.00,vendor:"Lowe's"},
+  {cat:'electrical',name:'14/2 NM-B wire 250ft',unit:'roll',price:57.00,vendor:"Lowe's"},
+  {cat:'electrical',name:'12/3 NM-B wire 250ft',unit:'roll',price:112.00,vendor:"Lowe's"},
+  {cat:'electrical',name:'Single gang plastic box',unit:'ea',price:2.25,vendor:"Lowe's"},
+  {cat:'electrical',name:'Duplex outlet 15A',unit:'ea',price:3.75,vendor:"Lowe's"},
+  {cat:'electrical',name:'GFCI outlet 15A',unit:'ea',price:18.50,vendor:"Lowe's"},
+  {cat:'electrical',name:'20A breaker (single pole)',unit:'ea',price:14.00,vendor:"Lowe's"},
+  {cat:'electrical',name:'Electrical staples (100ct)',unit:'box',price:4.50,vendor:"Lowe's"},
+  // PAINT & FINISH
+  {cat:'paint',name:'Interior paint flat 1 gallon',unit:'gallon',price:38.00,vendor:"Lowe's"},
+  {cat:'paint',name:'Interior paint eggshell 1 gallon',unit:'gallon',price:42.00,vendor:"Lowe's"},
+  {cat:'paint',name:'Interior primer 1 gallon',unit:'gallon',price:30.00,vendor:"Lowe's"},
+  {cat:'paint',name:'9" roller cover (3-pack)',unit:'pack',price:12.00,vendor:"Lowe's"},
+  {cat:'paint',name:'2.5" angled brush',unit:'ea',price:8.50,vendor:"Lowe's"},
+  {cat:'paint',name:'Painter\'s tape 1.88" 60yd',unit:'roll',price:6.50,vendor:"Lowe's"},
+];
+
+const CAT_META = {
+  roofing:   {label:'Roofing',   color:'#C45252'},
+  framing:   {label:'Framing & Lumber', color:'#E2531C'},
+  drywall:   {label:'Drywall',   color:'#6B6A66'},
+  flooring:  {label:'Flooring',  color:'#3A7D4A'},
+  insulation:{label:'Insulation',color:'#2A5FA8'},
+  exterior:  {label:'Exterior',  color:'#7C3AED'},
+  concrete:  {label:'Concrete',  color:'#555444'},
+  plumbing:  {label:'Plumbing',  color:'#0891B2'},
+  electrical:{label:'Electrical',color:'#D97706'},
+  paint:     {label:'Paint & Finish', color:'#BE185D'},
+  other:     {label:'Other',     color:'#6B6A66'},
+};
+
+// ══ STATE ══
+let listItems = []; // {id, cat, name, unit, qty, price, vendor, ai_verified, note}
+let currentViewFilter = 'all';
+let allJobs = [];
+
+// ══ INIT ══
+window.addEventListener('DOMContentLoaded', async () => {
+  renderCatalog();
+  recalc();
+  try {
+    allJobs = await sbGet('fo_jobs','archived=eq.false&order=created_at.desc&select=id,name');
+    const sel = document.getElementById('job-select');
+    allJobs.forEach(j => {
+      const o = document.createElement('option');
+      o.value = j.id; o.textContent = j.name;
+      sel.appendChild(o);
+    });
+  } catch(e) {}
+});
+
+// ══ CATALOG RENDER ══
+function renderCatalog(filter='') {
+  const el = document.getElementById('catalog');
+  const cats = [...new Set(CATALOG.map(i=>i.cat))];
+  const fl = filter.toLowerCase();
+
+  el.innerHTML = cats.map(cat => {
+    const items = CATALOG.filter(i => i.cat === cat && (!fl || i.name.toLowerCase().includes(fl)));
+    if (!items.length) return '';
+    const meta = CAT_META[cat] || CAT_META.other;
+    return `<div class="cat-section">
+      <div class="cat-hd" onclick="toggleCat('cat-${cat}')">
+        <span class="cat-hd-name" style="color:${meta.color}">${meta.label}</span>
+        <span class="cat-hd-count">${items.length}</span>
+      </div>
+      <div class="cat-items ${fl?'open':''}" id="cat-${cat}">
+        ${items.map((item,i) => `
+          <div class="cat-item" onclick="addItemFromCatalog(${CATALOG.indexOf(item)})">
+            <div>
+              <div class="ci-name">${item.name}</div>
+              <div style="font-size:10px;color:var(--text3)">${item.unit}</div>
+            </div>
+            <span class="ci-price">$${item.price.toFixed(2)}</span>
+            <div class="ci-add">+</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCat(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function filterCatalog(q) { renderCatalog(q); }
+
+// ══ ADD ITEMS ══
+function addItemFromCatalog(idx) {
+  const item = CATALOG[idx];
+  listItems.push({
+    id: Date.now() + Math.random(),
+    cat: item.cat,
+    name: item.name,
+    unit: item.unit,
+    qty: 1,
+    price: item.price,
+    vendor: item.vendor || "Lowe's",
+    ai_verified: false,
+    note: item.note || ''
+  });
+  renderList();
+  recalc();
+  toast(`Added: ${item.name.split('(')[0].trim()}`);
+}
+
+function addCustomRow() {
+  listItems.push({
+    id: Date.now() + Math.random(),
+    cat: 'other',
+    name: '',
+    unit: 'ea',
+    qty: 1,
+    price: 0,
+    vendor: '',
+    ai_verified: false,
+    note: ''
+  });
+  renderList();
+  recalc();
+  // Focus the name input of new row
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.mr-name-input');
+    if (inputs.length) inputs[inputs.length-1].focus();
+  }, 50);
+}
+
+// ══ RENDER LIST ══
+function renderList() {
+  const el = document.getElementById('mat-list');
+  const filtered = currentViewFilter === 'all'
+    ? listItems
+    : currentViewFilter === 'other'
+      ? listItems.filter(i => !['roofing','framing','drywall','flooring'].includes(i.cat))
+      : listItems.filter(i => i.cat === currentViewFilter);
+
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-list"><div class="empty-icon">🧱</div><div class="empty-msg">No items yet.<br>Add from catalog or use Smart Estimate.</div></div>`;
+    return;
+  }
+
+  // Group by category
+  const grouped = {};
+  filtered.forEach(item => {
+    const cat = item.cat || 'other';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(item);
+  });
+
+  let html = '';
+  Object.entries(grouped).forEach(([cat, items]) => {
+    const meta = CAT_META[cat] || CAT_META.other;
+    html += `<div class="mat-cat-header" style="color:${meta.color}">${meta.label}</div>`;
+    items.forEach(item => {
+      const idx = listItems.indexOf(item);
+      const rowTotal = (item.qty||0) * (item.price||0);
+      html += `<div class="mat-row" id="row-${idx}">
+        <div>
+          <input class="mr-name-input" value="${esc(item.name)}" placeholder="Item name…"
+            oninput="updateItem(${idx},'name',this.value)" />
+          <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+            <span class="mr-unit">${esc(item.unit)}</span>
+            ${item.vendor?`<span style="font-size:9px;color:var(--text3)">${esc(item.vendor)}</span>`:''}
+            ${item.ai_verified?`<span class="price-source ps-ai">AI verified</span>`:`<span class="price-source ps-estimate">est.</span>`}
+            <button class="mr-ai-btn" onclick="checkPriceAI(${idx})" title="Get current price from web">✦ Price Check</button>
+          </div>
+          ${item.note?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${esc(item.note)}</div>`:''}
+        </div>
+        <input class="mr-input" type="number" value="${item.qty||1}" min="0" step="0.5"
+          oninput="updateItem(${idx},'qty',+this.value)" placeholder="Qty" title="Quantity"/>
+        <div class="mr-price-wrap">
+          <span class="currency">$</span>
+          <input class="mr-input price" type="number" value="${item.price||0}" min="0" step="0.01"
+            oninput="updateItem(${idx},'price',+this.value)" placeholder="0.00"/>
+        </div>
+        <div class="mr-total">$${rowTotal.toFixed(2)}</div>
+        <button class="mr-del" onclick="removeItem(${idx})">×</button>
+      </div>`;
+    });
+  });
+  el.innerHTML = html;
+}
+
+function updateItem(idx, key, val) {
+  if (listItems[idx]) {
+    listItems[idx][key] = val;
+    // Update total cell without full re-render
+    const row = document.getElementById('row-'+idx);
+    if (row) {
+      const totalEl = row.querySelector('.mr-total');
+      if (totalEl) totalEl.textContent = '$' + ((listItems[idx].qty||0)*(listItems[idx].price||0)).toFixed(2);
+    }
+    recalc();
+  }
+}
+
+function removeItem(idx) {
+  listItems.splice(idx, 1);
+  renderList();
+  recalc();
+}
+
+function filterView(cat, btn) {
+  currentViewFilter = cat;
+  document.querySelectorAll('.lt-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+// ══ RECALCULATE SUMMARY ══
+function recalc() {
+  const taxRate = (parseFloat(document.getElementById('tax-rate').value)||0) / 100;
+  const subtotal = listItems.reduce((s,i) => s + (i.qty||0)*(i.price||0), 0);
+  const tax = subtotal * taxRate;
+  const total = subtotal + tax;
+
+  document.getElementById('sum-total').textContent = '$' + subtotal.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('sum-with-tax').textContent = `+ tax: $${tax.toFixed(2)} → $${total.toFixed(2)} total`;
+  document.getElementById('sum-count').textContent = listItems.length + ' item' + (listItems.length!==1?'s':'');
+
+  // Category breakdown
+  const catTotals = {};
+  listItems.forEach(i => {
+    const c = i.cat||'other';
+    catTotals[c] = (catTotals[c]||0) + (i.qty||0)*(i.price||0);
+  });
+
+  document.getElementById('sum-cats').innerHTML = Object.entries(catTotals)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([cat,total]) => {
+      const meta = CAT_META[cat]||CAT_META.other;
+      const pct = subtotal > 0 ? Math.round(total/subtotal*100) : 0;
+      return `<div class="sum-cat-row">
+        <div class="sum-cat-name">
+          <div class="sum-cat-dot" style="background:${meta.color}"></div>
+          <span>${meta.label}</span>
+        </div>
+        <div>
+          <span class="sum-cat-val">$${total.toFixed(2)}</span>
+          <span style="font-size:10px;color:var(--text3);margin-left:4px">${pct}%</span>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+// ══ AI PRICE CHECK ══
+// ── Price check: opens Lowe's search in new tab for the item ──
+// No API key needed, no security risk, you see the live price directly
+function checkPriceAI(idx) {
+  const item = listItems[idx];
+  if (!item || !item.name) { toast('Add an item name first.'); return; }
+  const vendor = item.vendor || "Lowe's";
+  const searchTerm = item.name.split('(')[0].trim();
+  const url = vendor === "Home Depot"
+    ? `https://www.homedepot.com/s/${encodeURIComponent(searchTerm)}`
+    : `https://www.lowes.com/search?searchTerm=${encodeURIComponent(searchTerm)}`;
+  window.open(url, '_blank');
+  toast('Check the price, then type it in the price field.');
+}
+
+function checkAllPricesAI() {
+  const unverified = listItems.filter(i => !i.ai_verified && i.name).slice(0, 5);
+  if (!unverified.length) { toast('No items to check.'); return; }
+  // Open a search tab for each unverified item (browsers may block > 1 popup)
+  unverified.forEach(item => {
+    const url = `https://www.lowes.com/search?searchTerm=${encodeURIComponent(item.name.split('(')[0].trim())}`;
+    window.open(url, '_blank');
+  });
+  toast(`Opened ${unverified.length} search tab(s). Update prices manually.`);
+}
+
+function setAIStatus(msg) {
+  const el = document.getElementById('ai-status');
+  document.getElementById('ai-status-text').textContent = msg;
+  el.classList.add('show');
+}
+function hideAIStatus() {
+  document.getElementById('ai-status').classList.remove('show');
+}
+
+// ══ SMART ESTIMATE ══
+const SMART_ESTIMATES = {
+  roof_asphalt: (sqft, waste) => {
+    const sqftW = sqft * (1+waste);
+    const squares = sqftW / 100;
+    const bundles = Math.ceil(squares * 3);
+    return [
+      {cat:'roofing',name:'Architectural shingles 30yr (bundle = 33sqft)',unit:'bundle',qty:bundles,note:`${squares.toFixed(1)} squares needed`},
+      {cat:'roofing',name:'Synthetic underlayment (10 square roll)',unit:'roll',qty:Math.ceil(squares/10)},
+      {cat:'roofing',name:'Ice & water shield (2 square roll)',unit:'roll',qty:Math.ceil(Math.min(sqft*0.15/200,4))},
+      {cat:'roofing',name:'Ridge cap shingles (bundle)',unit:'bundle',qty:Math.ceil(Math.sqrt(sqft)/50)},
+      {cat:'roofing',name:'Starter strip shingles (bundle)',unit:'bundle',qty:Math.ceil(Math.sqrt(sqft)/50)},
+      {cat:'roofing',name:'Aluminum drip edge 10ft',unit:'pc',qty:Math.ceil(Math.sqrt(sqft)*4/10)},
+      {cat:'roofing',name:'1-3/4" roofing nails coil (5lb)',unit:'box',qty:Math.ceil(squares/5)},
+      {cat:'roofing',name:'Roofing caulk / sealant',unit:'tube',qty:3},
+      {cat:'roofing',name:'3" pipe boot flashing',unit:'ea',qty:2},
+      {cat:'roofing',name:'Step flashing (25-piece bundle)',unit:'bundle',qty:2},
+    ];
+  },
+  kitchen_remodel: (sqft, waste) => {
+    const sf = sqft*(1+waste);
+    return [
+      {cat:'drywall',name:'Drywall 1/2" 4x8 sheet',unit:'sheet',qty:Math.ceil(sf*2/32)},
+      {cat:'drywall',name:'Joint compound 5-gallon bucket',unit:'bucket',qty:Math.ceil(sf/200)},
+      {cat:'drywall',name:'Paper tape 250ft roll',unit:'roll',qty:2},
+      {cat:'flooring',name:'Porcelain tile 12x24 (15sqft/box)',unit:'box',qty:Math.ceil(sf/15)},
+      {cat:'flooring',name:'Tile adhesive / thinset 50lb',unit:'bag',qty:Math.ceil(sf/45)},
+      {cat:'flooring',name:'Sanded grout 25lb',unit:'bag',qty:Math.ceil(sf/40)},
+      {cat:'plumbing',name:'1/2" PEX tubing 100ft',unit:'roll',qty:1},
+      {cat:'electrical',name:'12/2 NM-B wire 250ft',unit:'roll',qty:1},
+      {cat:'electrical',name:'GFCI outlet 15A',unit:'ea',qty:3},
+      {cat:'paint',name:'Interior paint eggshell 1 gallon',unit:'gallon',qty:Math.ceil(sf*1.5/350)},
+      {cat:'paint',name:'Interior primer 1 gallon',unit:'gallon',qty:Math.ceil(sf*1.5/400)},
+      {cat:'paint',name:'Painter\'s tape 1.88" 60yd',unit:'roll',qty:3},
+    ];
+  },
+  bathroom_remodel: (sqft, waste) => {
+    const sf = sqft*(1+waste);
+    return [
+      {cat:'drywall',name:'Cement board 1/2" 3x5',unit:'sheet',qty:Math.ceil(sf*1.5/15)},
+      {cat:'drywall',name:'Drywall 1/2" 4x8 sheet',unit:'sheet',qty:Math.ceil(sf/32)},
+      {cat:'flooring',name:'Ceramic tile 12x12 (16sqft/box)',unit:'box',qty:Math.ceil(sf/16)},
+      {cat:'flooring',name:'Tile adhesive / thinset 50lb',unit:'bag',qty:Math.ceil(sf/40)},
+      {cat:'flooring',name:'Unsanded grout 25lb',unit:'bag',qty:Math.ceil(sf/50)},
+      {cat:'flooring',name:'Grout sealer 1qt',unit:'bottle',qty:1},
+      {cat:'plumbing',name:'1/2" PEX tubing 100ft',unit:'roll',qty:1},
+      {cat:'plumbing',name:'SharkBite 1/2" elbow fitting',unit:'ea',qty:4},
+      {cat:'electrical',name:'GFCI outlet 15A',unit:'ea',qty:2},
+      {cat:'paint',name:'Interior paint eggshell 1 gallon',unit:'gallon',qty:2},
+      {cat:'paint',name:'Interior primer 1 gallon',unit:'gallon',qty:1},
+    ];
+  },
+  framing_addition: (sqft, waste) => {
+    const sf = sqft*(1+waste);
+    const studsNeeded = Math.ceil(sf/1.33);
+    return [
+      {cat:'framing',name:'2x4x8 stud',unit:'ea',qty:studsNeeded},
+      {cat:'framing',name:'2x6x8',unit:'ea',qty:Math.ceil(studsNeeded*0.3)},
+      {cat:'framing',name:'2x10x16',unit:'ea',qty:Math.ceil(sf/32)},
+      {cat:'framing',name:'OSB sheathing 7/16" 4x8',unit:'sheet',qty:Math.ceil(sf/32*1.1)},
+      {cat:'framing',name:'OSB 5/8" 4x8 (subfloor)',unit:'sheet',qty:Math.ceil(sf/32)},
+      {cat:'framing',name:'Simpson LUS210 joist hanger',unit:'ea',qty:Math.ceil(sf/16)},
+      {cat:'framing',name:'Framing nails 3-1/4" (5lb box)',unit:'box',qty:Math.ceil(sf/200)},
+      {cat:'insulation',name:'R-13 kraft batt insulation (39sqft)',unit:'bag',qty:Math.ceil(sf/39*0.8)},
+      {cat:'insulation',name:'R-38 batt ceiling insulation (40sqft)',unit:'bag',qty:Math.ceil(sf/40)},
+      {cat:'exterior',name:'Housewrap Tyvek 9x100 (900sqft)',unit:'roll',qty:Math.ceil(sf*0.5/900)},
+    ];
+  },
+  drywall_paint: (sqft, waste) => {
+    const sf = sqft*(1+waste);
+    const sheets = Math.ceil(sf*1.8/32);
+    return [
+      {cat:'drywall',name:'Drywall 1/2" 4x8 sheet',unit:'sheet',qty:sheets},
+      {cat:'drywall',name:'Joint compound 5-gallon bucket',unit:'bucket',qty:Math.ceil(sheets/12)},
+      {cat:'drywall',name:'Paper tape 250ft roll',unit:'roll',qty:Math.ceil(sheets/20)},
+      {cat:'drywall',name:'Corner bead 8ft',unit:'ea',qty:Math.ceil(sf/80)},
+      {cat:'drywall',name:'Drywall screws 1-5/8" (1lb)',unit:'box',qty:Math.ceil(sheets/8)},
+      {cat:'paint',name:'Interior paint eggshell 1 gallon',unit:'gallon',qty:Math.ceil(sf*1.8/350)},
+      {cat:'paint',name:'Interior primer 1 gallon',unit:'gallon',qty:Math.ceil(sf*1.8/400)},
+      {cat:'paint',name:'9" roller cover (3-pack)',unit:'pack',qty:Math.ceil(sf/500)},
+      {cat:'paint',name:'Painter\'s tape 1.88" 60yd',unit:'roll',qty:Math.ceil(sf/300)},
+    ];
+  },
+  flooring_lvp: (sqft, waste) => {
+    const sf = sqft*(1+waste);
+    return [
+      {cat:'flooring',name:'LVP luxury vinyl plank (20sqft/box)',unit:'box',qty:Math.ceil(sf/20)},
+      {cat:'flooring',name:'Foam underlayment 100sqft roll',unit:'roll',qty:Math.ceil(sf/100)},
+      {cat:'flooring',name:'Hardwood transition strip 36"',unit:'ea',qty:Math.ceil(sf/150)},
+      {cat:'flooring',name:'Flooring nailer staples (1000ct)',unit:'box',qty:Math.ceil(sf/300)},
+    ];
+  },
+  flooring_tile: (sqft, waste) => {
+    const sf = sqft*(1+waste);
+    return [
+      {cat:'flooring',name:'Porcelain tile 12x24 (15sqft/box)',unit:'box',qty:Math.ceil(sf/15)},
+      {cat:'flooring',name:'Tile adhesive / thinset 50lb',unit:'bag',qty:Math.ceil(sf/45)},
+      {cat:'flooring',name:'Sanded grout 25lb',unit:'bag',qty:Math.ceil(sf/40)},
+      {cat:'flooring',name:'Grout sealer 1qt',unit:'bottle',qty:Math.ceil(sf/300)},
+      {cat:'drywall',name:'Cement board 1/2" 3x5',unit:'sheet',qty:Math.ceil(sf/15)},
+    ];
+  },
+  full_remodel: (sqft, waste) => {
+    // Combine several estimate types
+    const roof = SMART_ESTIMATES.drywall_paint(sqft*0.6, waste);
+    const frame = SMART_ESTIMATES.framing_addition(sqft*0.4, waste);
+    const bath = SMART_ESTIMATES.bathroom_remodel(80, waste);
+    const kitchen = SMART_ESTIMATES.kitchen_remodel(150, waste);
+    return [...roof,...frame,...bath,...kitchen];
+  },
+};
+SMART_ESTIMATES.roof_metal = SMART_ESTIMATES.roof_asphalt;
+
+function runSmartEstimate() {
+  const type = document.getElementById('se-type').value;
+  const sqft = parseFloat(document.getElementById('se-sqft').value)||0;
+  const waste = parseFloat(document.getElementById('se-waste').value||10)/100;
+  const vendor = document.getElementById('se-vendor').value;
+
+  if (!type) { toast('Select a job type.'); return; }
+  if (!sqft) { toast('Enter square footage.'); return; }
+
+  const estimateFn = SMART_ESTIMATES[type];
+  if (!estimateFn) { toast('Estimate type not available.'); return; }
+
+  const estimateItems = estimateFn(sqft, waste);
+  if (!estimateItems.length) { toast('No estimate items found.'); return; }
+
+  // Clear and add new items
+  listItems = [];
+  estimateItems.forEach(est => {
+    const catalogMatch = CATALOG.find(c => c.name === est.name);
+    listItems.push({
+      id: Date.now() + Math.random(),
+      cat: est.cat,
+      name: est.name,
+      unit: est.unit || (catalogMatch?.unit||'ea'),
+      qty: est.qty || 1,
+      price: catalogMatch?.price || 0,
+      vendor: vendor !== 'Any' ? vendor : (catalogMatch?.vendor||"Lowe's"),
+      ai_verified: false,
+      note: est.note || ''
+    });
+  });
+
+  renderList();
+  recalc();
+  toast(`Generated ${listItems.length} items for ${sqft.toLocaleString()} sqft.`);
+}
+
+// ══ SAVE & LOAD ══
+async function saveList() {
+  const jobId = document.getElementById('job-select').value;
+  const payload = {
+    items: listItems,
+    notes: document.getElementById('list-notes').value,
+    saved_at: new Date().toISOString(),
+    job_id: jobId || null,
+  };
+  const key = jobId ? `matlist_${jobId}` : `matlist_standalone_${Date.now()}`;
+  try {
+    await sbUpsert('fo_material_lists', {id: key, job_id: jobId||null, data: payload});
+    document.getElementById('last-saved').textContent = 'Saved ' + new Date().toLocaleTimeString();
+    toast('Material list saved.');
+  } catch(e) {
+    // Fallback to localStorage if table doesn't exist yet
+    localStorage.setItem(key, JSON.stringify(payload));
+    document.getElementById('last-saved').textContent = 'Saved locally';
+    toast('Saved locally (run SQL to enable cloud save).');
+  }
+}
+
+async function loadListForJob() {
+  const jobId = document.getElementById('job-select').value;
+  if (!jobId) return;
+  try {
+    const rows = await sbGet('fo_material_lists', `job_id=eq.${jobId}&select=data&limit=1`);
+    if (rows?.length) {
+      const data = rows[0].data;
+      listItems = data.items || [];
+      document.getElementById('list-notes').value = data.notes || '';
+      renderList();
+      recalc();
+      toast('Material list loaded.');
+    }
+  } catch(e) {}
+}
+
+// ══ EXPORT TO QUOTE ══
+function exportToQuote() {
+  const matData = listItems.map(i => ({
+    name: i.name, vendor: i.vendor, qty: i.qty, price: i.price
+  }));
+  sessionStorage.setItem('import_materials', JSON.stringify(matData));
+  window.location.href = 'quote.html';
+}
+
+// ══ PRINT ══
+function printList() {
+  const taxRate = (parseFloat(document.getElementById('tax-rate').value)||0)/100;
+  const subtotal = listItems.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+  const tax = subtotal*taxRate;
+
+  const rows = listItems.map(i=>`<tr>
+    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt">${i.name}</td>
+    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt;color:#666">${i.vendor||''}</td>
+    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt;text-align:center">${i.qty}</td>
+    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt">${i.unit}</td>
+    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt;text-align:right">$${(i.price||0).toFixed(2)}</td>
+    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt;font-weight:600;text-align:right">$${((i.qty||0)*(i.price||0)).toFixed(2)}</td>
+  </tr>`).join('');
+
+  const w = window.open('','_blank','width=900,height=900');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <style>@page{margin:.75in;size:letter}body{font-family:'Helvetica Neue',sans-serif;color:#111}*{box-sizing:border-box}</style></head>
+    <body>
+    <div style="border-bottom:3pt solid #F4713D;padding-bottom:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end">
+      <div>
+        <div style="font-size:8pt;text-transform:uppercase;letter-spacing:.12em;color:#888;font-weight:600">Sweet Tea Build LLC</div>
+        <div style="font-size:22pt;font-weight:800;font-family:Georgia,serif">Material List</div>
+        <div style="font-size:10pt;color:#555">Prepared: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+      </div>
+      <div style="text-align:right;font-size:9pt;color:#666">770-570-9621<br>michael.fedrick@sweetteabuild.com</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th style="padding:7px 8px;text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Item</th>
+        <th style="padding:7px 8px;text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Vendor</th>
+        <th style="padding:7px 8px;text-align:center;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Qty</th>
+        <th style="padding:7px 8px;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Unit</th>
+        <th style="padding:7px 8px;text-align:right;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Unit Price</th>
+        <th style="padding:7px 8px;text-align:right;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Total</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr><td colspan="5" style="padding:10px 8px;font-size:11pt;font-weight:600;text-align:right;border-top:2px solid #ddd">Subtotal</td><td style="padding:10px 8px;font-size:11pt;font-weight:700;text-align:right;border-top:2px solid #ddd">$${subtotal.toFixed(2)}</td></tr>
+        <tr><td colspan="5" style="padding:4px 8px;font-size:10pt;text-align:right;color:#666">Tax (${(taxRate*100).toFixed(1)}%)</td><td style="padding:4px 8px;font-size:10pt;text-align:right;color:#666">$${tax.toFixed(2)}</td></tr>
+        <tr style="background:rgba(226,83,28,0.07)"><td colspan="5" style="padding:12px 8px;font-size:13pt;font-weight:800;text-align:right;color:#E2531C">TOTAL</td><td style="padding:12px 8px;font-size:13pt;font-weight:800;text-align:right;color:#E2531C">$${(subtotal+tax).toFixed(2)}</td></tr>
+      </tfoot>
+    </table>
+    ${document.getElementById('list-notes').value?`<div style="margin-top:20px;padding:12px;background:#f9f8f5;border-radius:6px;font-size:10pt;color:#444">${document.getElementById('list-notes').value}</div>`:''}
+    </body></html>`);
+  w.document.close(); w.focus(); setTimeout(()=>w.print(),400);
+}
+
+function clearList() {
+  if (!confirm('Clear the material list?')) return;
+  listItems = [];
+  renderList();
+  recalc();
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg) { const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000); }
+
+// ── Check if export was requested from quote page ──
+const imported = sessionStorage.getItem('import_materials');
+if (imported) {
+  try {
+    const mats = JSON.parse(imported);
+    mats.forEach(m => {
+      const cat = CATALOG.find(c=>c.name===m.name);
+      listItems.push({id:Date.now()+Math.random(),cat:cat?.cat||'other',name:m.name,unit:cat?.unit||'ea',qty:m.qty,price:m.price,vendor:m.vendor||"Lowe's",ai_verified:false,note:''});
+    });
+    sessionStorage.removeItem('import_materials');
+    renderList();recalc();
+    toast(`Imported ${mats.length} items from Quote Builder.`);
+  } catch(e) {}
+}
+</script>
+</body>
+</html>
