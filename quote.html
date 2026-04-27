@@ -433,9 +433,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="field-grid">
           <div class="field">
             <label>Estimated material cost ($)</label>
-            <div class="prefix-input">
-              <span class="prefix">$</span>
-              <input type="number" id="os-matcost" placeholder="0" min="0" oninput="calcOnSite()"/>
+            <div style="display:flex;gap:6px;align-items:center">
+              <div class="prefix-input" style="flex:1">
+                <span class="prefix">$</span>
+                <input type="number" id="os-matcost" placeholder="0" min="0" oninput="calcOnSite()"/>
+              </div>
+              <button onclick="openMatImportQuick()" title="Import total from a saved list"
+                style="padding:7px 10px;background:var(--brand-bg);border:1px solid var(--brand-border);border-radius:7px;color:var(--brand);font-size:12px;cursor:pointer;white-space:nowrap;transition:all .15s"
+                onmouseover="this.style.background='var(--brand)';this.style.color='white'"
+                onmouseout="this.style.background='var(--brand-bg)';this.style.color='var(--brand)'">📋 Import</button>
             </div>
           </div>
           <div class="field">
@@ -614,6 +620,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <tbody id="mat-body"></tbody>
         </table>
         <button class="add-mat-btn" onclick="addMatRow()">+ Add item</button>
+        <button class="add-mat-btn" onclick="openMatImport()" style="border-color:var(--brand-border);color:var(--brand)">📋 Import from saved list or template</button>
         <div class="field-grid" style="margin-top:14px">
           <div class="field">
             <label>Tax rate on materials (%)</label>
@@ -1287,6 +1294,112 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+// ══ MATERIAL IMPORT ══
+let matImportMode = 'detailed'; // 'detailed' | 'quick'
+let importTab = 'lists';
+
+function openMatImport() { matImportMode='detailed'; openMatImportModal(); }
+function openMatImportQuick() { matImportMode='quick'; openMatImportModal(); }
+
+async function openMatImportModal() {
+  document.getElementById('mat-import-title').textContent =
+    matImportMode==='quick' ? 'Import Material Total' : 'Import Material Items';
+  document.getElementById('mat-import-modal').style.display='flex';
+  await loadImportTab('lists');
+}
+
+function closeMatImport() {
+  document.getElementById('mat-import-modal').style.display='none';
+}
+
+function showImportTab(tab) {
+  importTab = tab;
+  document.getElementById('itab-lists').style.background = tab==='lists'?'var(--brand)':'';
+  document.getElementById('itab-lists').style.color = tab==='lists'?'white':'';
+  document.getElementById('itab-templates').style.background = tab==='templates'?'var(--brand)':'';
+  document.getElementById('itab-templates').style.color = tab==='templates'?'white':'';
+  loadImportTab(tab);
+}
+
+async function loadImportTab(tab) {
+  const el = document.getElementById('mat-import-content');
+  el.innerHTML = '<div style="color:var(--text3);padding:8px 0">Loading…</div>';
+  try {
+    if (tab === 'lists') {
+      const lists = await fetch(REST+'/fo_material_lists?order=updated_at.desc&limit=20&select=id,job_id,data', {headers:H}).then(r=>r.json()).catch(()=>[]);
+      const jobs = await fetch(REST+'/fo_jobs?archived=eq.false&select=id,name', {headers:H}).then(r=>r.json()).catch(()=>[]);
+      const jMap = Object.fromEntries((jobs||[]).map(j=>[j.id,j.name]));
+      if (!lists.length) { el.innerHTML='<div style="color:var(--text3);font-size:12px">No saved lists. Create one in the Materials page.</div>'; return; }
+      el.innerHTML = lists.map(l=>{
+        const items = l.data?.items||[];
+        const total = items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+        const jobName = l.job_id ? (jMap[l.job_id]||'Unknown job') : 'No job linked';
+        return `<div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor=''" onclick="importMatList(${JSON.stringify(JSON.stringify(items))})">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text)">${jobName}</div>
+              <div style="font-size:11px;color:var(--text3)">${items.length} items · $${total.toFixed(2)}</div>
+            </div>
+            <div style="font-size:12px;color:var(--brand);font-weight:500">${matImportMode==='quick'?'Use total':'Import →'}</div>
+          </div>
+        </div>`;
+      }).join('');
+    } else {
+      const templates = await fetch(REST+'/fo_mat_templates?order=created_at.desc&select=*', {headers:H}).then(r=>r.json()).catch(()=>[]);
+      if (!templates.length) { el.innerHTML='<div style="color:var(--text3);font-size:12px">No templates. Create one in the Materials page.</div>'; return; }
+      el.innerHTML = templates.map(t=>`
+        <div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor=''" onclick="importMatTemplate('${t.id}','${t.name}')">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:13px;font-weight:500;color:var(--text)">${t.name}</div><div style="font-size:11px;color:var(--text3)">${t.category}</div></div>
+            <div style="font-size:12px;color:var(--brand);font-weight:500">${matImportMode==='quick'?'Use total':'Import →'}</div>
+          </div>
+        </div>`).join('');
+    }
+  } catch(e) { el.innerHTML='<div style="color:var(--red)">Error loading: '+e.message+'</div>'; }
+}
+
+function importMatList(itemsStr) {
+  const items = JSON.parse(itemsStr);
+  if (matImportMode === 'quick') {
+    const total = items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+    document.getElementById('os-matcost').value = total.toFixed(2);
+    calcOnSite();
+    closeMatImport();
+    toast('Material cost set to $'+total.toFixed(2)+' from saved list.');
+    return;
+  }
+  // Detailed mode — import as line items
+  if (matRows.length > 0 && !confirm('This will add items to your existing materials list. Continue?')) return;
+  items.forEach(item => {
+    if (item.name) addMatRow(item.name, item.vendor||'', '', item.qty||1, item.price||0);
+  });
+  closeMatImport();
+  toast('Imported '+items.length+' items.');
+}
+
+async function importMatTemplate(templateId, name) {
+  try {
+    const items = await fetch(REST+`/fo_mat_template_items?template_id=eq.${templateId}&order=order_index.asc&select=*`, {headers:H}).then(r=>r.json());
+    if (matImportMode === 'quick') {
+      const total = (items||[]).reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+      document.getElementById('os-matcost').value = total.toFixed(2);
+      calcOnSite();
+      closeMatImport();
+      toast('Material cost set to $'+total.toFixed(2)+' from template.');
+      return;
+    }
+    if (!items.length) { toast('Template has no items.'); return; }
+    if (matRows.length > 0 && !confirm('Add '+items.length+' items from "'+name+'" to your list?')) return;
+    items.forEach(item => { if(item.name) addMatRow(item.name, item.vendor||'', '', item.qty||1, item.price||0); });
+    closeMatImport();
+    toast('Imported '+items.length+' items from template.');
+  } catch(e) { toast('Error: '+e.message); }
+}
+
+document.getElementById('mat-import-modal').addEventListener('click', function(e){
+  if(e.target===this) closeMatImport();
+});
+
 // Close modal on backdrop
 document.getElementById('proposal-modal').addEventListener('click', function(e) {
   if (e.target === this) this.classList.remove('open');
@@ -1301,5 +1414,21 @@ document.getElementById('d-valid').value = validDate.toISOString().split('T')[0]
 addMatRow(); addMatRow(); addMatRow();
 calcOnSite();
 </script>
+<!-- MAT IMPORT MODAL -->
+<div id="mat-import-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:var(--surface);border-radius:14px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;border:1px solid var(--border)">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--border)">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--text)" id="mat-import-title">Import Materials</div>
+      <button onclick="closeMatImport()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3)">✕</button>
+    </div>
+    <div style="padding:16px 20px">
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        <button onclick="showImportTab('lists')" id="itab-lists" class="btn btn-sm btn-ghost" style="flex:1;justify-content:center;background:var(--brand);color:white">Saved Lists</button>
+        <button onclick="showImportTab('templates')" id="itab-templates" class="btn btn-sm btn-ghost" style="flex:1;justify-content:center">Templates</button>
+      </div>
+      <div id="mat-import-content" style="font-size:13px;color:var(--text2)">Loading…</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

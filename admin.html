@@ -149,6 +149,7 @@ textarea.fi{resize:vertical;min-height:70px;line-height:1.5}
       <button class="sb-btn" id="nav-foremen" onclick="showPage('foremen')"><span class="sb-icon">👷</span>Foremen</button>
       <button class="sb-btn" id="nav-delays" onclick="showPage('delays')"><span class="sb-icon">⚠️</span>Delays</button>
       <button class="sb-btn" id="nav-templates" onclick="showPage('templates')"><span class="sb-icon">📋</span>Templates</button>
+      <button class="sb-btn" id="nav-activity" onclick="showPage('activity')"><span class="sb-icon">📜</span>Activity Log</button>
       <div class="sb-sec">Tools</div>
       <a class="sb-btn" href="index.html" style="text-decoration:none"><span class="sb-icon">🏠</span>Home</a>
       <div class="sb-sec">Tools</div>
@@ -337,6 +338,23 @@ async function sbGet(t,q=""){const r=await fetch(`${REST}/${t}?${q}`,{headers:H}
 async function sbPost(t,b,pref="return=representation"){const r=await fetch(`${REST}/${t}`,{method:"POST",headers:{...H,"Prefer":pref},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());const tx=await r.text();return tx?JSON.parse(tx):null;}
 async function sbPatch(t,q,b){const r=await fetch(`${REST}/${t}?${q}`,{method:"PATCH",headers:{...H,"Prefer":"return=representation"},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());const tx=await r.text();return tx?JSON.parse(tx):null;}
 async function sbDelete(t,q){const r=await fetch(`${REST}/${t}?${q}`,{method:"DELETE",headers:{...H,"Prefer":"return=minimal"}});if(!r.ok)throw new Error(await r.text());}
+
+// ══ AUDIT LOG ══
+async function logAction(action, entityType, entityId, entityName, detail={}) {
+  try {
+    const u = JSON.parse(sessionStorage.getItem('checklist_user')||'{}');
+    await sbPost('fo_activity_log', {
+      actor_name: u.name || adminName,
+      actor_role: u.role || 'admin',
+      actor_id:   u.adminId || u.id || null,
+      action, entity_type: entityType,
+      entity_id: String(entityId||''),
+      entity_name: entityName || '',
+      detail
+    }, 'return=minimal');
+  } catch(e) { console.warn('Log failed:', e); }
+}
+
 async function sbUpsert(t,b){const r=await fetch(`${REST}/${t}`,{method:"POST",headers:{...H,"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
 
 let adminName='',allJobs=[],allForemen=[],allAssigns=[],allTemplates=[];
@@ -887,6 +905,7 @@ async function deleteJob(id, name){
     const job = allJobs.find(j=>j.id===id);
     const pid = job?.project_id;
     // Delete fo_jobs (cascades to stages/delays/approvals/assignments via FK)
+    await logAction('deleted_job','job',id,name,{name,pid});
     await sbDelete('fo_jobs',`id=eq.${id}`);
     // Wipe the customer portal record so it never reimports
     if(pid) await sbDelete('projects',`id=eq.${encodeURIComponent(pid)}`);
@@ -1000,6 +1019,7 @@ async function openJobDetail(jobId) {
 
 async function toggleArchive(id, name, isArchived){
   try{
+    await logAction(isArchived?'unarchived_job':'archived_job','job',id,name,{archived:!isArchived});
     await sbPatch('fo_jobs',`id=eq.${id}`,{archived: !isArchived});
     await loadAll();
     toast(isArchived ? name+' unarchived.' : name+' archived and hidden from active view.');
@@ -1166,6 +1186,7 @@ async function saveStages(){
       }
     }
     originalStageIds=valid.map(s=>s.id).filter(Boolean); // update snapshot
+    await logAction('saved_stages','job',editJobId,'Stages',{count:valid.length});
     await syncPortal(editJobId,null);
     closeModal('modal-stages');await loadAll();
     toast('Stages saved.');
@@ -1355,6 +1376,7 @@ async function resolveDelay(id, jobId){
   if (comment === null) return; // user hit Cancel
   try{
     const resolvedAt = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    await logAction('resolved_delay','delay',id,'Delay',{comment:comment,jobId});
     await sbPatch('fo_delays',`id=eq.${id}`,{
       resolved: true,
       resolve_comment: comment.trim() || null,
@@ -1386,6 +1408,7 @@ async function resolveDelay(id, jobId){
 async function unresolveDelay(id, jobId){
   if(!confirm('Mark this delay as open again?')) return;
   try{
+    await logAction('unresolved_delay','delay',id,'Delay',{jobId});
     await sbPatch('fo_delays',`id=eq.${id}`,{resolved:false, resolve_comment:null, resolved_at:null});
     await recalcPortalETA(jobId);
     await loadDelays();
@@ -1395,7 +1418,7 @@ async function unresolveDelay(id, jobId){
 
 async function deleteDelay(id,jobId){
   if(!confirm('Delete this delay? This will recalculate the project ETA.'))return;
-  try{await sbDelete('fo_delays',`id=eq.${id}`);await recalcPortalETA(jobId);await loadDelays();await renderOverview();toast('Delay deleted.');}
+  try{await logAction('deleted_delay','delay',id,'Delay',{jobId});await sbDelete('fo_delays',`id=eq.${id}`);await recalcPortalETA(jobId);await loadDelays();await renderOverview();toast('Delay deleted.');}
   catch(ex){toast('Error: '+ex.message);}
 }
 async function recalcPortalETA(jobId){
@@ -1505,7 +1528,83 @@ async function saveTemplate(){
 }
 async function deleteTemplate(id){if(!confirm('Delete this template?'))return;try{await sbDelete('fo_templates',`id=eq.${id}`);await loadAll();toast('Deleted.');}catch(ex){toast('Error: '+ex.message);}}
 
-function showPage(p){['overview','approvals','jobs','foremen','delays','templates'].forEach(x=>{document.getElementById('page-'+x).classList.toggle('active',x===p);document.getElementById('nav-'+x).classList.toggle('active',x===p);});if(p==='approvals')loadApprovals();if(p==='jobs')renderJobs();if(p==='overview')renderOverview();if(p==='delays')loadDelays();}
+function showPage(p){
+  ['overview','approvals','jobs','foremen','delays','templates','activity'].forEach(x=>{
+    const pg=document.getElementById('page-'+x);const nb=document.getElementById('nav-'+x);
+    if(pg)pg.classList.toggle('active',x===p);
+    if(nb)nb.classList.toggle('active',x===p);
+  });
+  if(p==='approvals')loadApprovals();
+  if(p==='jobs')renderJobs();
+  if(p==='overview')renderOverview();
+  if(p==='delays')loadDelays();
+  if(p==='activity')loadActivity();
+}
+
+async function loadActivity() {
+  const el = document.getElementById('activity-list');
+  el.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:1rem">Loading…</div>';
+  try {
+    const logs = await sbGet('fo_activity_log','order=created_at.desc&limit=50&select=*');
+    if (!logs.length) { el.innerHTML='<div class="empty"><div class="empty-icon">📜</div><div class="empty-msg">No activity yet.</div></div>'; return; }
+    const actionLabels = {
+      created_job:'Created job', edited_job:'Edited job', deleted_job:'Deleted job',
+      archived_job:'Archived job', unarchived_job:'Unarchived job',
+      saved_stages:'Updated stages', approved_stage:'Approved stage', rejected_stage:'Rejected stage',
+      created_delay:'Logged delay', resolved_delay:'Resolved delay', unresolved_delay:'Reopened delay', deleted_delay:'Deleted delay',
+      created_quote:'Saved quote', deleted_quote:'Deleted quote', linked_quote_to_job:'Linked quote to job',
+      saved_materials:'Saved material list', linked_materials_to_job:'Linked materials to job',
+      saved_template:'Created template', applied_template:'Applied template',
+    };
+    const actionColors = {
+      created_job:'var(--green)',edited_job:'var(--blue)',deleted_job:'var(--red)',
+      approved_stage:'var(--green)',rejected_stage:'var(--red)',
+      resolved_delay:'var(--green)',created_delay:'var(--amber)',deleted_delay:'var(--red)',
+    };
+    el.innerHTML = logs.map(log => {
+      const lbl = actionLabels[log.action] || log.action.replace(/_/g,' ');
+      const col = actionColors[log.action] || 'var(--text3)';
+      const d = new Date(log.created_at);
+      const timeStr = d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' at ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+      const canUndo = ['deleted_job','archived_job','resolved_delay','approved_stage'].includes(log.action);
+      return `<div style="display:grid;grid-template-columns:10px 1fr auto;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);align-items:start">
+        <div style="width:10px;height:10px;border-radius:50%;background:${col};margin-top:4px;flex-shrink:0"></div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text)">${lbl}: <span style="font-weight:400">${log.entity_name||''}</span></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">by <strong style="color:var(--text2)">${log.actor_name}</strong> (${log.actor_role}) · ${timeStr}</div>
+          ${log.detail&&Object.keys(log.detail).length?`<div style="font-size:10px;color:var(--text3);margin-top:2px;font-family:monospace">${JSON.stringify(log.detail).slice(0,120)}</div>`:''}
+        </div>
+        ${canUndo?`<button onclick="undoAction('${log.id}','${log.action}',${JSON.stringify(JSON.stringify(log.detail))})" class="btn btn-secondary btn-sm">Undo</button>`:''}
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = '<div style="color:var(--red)">Error loading log.</div>'; }
+}
+
+async function undoAction(logId, action, detailStr) {
+  if (!confirm('Undo this action? This will reverse the change.')) return;
+  try {
+    const detail = JSON.parse(detailStr);
+    if (action === 'deleted_job') {
+      toast('Cannot restore deleted jobs — too many dependencies. Create a new job instead.');
+      return;
+    }
+    if (action === 'archived_job') {
+      await sbPatch('fo_jobs', `id=eq.${detail.id||''}`, {archived:false});
+      toast('Job unarchived.');
+    }
+    if (action === 'resolved_delay') {
+      const delayId = detail.delayId;
+      if (delayId) { await sbPatch('fo_delays',`id=eq.${delayId}`,{resolved:false,resolve_comment:null,resolved_at:null}); toast('Delay reopened.'); }
+    }
+    if (action === 'approved_stage') {
+      // Un-approve: set stage back to active, approval back to pending
+      const stageId = detail.stageId;
+      if (stageId) { await sbPatch('fo_stages',`id=eq.${stageId}`,{status:'active'}); toast('Stage approval reversed.'); }
+    }
+    await logAction('undo_'+action,'log',logId,'Undo',{original:action});
+    await loadAll(); loadActivity();
+  } catch(e) { toast('Undo failed: '+e.message); }
+}
 function val(id){return document.getElementById(id)?.value||'';}
 function show(id){const e=document.getElementById(id);if(e)e.style.display='';}
 function hide(id){const e=document.getElementById(id);if(e)e.style.display='none';}
