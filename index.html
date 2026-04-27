@@ -326,27 +326,32 @@ window.addEventListener('DOMContentLoaded', () => {
 async function doLogin() {
   const name = document.getElementById('login-name').value.trim();
   const pin  = document.getElementById('login-pin').value.trim();
-  if (!name || !pin) { showErr('Enter your name and PIN.'); return; }
+  if (!pin) { showErr('Enter your PIN.'); return; }
 
   const btn = document.getElementById('login-btn');
   btn.textContent = 'Checking…'; btn.disabled = true;
 
   try {
-    // Admin check
+    // Admin check — PIN only, name is optional
     if (pin === ADMIN_PIN) {
-      currentUser = {name, role:'admin', id:null};
+      currentUser = {name: name || 'Michael Fedrick', role:'admin', id:null};
       sessionStorage.setItem('checklist_user', JSON.stringify(currentUser));
-      bootApp(); return;
+      btn.textContent = 'Sign In'; btn.disabled = false;
+      bootApp();
+      return;
     }
-    // Foreman check
+    // Foreman check — match by PIN, then verify name if provided
+    if (!name) { showErr('Foremen must enter name + PIN.'); btn.textContent='Sign In'; btn.disabled=false; return; }
     const foremen = await sbGet('fo_foremen', `pin=eq.${encodeURIComponent(pin)}&select=*`);
     const match = (foremen||[]).find(f => f.name.trim().toLowerCase() === name.toLowerCase());
-    if (!match) { showErr('Name or PIN not found.'); btn.textContent='Sign In'; btn.disabled=false; return; }
+    if (!match) { showErr('Name or PIN not found. Check with your PM.'); btn.textContent='Sign In'; btn.disabled=false; return; }
     currentUser = {name: match.name, role:'foreman', id: match.id};
     sessionStorage.setItem('checklist_user', JSON.stringify(currentUser));
+    btn.textContent = 'Sign In'; btn.disabled = false;
     bootApp();
   } catch(e) {
-    showErr('Connection error. Try again.'); btn.textContent='Sign In'; btn.disabled=false;
+    console.error('Login error:', e);
+    showErr('Connection error: ' + e.message); btn.textContent='Sign In'; btn.disabled=false;
   }
 }
 
@@ -361,6 +366,7 @@ function doLogout() {
 }
 
 function bootApp() {
+  try {
   document.getElementById('screen-login').style.display = 'none';
   document.getElementById('screen-app').style.display = 'flex';
 
@@ -375,6 +381,12 @@ function bootApp() {
 
   setGreeting();
   loadDashboard();
+  } catch(err) {
+    console.error('bootApp error:', err);
+    showErr('Error loading app: ' + err.message);
+    document.getElementById('screen-login').style.display = 'flex';
+    document.getElementById('screen-app').style.display = 'none';
+  }
 }
 
 // ══ GREETING ══
