@@ -664,7 +664,8 @@ async function renderJobs(){
           <div style="font-size:12px;color:var(--text2)">${job.address||''}${job.project_id?' · ?project='+job.project_id:''}</div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          ${job.project_id?`<a class="btn btn-secondary btn-sm" href="customer-portal.html?project=${job.project_id}" target="_blank">👁 Customer View</a>`:''}
+          <button class="btn btn-primary btn-sm" onclick="openJobDetail('${job.id}')">🔍 View</button>
+          ${job.project_id?`<a class="btn btn-secondary btn-sm" href="customer-portal.html?project=${job.project_id}" target="_blank">👁 Portal</a>`:''}
           <button class="btn btn-secondary btn-sm" onclick="openStagesModal('${job.id}','${esc(job.name)}')">📋 Stages</button>
           <button class="btn btn-secondary btn-sm" onclick="openEditJob('${job.id}')">✏️ Edit</button>
           <button class="btn btn-secondary btn-sm" onclick="toggleArchive('${job.id}','${esc(job.name)}',${!!job.archived})">${job.archived?'Unarchive':'Archive'}</button>
@@ -892,6 +893,109 @@ async function deleteJob(id, name){
     await loadAll();
     toast('Job permanently deleted from all systems.');
   }catch(ex){toast('Error: '+ex.message);}
+}
+
+async function openJobDetail(jobId) {
+  const job = allJobs.find(j=>j.id===jobId);
+  if (!job) return;
+
+  // Fill header
+  document.getElementById('jd-title').textContent = job.name;
+  document.getElementById('jd-address').textContent = job.address || '—';
+
+  // Pull portal data for start/eta
+  let portalData = {};
+  if (job.project_id) {
+    try {
+      const pRows = await sbGet('projects',`id=eq.${encodeURIComponent(job.project_id)}&select=data`);
+      if (pRows?.length) portalData = pRows[0].data || {};
+    } catch(e) {}
+  }
+  document.getElementById('jd-start').textContent = portalData.start || (job.start_date || '—');
+  document.getElementById('jd-eta').textContent = portalData.eta_adjusted
+    ? portalData.eta + ' → ' + portalData.eta_adjusted
+    : (portalData.eta || '—');
+
+  // Foremen
+  const fmAssigns = allAssigns.filter(a=>a.job_id===jobId);
+  const fmNames = fmAssigns.map(a=>allForemen.find(f=>f.id===a.foreman_id)?.name).filter(Boolean);
+  document.getElementById('jd-foreman').textContent = fmNames.length ? fmNames.join(', ') : 'Unassigned';
+
+  // Stages
+  const stages = await sbGet('fo_stages',`job_id=eq.${jobId}&order=order_index.asc&select=*`);
+  const approved = stages.filter(s=>s.status==='approved').length;
+  const totalP = stages.reduce((s,st)=>s+(st.payout||0),0);
+  document.getElementById('jd-progress').textContent = `${approved}/${stages.length} approved`;
+  document.getElementById('jd-payout').textContent = totalP > 0 ? `$${totalP.toFixed(2)}` : '—';
+
+  const statusIcon = {approved:'✅',active:'▶️',pending_approval:'⏳',locked:'🔒'};
+  const statusLbl = {approved:'Approved',active:'Active',pending_approval:'Pending Approval',locked:'Locked'};
+  document.getElementById('jd-stages').innerHTML = stages.length ? stages.map(s=>`
+    <div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:4px;background:var(--s2)">
+      <span style="font-size:16px">${statusIcon[s.status]||'🔒'}</span>
+      <div>
+        <div style="font-size:13px;font-weight:500">${s.name}</div>
+        <div style="font-size:11px;color:var(--text2)">${s.estimated_days>0?s.estimated_days+' days':''}${s.deadline_date?' · Due '+new Date(s.deadline_date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):''}</div>
+      </div>
+      <span style="font-size:11px;color:var(--text3)">${s.payout>0?'$'+s.payout.toFixed(2):''}</span>
+      <span class="badge ${s.status==='approved'?'b-green':s.status==='active'?'b-brand':s.status==='pending_approval'?'b-amber':'b-gray'}">${statusLbl[s.status]||s.status}</span>
+    </div>`).join('')
+    : '<div style="font-size:12px;color:var(--text3)">No stages yet.</div>';
+
+  // Linked quote
+  const quotes = await sbGet('fo_quotes',`job_id=eq.${jobId}&order=created_at.desc&limit=1&select=*`);
+  const jdQuoteEl = document.getElementById('jd-quote');
+  if (quotes?.length) {
+    const q = quotes[0];
+    jdQuoteEl.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--s2)">
+      <div>
+        <div style="font-size:13px;font-weight:500">${q.customer_name||'Quote'}</div>
+        <div style="font-size:11px;color:var(--text2)">${q.mode==='onsite'?'Quick Quote':'Detailed Quote'} · $${Number(q.total||0).toFixed(2)} · ${new Date(q.created_at).toLocaleDateString()}</div>
+      </div>
+      <a href="quote.html" class="btn btn-secondary btn-sm">Open →</a>
+    </div>`;
+  } else {
+    jdQuoteEl.innerHTML = `<div style="font-size:12px;color:var(--text3);padding:8px 0">No quote linked. <a href="quote.html" style="color:var(--brand)">Create one →</a></div>`;
+  }
+
+  // Linked material list
+  const matLists = await sbGet('fo_material_lists',`job_id=eq.${jobId}&limit=1&select=id,data,updated_at`);
+  const jdMatEl = document.getElementById('jd-materials');
+  if (matLists?.length) {
+    const ml = matLists[0];
+    const items = ml.data?.items || [];
+    const subtotal = items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+    jdMatEl.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--s2)">
+      <div>
+        <div style="font-size:13px;font-weight:500">${items.length} items · $${subtotal.toFixed(2)}</div>
+        <div style="font-size:11px;color:var(--text2)">Last saved ${new Date(ml.updated_at||ml.data?.saved_at).toLocaleDateString()}</div>
+      </div>
+      <a href="materials.html" class="btn btn-secondary btn-sm">Open →</a>
+    </div>`;
+  } else {
+    jdMatEl.innerHTML = `<div style="font-size:12px;color:var(--text3);padding:8px 0">No material list linked. <a href="materials.html" style="color:var(--brand)">Create one →</a></div>`;
+  }
+
+  // Open delays
+  const delays = await sbGet('fo_delays',`job_id=eq.${jobId}&resolved=eq.false&select=*`);
+  const jdDelaysWrap = document.getElementById('jd-delays-wrap');
+  if (delays?.length) {
+    jdDelaysWrap.style.display='';
+    const typeL={weather:'🌧 Weather',material:'📦 Material',labor:'👷 Labor',inspection:'📋 Inspection',design:'📐 Design',other:'⚠️ Other'};
+    document.getElementById('jd-delays').innerHTML = delays.map(d=>`
+      <div style="padding:8px 10px;border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:8px;margin-bottom:4px;font-size:12px;background:var(--amber-bg)">
+        <strong>${typeL[d.delay_type]||d.delay_type}</strong> · ${d.days_lost>0?d.days_lost+'d lost · ':''}${d.description}
+      </div>`).join('');
+  } else { jdDelaysWrap.style.display='none'; }
+
+  // Update bottom buttons
+  document.getElementById('jd-stages-btn').onclick = ()=>{ closeModal('modal-job-detail'); openStagesModal(jobId, job.name); };
+  document.getElementById('jd-edit-btn').onclick = ()=>{ closeModal('modal-job-detail'); openEditJob(jobId); };
+  const portalBtn = document.getElementById('jd-portal-btn');
+  if (job.project_id) { portalBtn.href=`customer-portal.html?project=${job.project_id}`; portalBtn.style.display=''; }
+  else { portalBtn.style.display='none'; }
+
+  openModal('modal-job-detail');
 }
 
 async function toggleArchive(id, name, isArchived){
@@ -1412,5 +1516,53 @@ function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
 document.querySelectorAll('.mo').forEach(el=>{el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
 </script>
+<!-- JOB DETAIL MODAL -->
+<div class="mo" id="modal-job-detail"><div class="mp wide" style="max-width:780px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+    <div class="modal-title" id="jd-title">Job Detail</div>
+    <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-job-detail')">✕ Close</button>
+  </div>
+
+  <!-- Info strip -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px">
+    <div style="background:var(--card);padding:10px 14px"><div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:3px">Address</div><div style="font-size:13px;font-weight:500" id="jd-address">—</div></div>
+    <div style="background:var(--card);padding:10px 14px"><div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:3px">Start Date</div><div style="font-size:13px;font-weight:500" id="jd-start">—</div></div>
+    <div style="background:var(--card);padding:10px 14px"><div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:3px">Est. Completion</div><div style="font-size:13px;font-weight:500" id="jd-eta">—</div></div>
+    <div style="background:var(--card);padding:10px 14px"><div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:3px">Foreman(s)</div><div style="font-size:13px;font-weight:500" id="jd-foreman">Unassigned</div></div>
+    <div style="background:var(--card);padding:10px 14px"><div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:3px">Progress</div><div style="font-size:13px;font-weight:500" id="jd-progress">—</div></div>
+    <div style="background:var(--card);padding:10px 14px"><div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:3px">Total Payout</div><div style="font-size:13px;font-weight:500;color:var(--green)" id="jd-payout">—</div></div>
+  </div>
+
+  <!-- Stages -->
+  <div style="margin-bottom:16px">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px">Phases & Stages</div>
+    <div id="jd-stages"></div>
+  </div>
+
+  <!-- Linked Quote -->
+  <div style="margin-bottom:16px">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px">Linked Quote</div>
+    <div id="jd-quote"></div>
+  </div>
+
+  <!-- Linked Materials -->
+  <div style="margin-bottom:8px">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px">Material List</div>
+    <div id="jd-materials"></div>
+  </div>
+
+  <!-- Open Delays -->
+  <div id="jd-delays-wrap" style="margin-bottom:8px;display:none">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px">Open Delays</div>
+    <div id="jd-delays"></div>
+  </div>
+
+  <div class="mf" style="margin-top:8px">
+    <button class="btn btn-secondary" onclick="closeModal('modal-job-detail')">Close</button>
+    <button class="btn btn-primary" id="jd-stages-btn" onclick="">📋 Edit Stages</button>
+    <button class="btn btn-secondary" id="jd-edit-btn" onclick="">✏️ Edit Job</button>
+    <a class="btn btn-secondary" id="jd-portal-btn" href="#" target="_blank">👁 Customer Portal</a>
+  </div>
+</div></div>
 </body>
 </html>

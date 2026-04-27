@@ -981,84 +981,127 @@ async function submitDelay() {
 
 
 // ── Build the print stage picker whenever job/stages change ──
-function buildPrintPicker() {
-  const sel = document.getElementById('p-stage-select');
-  if (!sel) return;
-  if (!myStages || !myStages.length) {
-    sel.innerHTML = '<option value="">No stages available</option>';
-    return;
+// printJobStages: scoped to the print tab's selected job only
+// Separate from myStages to avoid breaking the main stage list
+let printJobStages = [];
+let printJobId = null;
+
+async function buildPrintPicker() {
+  // Populate job selector
+  const jobWrap = document.getElementById('p-job-wrap');
+  const jobSel = document.getElementById('p-job-sel');
+  if (myJobs.length > 1) {
+    jobWrap.style.display = '';
+    if (!printJobId) printJobId = myJobs[0].id;
+    jobSel.innerHTML = myJobs.map(j =>
+      `<option value="${j.id}" ${j.id===printJobId?'selected':''}>${j.name}</option>`
+    ).join('');
+  } else {
+    jobWrap.style.display = 'none';
+    printJobId = myJobs[0]?.id || null;
   }
-  const jobMap = Object.fromEntries(myJobs.map(j => [j.id, j.name]));
-  sel.innerHTML = myStages.map(s => {
-    const statusLabel = s.status === 'approved' ? '✅ Done' : s.status === 'active' ? '▶ Active' : '🔒 Locked';
-    const jobLabel = myJobs.length > 1 && jobMap[s.job_id] ? ` · ${jobMap[s.job_id]}` : '';
-    return `<option value="${s.id}">${s.name}${jobLabel} (${statusLabel})</option>`;
-  }).join('');
-  // Also add a job picker to the print tab if multiple jobs
-  const printJobWrap = document.getElementById('p-job-wrap');
-  if (printJobWrap) {
-    if (myJobs.length > 1) {
-      printJobWrap.style.display = '';
-      document.getElementById('p-job-sel').innerHTML = myJobs.map(j =>
-        `<option value="${j.id}" ${myJob && myJob.id===j.id?'selected':''}>${j.name}</option>`
-      ).join('');
-    } else {
-      printJobWrap.style.display = 'none';
-    }
-  }
-  // Update p-format change handler
+
+  // Load stages for the selected print job ONLY — don't touch myStages
+  await loadPrintStages();
+
+  // Update format change handler
   const fmt = document.getElementById('p-format');
   const stagePick = document.getElementById('p-stage-pick');
   if (fmt && stagePick) {
+    stagePick.style.display = fmt.value === 'stage' ? '' : 'none';
     fmt.onchange = () => { stagePick.style.display = fmt.value === 'stage' ? '' : 'none'; };
   }
+}
+
+async function loadPrintStages() {
+  if (!printJobId) { printJobStages = []; return; }
+  // Load stages for THIS job only — does NOT affect myStages
+  try {
+    printJobStages = await sbGet('fo_stages',
+      `job_id=eq.${printJobId}&order=order_index.asc&select=*`
+    );
+  } catch(e) { printJobStages = []; }
+
+  const sel = document.getElementById('p-stage-select');
+  if (!sel) return;
+  if (!printJobStages.length) {
+    sel.innerHTML = '<option value="">No stages for this project</option>';
+    return;
+  }
+  sel.innerHTML = printJobStages.map(s => {
+    const lbl = s.status==='approved'?'Done':s.status==='active'?'Active':'Locked';
+    return `<option value="${s.id}">${s.name} (${lbl})</option>`;
+  }).join('');
 }
 
 async function switchPrintJob() {
   const sel = document.getElementById('p-job-sel');
   if (!sel) return;
-  const jid = sel.value;
-  const job = myJobs.find(j => j.id === jid);
-  if (job) {
-    myJob = job;
-    await loadStages();
-    buildPrintPicker();
-  }
+  printJobId = sel.value;
+  await loadPrintStages();
 }
 
 async function doPrint() {
   const format = val('p-format');
-  const area = document.getElementById('print-area');
 
-  if (!myJob) { toast('No project selected.'); return; }
+  if (!printJobId) { toast('Select a project first.'); return; }
+  if (!printJobStages.length) { await loadPrintStages(); }
 
-  // If print tab has a job selector, switch job first
-  const printJobSel = document.getElementById('p-job-sel');
-  if (printJobSel && printJobSel.value && printJobSel.value !== myJob.id) {
-    await switchPrintJob();
-  }
+  const printJob = myJobs.find(j => j.id === printJobId) || myJob;
 
   let content = '';
   if (format === 'stage') {
     const stageId = val('p-stage-select');
     if (!stageId) { toast('Select a stage to print.'); return; }
-    const stage = myStages.find(s => s.id === stageId);
-    if (!stage) { toast('Stage not found.'); return; }
+    const stage = printJobStages.find(s => s.id === stageId);
+    if (!stage) { toast('Stage not found — try switching the project.'); return; }
     const items = await sbGet('fo_checklist', `stage_id=eq.${stageId}&order=order_index.asc&select=*`);
-    content = buildStageSheet(stage, items);
+    // Attach job reference for the print sheet
+    stage._job = printJob;
+    content = buildStageSheet(stage, items, printJob);
   } else {
-    const active = myStages.find(s => s.status === 'active');
-    if (!active) { toast("No active stage found for today's sheet."); return; }
+    const active = printJobStages.find(s => s.status === 'active');
+    if (!active) { toast('No active stage for this project.'); return; }
     const items = await sbGet('fo_checklist', `stage_id=eq.${active.id}&order=order_index.asc&select=*`);
-    content = buildDaySheet(active, items);
+    content = buildDaySheet(active, items, printJob);
   }
 
-  // Open in new window so @page print CSS applies correctly
-  const win = window.open('', '_blank', 'width=800,height=900');
-  win.document.write(content);
-  win.document.close();
-  win.focus();
-  setTimeout(() => { win.print(); }, 400);
+  // Mobile-safe print: inject into hidden iframe instead of window.open
+  // (window.open is blocked by mobile browsers)
+  try {
+    const iframe = document.getElementById('print-iframe') || (() => {
+      const f = document.createElement('iframe');
+      f.id = 'print-iframe';
+      f.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:white;border:none';
+      f.style.display = 'none';
+      document.body.appendChild(f);
+      return f;
+    })();
+
+    iframe.style.display = 'block';
+    iframe.contentDocument.open();
+    iframe.contentDocument.write(content);
+    iframe.contentDocument.close();
+
+    // Give a moment to render, then print
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      // Hide iframe after print dialog closes
+      setTimeout(() => { iframe.style.display = 'none'; }, 1500);
+    }, 300);
+  } catch(e) {
+    // Fallback: try window.open (desktop)
+    const win = window.open('', '_blank', 'width=820,height=1000');
+    if (win) {
+      win.document.write(content);
+      win.document.close();
+      win.focus();
+      setTimeout(() => win.print(), 400);
+    } else {
+      toast('Enable popups to print, or use the share button to save as PDF.');
+    }
+  }
 }
 
 function printStyles() {
@@ -1111,8 +1154,8 @@ function printStyles() {
     </style>`;
 }
 
-function buildStageSheet(stage, items) {
-  const job = myJobs.find(j => j.id === stage.job_id) || myJob || {};
+function buildStageSheet(stage, items, printJob) {
+  const job = printJob || myJobs.find(j => j.id === stage.job_id) || myJob || {};
   const printed = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
   const hasItems = items.length > 0;
   const photoItems = items.filter(i => i.requires_photo).length;
@@ -1185,7 +1228,7 @@ function buildStageSheet(stage, items) {
   </body></html>`;
 }
 
-function buildDaySheet(stage, items) {
+function buildDaySheet(stage, items, printJob) {
   const job = myJobs.find(j => j.id === stage.job_id) || myJob || {};
   const today = new Date();
   const todayLong = today.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -1281,7 +1324,7 @@ function switchTab(tab) {
     document.getElementById('nav-'+t).classList.toggle('active', t===tab);
   });
   if (tab==='delays') { populateDelayJobSelect(); loadDelays(); }
-  if (tab==='print') buildPrintPicker();
+  if (tab==='print') buildPrintPicker().catch(()=>{});
 }
 
 // ══════════════════════════════════

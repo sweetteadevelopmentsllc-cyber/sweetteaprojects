@@ -171,8 +171,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </select>
   <div class="tb-sep"></div>
   <button class="btn btn-blue btn-sm" onclick="checkAllPricesAI()" id="btn-ai-all">🔍 Search Prices at Lowe's</button>
+  <button class="btn btn-blue btn-sm" onclick="openMatTemplates()">📋 Templates</button>
   <button class="btn btn-green btn-sm" onclick="saveList()">💾 Save List</button>
-  <button class="btn btn-gold btn-sm" onclick="exportToQuote()">→ Export to Quote</button>
+  <button class="btn btn-ghost btn-sm" onclick="exportToQuote()">→ Export to Quote</button>
   <button class="btn btn-ghost btn-sm" onclick="clearList()">Clear</button>
   <div style="flex:1"></div>
   <div style="font-size:11px;color:var(--text3)" id="last-saved"></div>
@@ -276,6 +277,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="sum-notes" style="margin-bottom:10px">
       <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);display:block;margin-bottom:4px">Notes</label>
       <textarea id="list-notes" placeholder="Material notes, vendor contacts, special orders…"></textarea>
+    </div>
+    <div style="margin-bottom:8px">
+      <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);display:block;margin-bottom:4px">Link to job</label>
+      <div style="display:flex;gap:6px">
+        <select id="list-job-link" style="flex:1;font-size:12px;padding:7px;border:1px solid var(--border2);border-radius:7px;background:var(--s2);color:var(--text);font-family:'DM Sans',sans-serif;outline:none" onchange="if(this.value)document.getElementById('job-select').value=this.value">
+          <option value="">— Link to job —</option>
+        </select>
+        <button onclick="linkListToJob(document.getElementById('list-job-link').value)" class="btn btn-gold" style="padding:7px 12px;font-size:12px">Link</button>
+      </div>
     </div>
     <button class="btn btn-gold btn-full" onclick="saveList()" style="margin-bottom:6px">💾 Save List</button>
     <button class="btn btn-ghost btn-full" onclick="printList()">🖨 Print List</button>
@@ -422,6 +432,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       const o = document.createElement('option');
       o.value = j.id; o.textContent = j.name;
       sel.appendChild(o);
+      // Also populate the summary link dropdown
+      const o2 = o.cloneNode(true);
+      const linkSel = document.getElementById('list-job-link');
+      if (linkSel) linkSel.appendChild(o2);
     });
   } catch(e) {}
 });
@@ -911,6 +925,115 @@ function clearList() {
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function toast(msg) { const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000); }
 
+// ══ MATERIAL TEMPLATES ══
+async function openMatTemplates() {
+  const modal = document.getElementById('mat-tmpl-modal');
+  modal.style.display = 'flex';
+  await renderMatTemplates();
+}
+
+function closeMatTemplates() {
+  document.getElementById('mat-tmpl-modal').style.display = 'none';
+}
+
+async function renderMatTemplates() {
+  const el = document.getElementById('mat-tmpl-list');
+  el.innerHTML = '<div style="font-size:12px;color:var(--text3)">Loading…</div>';
+  try {
+    const templates = await sbGet('fo_mat_templates','order=created_at.desc&select=*');
+    if (!templates.length) {
+      el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px 0">No templates yet. Save your current list as one below.</div>';
+      return;
+    }
+    el.innerHTML = templates.map(t => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px">
+        <div>
+          <div style="font-size:13px;font-weight:500">${t.name}</div>
+          <div style="font-size:11px;color:var(--text3)">${t.category} · by ${t.created_by}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onclick="loadMatTemplate('${t.id}')" class="btn btn-gold btn-sm">Load</button>
+          <button onclick="deleteMatTemplate('${t.id}')" style="padding:4px 10px;background:var(--red-bg);color:var(--red);border:none;border-radius:6px;font-size:11px;cursor:pointer">✕</button>
+        </div>
+      </div>`).join('');
+  } catch(e) { el.innerHTML = '<div style="color:var(--red);font-size:12px">Error loading templates.</div>'; }
+}
+
+async function saveAsTemplate() {
+  const name = document.getElementById('new-tmpl-name').value.trim();
+  if (!name) { toast('Enter a template name.'); return; }
+  if (!listItems.length) { toast('Add items to the list first.'); return; }
+  try {
+    const r = await fetch(REST+'/fo_mat_templates', {
+      method:'POST', headers:{...H,'Prefer':'return=representation'},
+      body:JSON.stringify({name, category:'custom', created_by:'admin'})
+    });
+    const saved = await r.json();
+    const tid = Array.isArray(saved)?saved[0]?.id:saved?.id;
+    if (tid) {
+      // Save each item
+      for (let i=0; i<listItems.length; i++) {
+        const item = listItems[i];
+        await fetch(REST+'/fo_mat_template_items', {
+          method:'POST', headers:{...H,'Prefer':'return=minimal'},
+          body:JSON.stringify({
+            template_id:tid, name:item.name, unit:item.unit,
+            qty:item.qty, price:item.price, vendor:item.vendor,
+            cat:item.cat, order_index:i
+          })
+        });
+      }
+    }
+    document.getElementById('new-tmpl-name').value='';
+    await renderMatTemplates();
+    toast(`Template "${name}" saved.`);
+  } catch(e) { toast('Error: '+e.message); }
+}
+
+async function loadMatTemplate(templateId) {
+  try {
+    const items = await sbGet('fo_mat_template_items',`template_id=eq.${templateId}&order=order_index.asc&select=*`);
+    if (!items.length) { toast('Template is empty.'); return; }
+    if (listItems.length && !confirm('Replace current list with template items?')) return;
+    listItems = items.map(item => ({
+      id: Date.now() + Math.random(),
+      cat: item.cat || 'other',
+      name: item.name,
+      unit: item.unit || 'ea',
+      qty: item.qty || 1,
+      price: item.price || 0,
+      vendor: item.vendor || "Lowe's",
+      ai_verified: false,
+      note: ''
+    }));
+    renderList(); recalc();
+    closeMatTemplates();
+    toast(`Loaded ${items.length} items from template.`);
+  } catch(e) { toast('Error: '+e.message); }
+}
+
+async function deleteMatTemplate(id) {
+  if (!confirm('Delete this template?')) return;
+  try {
+    await fetch(REST+`/fo_mat_templates?id=eq.${id}`,{method:'DELETE',headers:H});
+    await renderMatTemplates(); toast('Template deleted.');
+  } catch(e) { toast('Error: '+e.message); }
+}
+
+// ── Link material list to job ──
+async function linkListToJob(jobId) {
+  if (!jobId) return;
+  const key = `matlist_${jobId}`;
+  const payload = {items:listItems, notes:document.getElementById('list-notes').value, saved_at:new Date().toISOString(), job_id:jobId};
+  try {
+    await sbUpsert('fo_material_lists', {id:key, job_id:jobId, data:payload});
+    toast('List linked to job and saved.');
+  } catch(e) {
+    localStorage.setItem(key, JSON.stringify(payload));
+    toast('Saved locally.');
+  }
+}
+
 // ── Check if export was requested from quote page ──
 const imported = sessionStorage.getItem('import_materials');
 if (imported) {
@@ -926,5 +1049,22 @@ if (imported) {
   } catch(e) {}
 }
 </script>
+<!-- MAT TEMPLATES MODAL -->
+<div id="mat-tmpl-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:white;border-radius:14px;width:100%;max-width:540px;max-height:85vh;overflow-y:auto;padding:1.5rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700">Material Templates</div>
+      <button onclick="closeMatTemplates()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3)">✕</button>
+    </div>
+    <div id="mat-tmpl-list" style="margin-bottom:12px"></div>
+    <div style="border-top:1px solid var(--border);padding-top:12px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px">Create new template from current list</div>
+      <div style="display:flex;gap:8px">
+        <input id="new-tmpl-name" type="text" placeholder="Template name…" style="flex:1;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none"/>
+        <button onclick="saveAsTemplate()" class="btn btn-gold btn-sm">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

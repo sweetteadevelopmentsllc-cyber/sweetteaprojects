@@ -130,6 +130,43 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 </head>
 <body>
 
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="screen-login" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)">
+  <div style="width:100%;max-width:380px;padding:2rem">
+    <div style="text-align:center;margin-bottom:2.5rem">
+      <div style="width:52px;height:52px;background:var(--brand);border-radius:13px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+        <svg width="26" height="26" viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="white"/></svg>
+      </div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:var(--text);letter-spacing:.02em">Checklist</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:4px">Sweet Tea Build · Field Operations</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:2rem;box-shadow:0 4px 24px rgba(0,0,0,0.06)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">Sign in</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:1.5rem">Admin: any name + admin PIN. Foreman: your name + your PIN.</div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);display:block;margin-bottom:4px">Full name</label>
+        <input type="text" id="login-name" placeholder="First Last" autocomplete="name"
+          style="width:100%;padding:10px 12px;border:1px solid var(--border2);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--s2);color:var(--text);outline:none"
+          onfocus="this.style.borderColor='var(--brand)'" onblur="this.style.borderColor=''"
+          onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);display:block;margin-bottom:4px">PIN</label>
+        <input type="password" id="login-pin" placeholder="••••" inputmode="numeric" maxlength="8"
+          style="width:100%;padding:10px 12px;border:1px solid var(--border2);border-radius:8px;font-size:18px;letter-spacing:4px;font-family:'DM Sans',sans-serif;background:var(--s2);color:var(--text);outline:none"
+          onfocus="this.style.borderColor='var(--brand)'" onblur="this.style.borderColor=''"
+          onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div id="login-err" style="font-size:12px;color:var(--red);background:var(--red-bg);padding:8px 12px;border-radius:7px;margin-bottom:12px;display:none"></div>
+      <button id="login-btn" onclick="doLogin()"
+        style="width:100%;padding:12px;background:var(--brand);color:white;border:none;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:opacity .15s"
+        onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP (hidden until logged in) ══ -->
+<div id="screen-app" style="display:none;min-height:100vh;width:100%">
 <aside class="sidebar">
   <div class="sb-brand">
     <div class="sb-logo"><svg viewBox="0 0 14 14" fill="none"><path d="M1 13V7.5L7 2L13 7.5V13H9.5V9H4.5V13H1Z" fill="white"/></svg></div>
@@ -138,7 +175,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
   <div class="sb-section">Main</div>
   <a class="sb-link active" href="index.html"><span class="sb-icon">🏠</span><span>Home</span></a>
-  <a class="sb-link" href="admin.html"><span class="sb-icon">📊</span><span>Admin Dashboard</span><span class="sb-badge" id="sb-badge">0</span></a>
+  <a class="sb-link admin-only" href="admin.html"><span class="sb-icon">📊</span><span>Admin Dashboard</span><span class="sb-badge" id="sb-badge">0</span></a>
   <a class="sb-link" href="foreman.html"><span class="sb-icon">👷</span><span>Foreman App</span></a>
 
   <div class="sb-section">Tools</div>
@@ -146,14 +183,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <a class="sb-link" href="materials.html"><span class="sb-icon">🧱</span><span>Materials</span></a>
 
   <div class="sb-footer">
-    <div class="sb-user"><strong>Michael Fedrick</strong>Project Manager</div>
+    <div class="sb-user"><strong id="sb-username">—</strong><span id="sb-role">—</span></div>
+    <button onclick="doLogout()" style="display:flex;align-items:center;gap:10px;width:calc(100% - 16px);margin:2px 8px;padding:8px 12px;border:none;background:none;border-radius:7px;color:rgba(255,255,255,0.4);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;text-align:left;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.background='none';this.style.color='rgba(255,255,255,0.4)'">
+      <span style="font-size:14px">⏏</span><span>Sign out</span>
+    </button>
   </div>
 </aside>
 
 <div class="main">
   <div class="topbar">
     <div>
-      <div class="tb-greeting" id="greeting">Good morning, Michael.</div>
+      <div class="tb-greeting" id="greeting">Good morning.</div>
       <div class="tb-date" id="today-date"></div>
     </div>
     <div class="topbar-right">
@@ -264,25 +304,103 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <script>
 const SB_URL="https://renltrbierztynzlbige.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlbmx0cmJpZXJ6dHluemxiaWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDA5NTUsImV4cCI6MjA5MjM3Njk1NX0.7KLzXIXKFh8kbZIUxT0W9JWbWEJdOe21D8nGCM4FwN4";
+const ADMIN_PIN="admin2026";
 const REST=SB_URL+"/rest/v1";
 const H={"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY};
 async function sbGet(t,q=""){try{const r=await fetch(`${REST}/${t}?${q}`,{headers:H});if(!r.ok)return[];return await r.json();}catch(e){return[];}}
 function fmt(n){return'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});}
 function fmtAgo(iso){if(!iso)return'';const d=new Date(iso),now=new Date(),diff=Math.floor((now-d)/60000);if(diff<2)return'just now';if(diff<60)return diff+'m ago';if(diff<1440)return Math.floor(diff/60)+'h ago';return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 
-// Greeting
+// ══ AUTH ══
+let currentUser = null; // {name, role:'admin'|'foreman', id?}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = sessionStorage.getItem('checklist_user');
+  if (saved) {
+    try { currentUser = JSON.parse(saved); bootApp(); return; } catch(e) {}
+  }
+  document.getElementById('screen-login').style.display = 'flex';
+  setTimeout(() => document.getElementById('login-name')?.focus(), 100);
+});
+
+async function doLogin() {
+  const name = document.getElementById('login-name').value.trim();
+  const pin  = document.getElementById('login-pin').value.trim();
+  if (!name || !pin) { showErr('Enter your name and PIN.'); return; }
+
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Checking…'; btn.disabled = true;
+
+  try {
+    // Admin check
+    if (pin === ADMIN_PIN) {
+      currentUser = {name, role:'admin', id:null};
+      sessionStorage.setItem('checklist_user', JSON.stringify(currentUser));
+      bootApp(); return;
+    }
+    // Foreman check
+    const foremen = await sbGet('fo_foremen', `pin=eq.${encodeURIComponent(pin)}&select=*`);
+    const match = (foremen||[]).find(f => f.name.trim().toLowerCase() === name.toLowerCase());
+    if (!match) { showErr('Name or PIN not found.'); btn.textContent='Sign In'; btn.disabled=false; return; }
+    currentUser = {name: match.name, role:'foreman', id: match.id};
+    sessionStorage.setItem('checklist_user', JSON.stringify(currentUser));
+    bootApp();
+  } catch(e) {
+    showErr('Connection error. Try again.'); btn.textContent='Sign In'; btn.disabled=false;
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('login-err');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function doLogout() {
+  sessionStorage.removeItem('checklist_user');
+  location.reload();
+}
+
+function bootApp() {
+  document.getElementById('screen-login').style.display = 'none';
+  document.getElementById('screen-app').style.display = 'flex';
+
+  // Personalize sidebar
+  document.getElementById('sb-username').textContent = currentUser.name;
+  document.getElementById('sb-role').textContent = currentUser.role === 'admin' ? 'Project Manager' : 'Foreman';
+
+  // Hide admin-only elements for foremen
+  if (currentUser.role !== 'admin') {
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+  }
+
+  setGreeting();
+  loadDashboard();
+}
+
+// ══ GREETING ══
 function setGreeting(){
   const h=new Date().getHours();
   let g='Good morning';
   if(h>=12&&h<17)g='Good afternoon';
   if(h>=17)g='Good evening';
-  document.getElementById('greeting').textContent=g+', Michael.';
+  const name = currentUser?.name?.split(' ')[0] || '';
+  document.getElementById('greeting').textContent = g + (name ? ', ' + name + '.' : '.');
   document.getElementById('today-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 }
 
+// ══ DASHBOARD ══
 async function loadDashboard(){
   setGreeting();
+  const isAdmin = currentUser?.role === 'admin';
 
+  if (isAdmin) {
+    await loadAdminDashboard();
+  } else {
+    await loadForemanDashboard();
+  }
+}
+
+async function loadAdminDashboard() {
   const [jobs,approvals,delays,quotes,assignments,foremen]=await Promise.all([
     sbGet('fo_jobs','archived=eq.false&order=created_at.desc&select=*'),
     sbGet('fo_approvals','status=eq.pending&select=*'),
@@ -292,141 +410,127 @@ async function loadDashboard(){
     sbGet('fo_foremen','select=id,name'),
   ]);
 
-  // Stages for progress
   let allStages=[];
   if(jobs.length){
     const ids=jobs.map(j=>j.id).join(',');
     allStages=await sbGet('fo_stages',`job_id=in.(${ids})&select=job_id,status,payout`);
   }
-
-  // Stage names for approvals
   const aprStageIds=[...new Set(approvals.map(a=>a.stage_id).filter(Boolean))];
   let stageMap={};
   if(aprStageIds.length){
     const ss=await sbGet('fo_stages',`id=in.(${aprStageIds.join(',')})&select=id,name,job_id`);
     ss.forEach(s=>{stageMap[s.id]=s;});
   }
-
   const pending=approvals.length;
   const openDelays=delays.filter(d=>!d.resolved).length;
   const pendingPayout=allStages.filter(s=>s.status!=='approved').reduce((s,st)=>s+(st.payout||0),0);
   const jobMap=Object.fromEntries(jobs.map(j=>[j.id,j]));
   const fmMap=Object.fromEntries(foremen.map(f=>[f.id,f.name]));
   const asgMap={};assignments.forEach(a=>{if(!asgMap[a.job_id])asgMap[a.job_id]=[];asgMap[a.job_id].push(a.foreman_id);});
-
-  // Sidebar badge
   const badge=document.getElementById('sb-badge');
   if(pending>0){badge.textContent=pending;badge.classList.add('show');}
 
-  // ── STATS ──
   document.getElementById('stat-grid').innerHTML=`
-    <div class="stat-card">
-      <div class="stat-icon">🏗</div>
-      <div class="stat-num brand">${jobs.length}</div>
-      <div class="stat-lbl">Active Jobs</div>
-      <div class="stat-sub">${allStages.filter(s=>s.status==='approved').length} stages approved</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">⏳</div>
-      <div class="stat-num ${pending>0?'amber':'green'}">${pending}</div>
-      <div class="stat-lbl">Pending Approvals</div>
-      <div class="stat-sub">${pending>0?'Needs your review':'All clear ✓'}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">⚠️</div>
-      <div class="stat-num ${openDelays>0?'red':'green'}">${openDelays}</div>
-      <div class="stat-lbl">Open Delays</div>
-      <div class="stat-sub">${openDelays>0?openDelays+' affecting schedule':'No active delays'}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">💵</div>
-      <div class="stat-num green" style="font-size:${pendingPayout>=10000?'26px':'34px'}">${fmt(pendingPayout)}</div>
-      <div class="stat-lbl">Pending Payout</div>
-      <div class="stat-sub">Unapproved stage value</div>
-    </div>`;
+    <div class="stat-card"><div class="stat-icon">🏗</div><div class="stat-num brand">${jobs.length}</div><div class="stat-lbl">Active Jobs</div><div class="stat-sub">${allStages.filter(s=>s.status==='approved').length} stages approved</div></div>
+    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-num ${pending>0?'amber':'green'}">${pending}</div><div class="stat-lbl">Pending Approvals</div><div class="stat-sub">${pending>0?'Needs your review':'All clear ✓'}</div></div>
+    <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-num ${openDelays>0?'red':'green'}">${openDelays}</div><div class="stat-lbl">Open Delays</div><div class="stat-sub">${openDelays>0?openDelays+' affecting schedule':'No active delays'}</div></div>
+    <div class="stat-card"><div class="stat-icon">💵</div><div class="stat-num green" style="font-size:${pendingPayout>=10000?'26px':'34px'}">${fmt(pendingPayout)}</div><div class="stat-lbl">Pending Payout</div><div class="stat-sub">Unapproved stage value</div></div>`;
 
-  // ── JOBS ──
+  renderJobsList(jobs, allStages, delays, asgMap, fmMap);
+  renderApprovalsList(approvals, stageMap, jobMap);
+  renderDelaysList(delays, jobMap);
+  renderQuotesList(quotes);
+}
+
+async function loadForemanDashboard() {
+  // Foreman sees: their assigned jobs, their delays, quick links
+  let myJobs=[], myStages=[], myDelays=[];
+  if (currentUser.id) {
+    const assigns = await sbGet('fo_assignments',`foreman_id=eq.${currentUser.id}&select=job_id`);
+    const jobIds = assigns.map(a=>a.job_id);
+    if (jobIds.length) {
+      myJobs = await sbGet('fo_jobs',`id=in.(${jobIds.join(',')})&select=*`);
+      myStages = await sbGet('fo_stages',`job_id=in.(${jobIds.join(',')})&select=*`);
+      myDelays = await sbGet('fo_delays',`job_id=in.(${jobIds.join(',')})&resolved=eq.false&select=*`);
+    }
+  }
+  const jobMap=Object.fromEntries(myJobs.map(j=>[j.id,j]));
+  const active=myStages.filter(s=>s.status==='active').length;
+  const pending=myStages.filter(s=>s.status==='pending_approval').length;
+
+  document.getElementById('stat-grid').innerHTML=`
+    <div class="stat-card"><div class="stat-icon">🏗</div><div class="stat-num brand">${myJobs.length}</div><div class="stat-lbl">My Jobs</div><div class="stat-sub">Currently assigned</div></div>
+    <div class="stat-card"><div class="stat-icon">▶️</div><div class="stat-num amber">${active}</div><div class="stat-lbl">Active Stages</div><div class="stat-sub">Ready for work</div></div>
+    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-num ${pending>0?'amber':'green'}">${pending}</div><div class="stat-lbl">Awaiting Approval</div><div class="stat-sub">${pending>0?'Submitted for review':'None pending'}</div></div>
+    <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-num ${myDelays.length>0?'red':'green'}">${myDelays.length}</div><div class="stat-lbl">Open Delays</div><div class="stat-sub">On your jobs</div></div>`;
+
+  renderJobsList(myJobs, myStages, myDelays, {}, {});
+  document.getElementById('approvals-list').innerHTML='<div class="empty-msg"><a href="foreman.html">Open Foreman App →</a></div>';
+  renderDelaysList(myDelays, jobMap);
+  document.getElementById('quotes-list').innerHTML='<div class="empty-msg"><a href="quote.html">Open Quote Builder →</a></div>';
+}
+
+function renderJobsList(jobs, allStages, delays, asgMap, fmMap) {
   const jEl=document.getElementById('jobs-list');
-  if(!jobs.length){
-    jEl.innerHTML='<div class="empty-msg">No active jobs. <a href="admin.html">Create one →</a></div>';
-  } else {
-    jEl.innerHTML=jobs.map(job=>{
-      const stages=allStages.filter(s=>s.job_id===job.id);
-      const done=stages.filter(s=>s.status==='approved').length;
-      const total=stages.length;
-      const pct=total?Math.round(done/total*100):0;
-      const pendStages=stages.filter(s=>s.status==='pending_approval').length;
-      const fmIds=asgMap[job.id]||[];
-      const fmNames=fmIds.map(id=>fmMap[id]).filter(Boolean);
-      const hasDelay=delays.some(d=>!d.resolved&&d.job_id===job.id);
-      return `<div class="job-card">
-        <div>
-          <div class="jc-name">${job.name}${hasDelay?`<span class="badge b-amber" style="margin-left:7px;font-size:9px">Delay</span>`:''}</div>
-          <div class="jc-meta">${job.address||''}${fmNames.length?' · '+fmNames.join(', '):''}</div>
-          <div class="jc-progress">
-            <div class="jc-bar"><div class="jc-fill" style="width:${pct}%"></div></div>
-            <div class="jc-pct">${pct}%</div>
-          </div>
-        </div>
-        <div class="jc-right">
-          ${pendStages>0?`<span class="badge b-amber">${pendStages} waiting</span>`:`<span class="badge b-gray">${done}/${total} done</span>`}
-          ${job.project_id?`<a href="customer-portal.html?project=${job.project_id}" target="_blank" style="font-size:10px;color:var(--text3);text-decoration:none">portal ↗</a>`:''}
-        </div>
-      </div>`;
-    }).join('');
-  }
+  if(!jobs.length){jEl.innerHTML='<div class="empty-msg">No active jobs. <a href="admin.html">Create one →</a></div>';return;}
+  jEl.innerHTML=jobs.map(job=>{
+    const stages=allStages.filter(s=>s.job_id===job.id);
+    const done=stages.filter(s=>s.status==='approved').length;
+    const total=stages.length;
+    const pct=total?Math.round(done/total*100):0;
+    const pendStages=stages.filter(s=>s.status==='pending_approval').length;
+    const fmIds=(asgMap[job.id]||[]);
+    const fmNames=fmIds.map(id=>fmMap[id]).filter(Boolean);
+    const hasDelay=delays.some(d=>!d.resolved&&d.job_id===job.id);
+    return `<div class="job-card">
+      <div>
+        <div class="jc-name">${job.name}${hasDelay?`<span class="badge b-amber" style="margin-left:7px;font-size:9px">Delay</span>`:''}</div>
+        <div class="jc-meta">${job.address||''}${fmNames.length?' · '+fmNames.join(', '):''}</div>
+        <div class="jc-progress"><div class="jc-bar"><div class="jc-fill" style="width:${pct}%"></div></div><div class="jc-pct">${pct}%</div></div>
+      </div>
+      <div class="jc-right">
+        ${pendStages>0?`<span class="badge b-amber">${pendStages} waiting</span>`:`<span class="badge b-gray">${done}/${total} done</span>`}
+        ${job.project_id?`<a href="customer-portal.html?project=${job.project_id}" target="_blank" style="font-size:10px;color:var(--text3);text-decoration:none">portal ↗</a>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
 
-  // ── APPROVALS ──
+function renderApprovalsList(approvals, stageMap, jobMap) {
   const aprEl=document.getElementById('approvals-list');
-  if(!pending){
-    aprEl.innerHTML='<div class="empty-msg" style="background:var(--green-bg);color:var(--green)">✓ No pending approvals</div>';
-  } else {
-    aprEl.innerHTML=approvals.slice(0,4).map(a=>{
-      const st=stageMap[a.stage_id]||{};
-      const job=jobMap[a.job_id]||jobMap[st.job_id]||{};
-      return `<div class="list-item" style="--li-color:var(--amber)">
-        <div>
-          <div class="li-title">${st.name||'Stage'}</div>
-          <div class="li-sub">${job.name||''} · ${a.foreman_name||'Foreman'} · ${fmtAgo(a.created_at)}</div>
-        </div>
-        <a class="li-btn" href="admin.html" style="background:var(--amber)">Review</a>
-      </div>`;
-    }).join('') + (approvals.length>4?`<div class="empty-msg"><a href="admin.html">+${approvals.length-4} more →</a></div>`:'');
-  }
+  if(!approvals.length){aprEl.innerHTML='<div class="empty-msg" style="background:var(--green-bg);color:var(--green)">✓ No pending approvals</div>';return;}
+  aprEl.innerHTML=approvals.slice(0,4).map(a=>{
+    const st=stageMap[a.stage_id]||{};
+    const job=jobMap[a.job_id]||jobMap[st.job_id]||{};
+    return `<div class="list-item" style="--li-color:var(--amber)">
+      <div><div class="li-title">${st.name||'Stage'}</div><div class="li-sub">${job.name||''} · ${a.foreman_name||'Foreman'} · ${fmtAgo(a.created_at)}</div></div>
+      <a class="li-btn" href="admin.html" style="background:var(--amber)">Review</a>
+    </div>`;
+  }).join('')+(approvals.length>4?`<div class="empty-msg"><a href="admin.html">+${approvals.length-4} more →</a></div>`:'');
+}
 
-  // ── DELAYS ──
+function renderDelaysList(delays, jobMap) {
   const dEl=document.getElementById('delays-list');
   const openD=delays.filter(d=>!d.resolved);
   const typeL={weather:'🌧',material:'📦',labor:'👷',inspection:'📋',design:'📐',other:'⚠️'};
-  if(!openD.length){
-    dEl.innerHTML='<div class="empty-msg" style="background:var(--green-bg);color:var(--green)">✓ No open delays</div>';
-  } else {
-    dEl.innerHTML=openD.slice(0,3).map(d=>`<div class="list-item" style="--li-color:var(--amber)">
-      <div>
-        <div class="li-title">${typeL[d.delay_type]||'⚠️'} ${d.delay_type} ${jobMap[d.job_id]?'· '+jobMap[d.job_id].name:''}</div>
-        <div class="li-sub">${d.days_lost>0?d.days_lost+' days lost · ':''}${fmtAgo(d.created_at)}</div>
-      </div>
-      <a class="li-btn" href="admin.html" style="background:var(--amber)">View</a>
-    </div>`).join('');
-  }
-
-  // ── QUOTES ──
-  const qEl=document.getElementById('quotes-list');
-  if(!quotes.length){
-    qEl.innerHTML='<div class="empty-msg">No saved quotes. <a href="quote.html">Create one →</a></div>';
-  } else {
-    qEl.innerHTML=quotes.map(q=>`<div class="list-item" style="--li-color:var(--green)">
-      <div>
-        <div class="li-title">${q.customer_name||'Quote'}</div>
-        <div class="li-sub">${fmt(q.total)} · ${fmtAgo(q.created_at)}</div>
-      </div>
-      <a class="li-btn" href="quote.html" style="background:var(--green)">Open</a>
-    </div>`).join('');
-  }
+  if(!openD.length){dEl.innerHTML='<div class="empty-msg" style="background:var(--green-bg);color:var(--green)">✓ No open delays</div>';return;}
+  dEl.innerHTML=openD.slice(0,3).map(d=>`<div class="list-item" style="--li-color:var(--amber)">
+    <div><div class="li-title">${typeL[d.delay_type]||'⚠️'} ${d.delay_type}${jobMap[d.job_id]?' · '+jobMap[d.job_id].name:''}</div><div class="li-sub">${d.days_lost>0?d.days_lost+'d lost · ':''}${fmtAgo(d.created_at)}</div></div>
+    <a class="li-btn" href="admin.html" style="background:var(--amber)">View</a>
+  </div>`).join('');
 }
 
-loadDashboard();
+function renderQuotesList(quotes) {
+  const qEl=document.getElementById('quotes-list');
+  if(!quotes?.length){qEl.innerHTML='<div class="empty-msg">No saved quotes. <a href="quote.html">Create one →</a></div>';return;}
+  qEl.innerHTML=quotes.map(q=>`<div class="list-item" style="--li-color:var(--green)">
+    <div><div class="li-title">${q.customer_name||'Quote'}</div><div class="li-sub">${fmt(q.total)} · ${fmtAgo(q.created_at)}</div></div>
+    <a class="li-btn" href="quote.html" style="background:var(--green)">Open</a>
+  </div>`).join('');
+}
+
 setInterval(loadDashboard, 90000);
 </script>
+</div><!-- /screen-app -->
 </body>
 </html>

@@ -1191,13 +1191,25 @@ async function loadSavedQuotes() {
     const rows = await fetch(REST+'/fo_quotes?order=updated_at.desc&limit=10&select=id,customer_name,address,total,mode,updated_at', {headers:H}).then(r=>r.json());
     const el = document.getElementById('saved-quotes-list');
     if (!rows?.length) { el.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">No saved quotes yet.</div>'; return; }
-    el.innerHTML = rows.map(q=>`
-      <div onclick="loadQuote('${q.id}')" style="padding:8px;border:1px solid var(--border);border-radius:7px;margin-bottom:5px;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="font-size:12px;font-weight:500;color:var(--text)">${q.customer_name||'Unnamed'}</div>
-        <div style="font-size:11px;color:var(--text2)">${q.address||''}</div>
-        <div style="display:flex;justify-content:space-between;margin-top:3px">
-          <span style="font-size:10px;color:var(--text3)">${q.mode==='onsite'?'Quick':'Detailed'} · ${new Date(q.updated_at).toLocaleDateString()}</span>
-          <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--brand)">\$${Number(q.total||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+      // Load jobs for linking dropdown
+  let jobsForLink=[];
+  try{jobsForLink=await fetch(REST+'/fo_jobs?archived=eq.false&select=id,name',{headers:H}).then(r=>r.json());}catch(e){}
+  const jobOptHtml='<option value="">— No job linked —</option>'+jobsForLink.map(j=>`<option value="${j.id}">${j.name}</option>`).join('');
+
+  el.innerHTML = rows.map(q=>`
+      <div style="border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">
+        <div onclick="loadQuote('${q.id}')" style="padding:9px 10px;cursor:pointer;background:var(--s2);transition:background .15s" onmouseover="this.style.background='rgba(226,83,28,0.06)'" onmouseout="this.style.background='var(--s2)'">
+          <div style="font-size:12px;font-weight:500;color:var(--text)">${q.customer_name||'Unnamed'}</div>
+          <div style="display:flex;justify-content:space-between;margin-top:2px">
+            <span style="font-size:10px;color:var(--text3)">${q.mode==='onsite'?'Quick':'Detailed'} · ${new Date(q.updated_at).toLocaleDateString()}</span>
+            <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--brand)">$${Number(q.total||0).toFixed(2)}</span>
+          </div>
+        </div>
+        <div style="padding:5px 8px;display:flex;gap:5px;align-items:center;border-top:1px solid var(--border);background:var(--card)">
+          <select onchange="linkQuoteToJob('${q.id}',this.value)" style="flex:1;font-size:11px;padding:3px 5px;border:1px solid var(--border2);border-radius:5px;background:var(--s2);font-family:'DM Sans',sans-serif;color:var(--text2);outline:none">
+            ${jobOptHtml.replace('</option>', q.job_id?'</option>':' selected></option>')}
+          </select>
+          <button onclick="deleteQuote('${q.id}')" style="padding:3px 8px;background:var(--red-bg);color:var(--red);border:none;border-radius:5px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✕</button>
         </div>
       </div>`).join('');
   } catch(e) {}
@@ -1240,6 +1252,18 @@ async function deleteQuote(id) {
   try {
     await fetch(REST+`/fo_quotes?id=eq.${id}`, {method:'DELETE',headers:H});
     loadSavedQuotes(); toast('Quote deleted.');
+  } catch(e) { toast('Error: '+e.message); }
+}
+
+async function linkQuoteToJob(quoteId, jobId) {
+  try {
+    await fetch(REST+`/fo_quotes?id=eq.${quoteId}`, {
+      method:'PATCH',
+      headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({job_id:jobId||null})
+    });
+    toast(jobId ? 'Quote linked to job.' : 'Job link removed.');
+    loadSavedQuotes();
   } catch(e) { toast('Error: '+e.message); }
 }
 
