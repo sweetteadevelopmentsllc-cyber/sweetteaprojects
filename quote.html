@@ -1554,20 +1554,19 @@ document.getElementById('proposal-modal').addEventListener('click', function(e) 
 
 // ══ INIT ══
 document.getElementById('d-date').value = new Date().toISOString().split('T')[0];
-// Populate job selector in summary panel
-(async () => {
-  try {
-    const jobs = await fetch(REST+'/fo_jobs?archived=eq.false&select=id,name&order=created_at.desc', {headers:H}).then(r=>r.json()).catch(()=>[]);
-    const sel = document.getElementById('quote-job-select');
-    if (sel && jobs.length) {
-      jobs.forEach(j => {
-        const o = document.createElement('option');
-        o.value = j.id; o.textContent = j.name;
+// Populate job selectors on page load
+fetch(REST+'/fo_jobs?archived=eq.false&select=id,name&order=created_at.desc', {headers:H})
+  .then(r=>r.json()).then(jobs=>{
+    ['quote-job-select'].forEach(selId=>{
+      const sel=document.getElementById(selId);
+      if(!sel||!jobs.length)return;
+      jobs.forEach(j=>{
+        const o=document.createElement('option');
+        o.value=j.id;o.textContent=j.name;
         sel.appendChild(o);
       });
-    }
-  } catch(e) {}
-})();
+    });
+  }).catch(()=>{});
 loadSavedQuotes();
 const validDate = new Date(); validDate.setDate(validDate.getDate() + 30);
 document.getElementById('d-valid').value = validDate.toISOString().split('T')[0];

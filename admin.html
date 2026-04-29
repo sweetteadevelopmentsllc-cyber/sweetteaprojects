@@ -962,32 +962,37 @@ async function openJobDetail(jobId) {
     : '<div style="font-size:12px;color:var(--text3)">No stages yet.</div>';
 
   // Linked quote
-  const quotes = await sbGet('fo_quotes',`job_id=eq.${jobId}&order=created_at.desc&limit=1&select=*`);
+  const quotes = await sbGet('fo_quotes',`job_id=eq.${jobId}&order=created_at.desc&limit=3&select=*`);
   const jdQuoteEl = document.getElementById('jd-quote');
   if (quotes?.length) {
-    const q = quotes[0];
-    jdQuoteEl.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--s2)">
-      <div>
-        <div style="font-size:13px;font-weight:500">${q.customer_name||'Quote'}</div>
-        <div style="font-size:11px;color:var(--text2)">${q.mode==='onsite'?'Quick Quote':'Detailed Quote'} · $${Number(q.total||0).toFixed(2)} · ${new Date(q.created_at).toLocaleDateString()}</div>
-      </div>
-      <a href="quote.html" class="btn btn-secondary btn-sm">Open →</a>
-    </div>`;
+    jdQuoteEl.innerHTML = quotes.map(q=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--s2);margin-bottom:6px">
+        <div>
+          <div style="font-size:13px;font-weight:500">${q.quote_title||q.customer_name||'Quote'}</div>
+          <div style="font-size:11px;color:var(--text2)">${q.mode==='onsite'?'Quick Quote':'Detailed Quote'} · $${Number(q.total||0).toFixed(2)} · ${new Date(q.created_at).toLocaleDateString()}</div>
+        </div>
+        <a href="quote.html" class="btn btn-secondary btn-sm">Open →</a>
+      </div>`).join('');
   } else {
-    jdQuoteEl.innerHTML = `<div style="font-size:12px;color:var(--text3);padding:8px 0">No quote linked. <a href="quote.html" style="color:var(--brand)">Create one →</a></div>`;
+    jdQuoteEl.innerHTML = `<div style="font-size:12px;color:var(--text3);padding:8px 0">No quotes linked to this job. <a href="quote.html" style="color:var(--brand)">Create one →</a></div>`;
   }
 
   // Linked material list
-  const matLists = await sbGet('fo_material_lists',`job_id=eq.${jobId}&limit=1&select=id,data,updated_at`);
+  // Try by job_id first, then fall back to the stable id pattern matlist_{jobId}
+  let matLists = await sbGet('fo_material_lists',`job_id=eq.${jobId}&limit=1&select=id,list_name,data,updated_at`);
+  if (!matLists?.length) {
+    matLists = await sbGet('fo_material_lists',`id=eq.matlist_${jobId}&select=id,list_name,data,updated_at`);
+  }
   const jdMatEl = document.getElementById('jd-materials');
   if (matLists?.length) {
     const ml = matLists[0];
     const items = ml.data?.items || [];
     const subtotal = items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+    const listName = ml.list_name || ml.data?.list_name || 'Material List';
     jdMatEl.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--s2)">
       <div>
-        <div style="font-size:13px;font-weight:500">${items.length} items · $${subtotal.toFixed(2)}</div>
-        <div style="font-size:11px;color:var(--text2)">Last saved ${new Date(ml.updated_at||ml.data?.saved_at).toLocaleDateString()}</div>
+        <div style="font-size:13px;font-weight:500">${listName}</div>
+        <div style="font-size:11px;color:var(--text2)">${items.length} items · $${subtotal.toFixed(2)}</div>
       </div>
       <a href="materials.html" class="btn btn-secondary btn-sm">Open →</a>
     </div>`;

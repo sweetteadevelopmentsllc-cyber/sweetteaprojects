@@ -653,11 +653,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   recalc();
   try {
     allJobs = await sbGet('fo_jobs','archived=eq.false&order=created_at.desc&select=id,name');
-    const sel = document.getElementById('job-select');
-    (allJobs||[]).forEach(j => {
-      const o = document.createElement('option');
-      o.value = j.id; o.textContent = j.name;
-      sel.appendChild(o);
+    // Populate all job dropdowns that exist on the page
+    ['job-select','nlm-job'].forEach(selId => {
+      const sel = document.getElementById(selId);
+      if (!sel) return;
+      (allJobs||[]).forEach(j => {
+        const o = document.createElement('option');
+        o.value = j.id; o.textContent = j.name;
+        sel.appendChild(o);
+      });
     });
   } catch(e) { console.warn('Jobs load error:', e); allJobs=[]; }
   // Load saved lists regardless of whether jobs loaded
@@ -679,10 +683,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 function onJobSelectChange() {
-  const jobId = document.getElementById('job-select').value;
-  const job = allJobs.find(j=>j.id===jobId);
-  const ni = document.getElementById('list-name-input');
-  if (ni && job && !ni.value) ni.value = job.name + ' — Material List';
+  // Handled via nlm-job in the new list modal
 }
 
 // ══ CATALOG ══
@@ -860,7 +861,6 @@ async function saveList(){
     await fetch(REST+'/fo_material_lists',{method:'POST',headers:{...H,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:key,job_id:jobId||null,list_name:listName,data:payload})});
     currentListId=key;currentListDirty=false;
     document.getElementById('last-saved').textContent='Saved '+new Date().toLocaleTimeString();
-    if(ni&&!ni.value.trim())ni.value=listName;
     showEditBanner(listName);
     showSavePopup(listName);
     updateToolbarContext();
@@ -954,8 +954,13 @@ function openNewListModal(editingNameOnly) {
   nlmEditingNameOnly = editingNameOnly;
   // Populate job dropdown
   const sel = document.getElementById('nlm-job');
-  sel.innerHTML = '<option value="">— No job link —</option>' +
-    allJobs.map(j=>`<option value="${j.id}">${j.name}</option>`).join('');
+  // Only rebuild if empty (init already populated it)
+  if (sel.options.length <= 1) {
+    sel.innerHTML = '<option value="">— No job link —</option>' +
+      allJobs.map(j=>`<option value="${j.id}">${j.name}</option>`).join('');
+  } else {
+    sel.value = ''; // reset selection
+  }
   // Pre-fill if editing
   const curName = document.getElementById('ctx-name')?.textContent||'';
   document.getElementById('nlm-name').value = editingNameOnly ? (curName==='Untitled List'?'':curName) : '';
