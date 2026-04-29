@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checklist · Materials</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -165,16 +166,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <!-- TOOLBAR -->
 <div class="toolbar">
   <span class="tb-title">Material List Builder</span>
+  <input id="list-name-input" type="text" placeholder="List name (auto from job)…"
+    style="font-size:12px;padding:5px 10px;border:1px solid var(--border2);border-radius:7px;background:var(--card);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;min-width:160px;max-width:240px"
+    onfocus="this.style.borderColor='var(--brand2)'" onblur="this.style.borderColor=''"/>
   <div class="tb-sep"></div>
-  <select class="tb-job-sel" id="job-select" onchange="loadListForJob()">
+  <select class="tb-job-sel" id="job-select" onchange="onJobSelectChange()">
     <option value="">— Link to job (optional) —</option>
   </select>
   <div class="tb-sep"></div>
   <button class="btn btn-blue btn-sm" onclick="checkAllPricesAI()" id="btn-ai-all">🔍 Search Prices at Lowe's</button>
   <button class="btn btn-blue btn-sm" onclick="openMatTemplates()">📋 Templates</button>
+  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('excel-import-input').click()">📥 Import Excel</button>
+  <input type="file" id="excel-import-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcel(this)"/>
+  <button class="btn btn-ghost btn-sm" onclick="downloadBlankTemplate()">⬇ Blank Template</button>
   <button class="btn btn-green btn-sm" onclick="saveList()">💾 Save List</button>
   <button class="btn btn-ghost btn-sm" onclick="exportToQuote()">→ Export to Quote</button>
   <button class="btn btn-ghost btn-sm" onclick="clearList()">Clear</button>
+  <button class="btn btn-ghost btn-sm" onclick="openExcelImport()">📥 Excel Import</button>
+  <button class="btn btn-ghost btn-sm" onclick="downloadBlankTemplate()">📄 Template</button>
+  <input id="list-name-input" type="text" placeholder="List name (auto from job)…" style="font-size:12px;padding:5px 10px;border:1px solid var(--border2);border-radius:7px;background:var(--card);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;min-width:160px;max-width:240px" onfocus="this.style.borderColor='var(--brand2)'" onblur="this.style.borderColor=''"/>
   <div style="flex:1"></div>
   <div style="font-size:11px;color:var(--text3)" id="last-saved"></div>
 </div>
@@ -289,6 +299,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <button class="btn btn-gold btn-full" onclick="saveList()" style="margin-bottom:6px">💾 Save List</button>
     <button class="btn btn-ghost btn-full" onclick="printList()">🖨 Print List</button>
+    <hr class="sum-divider"/>
+    <div class="sum-title" style="margin-top:0">Saved Lists</div>
+    <div id="saved-lists-panel" style="font-size:12px;color:var(--text3)">Loading…</div>
+    <div style="border-top:1px solid var(--border);margin:10px 0"></div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Saved Lists</div>
+    <div id="saved-lists-panel"><div style="font-size:11px;color:var(--text3)">Loading…</div></div>
     <div style="margin-top:12px;padding:10px;background:var(--blue-bg);border-radius:8px;font-size:10px;color:var(--blue);line-height:1.5">
       <strong>🔍 Price Check</strong> opens a Lowe's or Home Depot search for any item. Find the current price, then type it in. Baseline prices are sourced from Q1 2026 market data.
     </div>
@@ -437,6 +453,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const linkSel = document.getElementById('list-job-link');
       if (linkSel) linkSel.appendChild(o2);
     });
+    loadSavedLists();
   } catch(e) {}
 });
 
@@ -823,204 +840,202 @@ function runSmartEstimate() {
 // ══ SAVE & LOAD ══
 async function saveList() {
   const jobId = document.getElementById('job-select').value;
+  const nameInput = document.getElementById('list-name-input');
+
+  // Auto-name from job if linked
+  let listName = nameInput ? nameInput.value.trim() : '';
+  if (!listName && jobId) {
+    const job = allJobs.find(j=>j.id===jobId);
+    if (job) listName = job.name + ' — Material List';
+  }
+  if (!listName) listName = 'Material List ' + new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
   const payload = {
     items: listItems,
     notes: document.getElementById('list-notes').value,
+    list_name: listName,
     saved_at: new Date().toISOString(),
     job_id: jobId || null,
   };
+  // Use a stable ID tied to job, or a new UUID-like key for standalone
   const key = jobId ? `matlist_${jobId}` : `matlist_standalone_${Date.now()}`;
   try {
-    await sbUpsert('fo_material_lists', {id: key, job_id: jobId||null, data: payload});
+    await fetch(REST+'/fo_material_lists', {
+      method: 'POST',
+      headers: {...H, 'Prefer':'resolution=merge-duplicates,return=minimal'},
+      body: JSON.stringify({id: key, job_id: jobId||null, list_name: listName, data: payload})
+    });
     document.getElementById('last-saved').textContent = 'Saved ' + new Date().toLocaleTimeString();
-    toast('Material list saved.');
+    if (nameInput && !nameInput.value.trim()) nameInput.value = listName;
+    toast('List saved: "' + listName + '"');
+    loadSavedLists();
   } catch(e) {
-    // Fallback to localStorage if table doesn't exist yet
-    localStorage.setItem(key, JSON.stringify(payload));
-    document.getElementById('last-saved').textContent = 'Saved locally';
-    toast('Saved locally (run SQL to enable cloud save).');
+    toast('Save error: ' + e.message);
   }
+}
+
+async function loadSavedLists() {
+  const el = document.getElementById('saved-lists-panel');
+  if (!el) return;
+  try {
+    const jobs = allJobs;
+    const jMap = Object.fromEntries(jobs.map(j=>[j.id,j.name]));
+    const lists = await fetch(REST+'/fo_material_lists?order=updated_at.desc&limit=15&select=id,job_id,list_name,data,updated_at', {headers:H}).then(r=>r.json()).catch(()=>[]);
+    if (!lists.length) { el.innerHTML='<div style="color:var(--text3);font-size:11px;padding:4px 0">No saved lists yet.</div>'; return; }
+    el.innerHTML = lists.map(l => {
+      const name = l.list_name || l.data?.list_name || (l.job_id ? jMap[l.job_id]||'Job list' : 'Untitled');
+      const items = l.data?.items || [];
+      const total = items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+      return `<div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:5px">
+        <div style="display:flex;justify-content:space-between;align-items:start;gap:6px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
+            <div style="font-size:10px;color:var(--text3)">${items.length} items · $${total.toFixed(2)}</div>
+          </div>
+          <button onclick="deleteMatList('${l.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:0;flex-shrink:0" title="Delete">×</button>
+        </div>
+        <button onclick="loadListById('${l.id}')" class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:5px;font-size:11px">Load</button>
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML='<div style="color:var(--red);font-size:11px">Error loading lists.</div>'; }
+}
+
+async function deleteMatList(id) {
+  if (!confirm('Delete this saved material list?')) return;
+  try {
+    await fetch(REST+`/fo_material_lists?id=eq.${id}`, {method:'DELETE', headers:H});
+    toast('List deleted.');
+    loadSavedLists();
+  } catch(e) { toast('Error: '+e.message); }
+}
+
+async function loadListById(id) {
+  try {
+    const rows = await fetch(REST+`/fo_material_lists?id=eq.${id}&select=*`, {headers:H}).then(r=>r.json());
+    if (!rows.length) return;
+    const data = rows[0].data || {};
+    listItems = data.items || [];
+    document.getElementById('list-notes').value = data.notes || '';
+    const ni = document.getElementById('list-name-input');
+    if (ni) ni.value = rows[0].list_name || data.list_name || '';
+    if (rows[0].job_id) {
+      const sel = document.getElementById('job-select');
+      if (sel) sel.value = rows[0].job_id;
+    }
+    renderList(); recalc();
+    toast('List loaded.');
+  } catch(e) { toast('Error: '+e.message); }
 }
 
 async function loadListForJob() {
   const jobId = document.getElementById('job-select').value;
+  // Auto-fill name field from job name
+  const job = allJobs.find(j=>j.id===jobId);
+  const ni = document.getElementById('list-name-input');
+  if (ni && job && !ni.value) ni.value = job.name + ' — Material List';
+  // Sync to secondary link selector
+  const linkSel = document.getElementById('list-job-link');
+  if (linkSel) linkSel.value = jobId;
   if (!jobId) return;
   try {
-    const rows = await sbGet('fo_material_lists', `job_id=eq.${jobId}&select=data&limit=1`);
+    const rows = await sbGet('fo_material_lists', `job_id=eq.${jobId}&select=data,list_name&limit=1`);
     if (rows?.length) {
       const data = rows[0].data;
       listItems = data.items || [];
       document.getElementById('list-notes').value = data.notes || '';
-      renderList();
-      recalc();
-      toast('Material list loaded.');
+      if (ni) ni.value = rows[0].list_name || data.list_name || ni.value;
+      renderList(); recalc();
+      toast('List loaded for this job.');
     }
   } catch(e) {}
 }
 
-// ══ EXPORT TO QUOTE ══
-function exportToQuote() {
-  const matData = listItems.map(i => ({
-    name: i.name, vendor: i.vendor, qty: i.qty, price: i.price
-  }));
-  sessionStorage.setItem('import_materials', JSON.stringify(matData));
-  window.location.href = 'quote.html';
-}
-
-// ══ PRINT ══
-function printList() {
-  const taxRate = (parseFloat(document.getElementById('tax-rate').value)||0)/100;
-  const subtotal = listItems.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
-  const tax = subtotal*taxRate;
-
-  const rows = listItems.map(i=>`<tr>
-    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt">${i.name}</td>
-    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt;color:#666">${i.vendor||''}</td>
-    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt;text-align:center">${i.qty}</td>
-    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt">${i.unit}</td>
-    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt;text-align:right">$${(i.price||0).toFixed(2)}</td>
-    <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:10pt;font-weight:600;text-align:right">$${((i.qty||0)*(i.price||0)).toFixed(2)}</td>
-  </tr>`).join('');
-
-  const w = window.open('','_blank','width=900,height=900');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
-    <style>@page{margin:.75in;size:letter}body{font-family:'Helvetica Neue',sans-serif;color:#111}*{box-sizing:border-box}</style></head>
-    <body>
-    <div style="border-bottom:3pt solid #F4713D;padding-bottom:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end">
-      <div>
-        <div style="font-size:8pt;text-transform:uppercase;letter-spacing:.12em;color:#888;font-weight:600">Sweet Tea Build LLC</div>
-        <div style="font-size:22pt;font-weight:800;font-family:Georgia,serif">Material List</div>
-        <div style="font-size:10pt;color:#555">Prepared: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
-      </div>
-      <div style="text-align:right;font-size:9pt;color:#666">770-570-9621<br>michael.fedrick@sweetteabuild.com</div>
-    </div>
-    <table style="width:100%;border-collapse:collapse">
-      <thead><tr>
-        <th style="padding:7px 8px;text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Item</th>
-        <th style="padding:7px 8px;text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Vendor</th>
-        <th style="padding:7px 8px;text-align:center;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Qty</th>
-        <th style="padding:7px 8px;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Unit</th>
-        <th style="padding:7px 8px;text-align:right;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Unit Price</th>
-        <th style="padding:7px 8px;text-align:right;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#888;border-bottom:2px solid #ddd">Total</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-      <tfoot>
-        <tr><td colspan="5" style="padding:10px 8px;font-size:11pt;font-weight:600;text-align:right;border-top:2px solid #ddd">Subtotal</td><td style="padding:10px 8px;font-size:11pt;font-weight:700;text-align:right;border-top:2px solid #ddd">$${subtotal.toFixed(2)}</td></tr>
-        <tr><td colspan="5" style="padding:4px 8px;font-size:10pt;text-align:right;color:#666">Tax (${(taxRate*100).toFixed(1)}%)</td><td style="padding:4px 8px;font-size:10pt;text-align:right;color:#666">$${tax.toFixed(2)}</td></tr>
-        <tr style="background:rgba(226,83,28,0.07)"><td colspan="5" style="padding:12px 8px;font-size:13pt;font-weight:800;text-align:right;color:#E2531C">TOTAL</td><td style="padding:12px 8px;font-size:13pt;font-weight:800;text-align:right;color:#E2531C">$${(subtotal+tax).toFixed(2)}</td></tr>
-      </tfoot>
-    </table>
-    ${document.getElementById('list-notes').value?`<div style="margin-top:20px;padding:12px;background:#f9f8f5;border-radius:6px;font-size:10pt;color:#444">${document.getElementById('list-notes').value}</div>`:''}
-    </body></html>`);
-  w.document.close(); w.focus(); setTimeout(()=>w.print(),400);
-}
-
-function clearList() {
-  if (!confirm('Clear the material list?')) return;
-  listItems = [];
-  renderList();
-  recalc();
-}
-
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function toast(msg) { const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000); }
-
-// ══ MATERIAL TEMPLATES ══
-async function openMatTemplates() {
-  const modal = document.getElementById('mat-tmpl-modal');
-  modal.style.display = 'flex';
-  await renderMatTemplates();
-}
-
-function closeMatTemplates() {
-  document.getElementById('mat-tmpl-modal').style.display = 'none';
-}
-
-async function renderMatTemplates() {
-  const el = document.getElementById('mat-tmpl-list');
-  el.innerHTML = '<div style="font-size:12px;color:var(--text3)">Loading…</div>';
+// ── Excel Import ──
+async function importExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
   try {
-    const templates = await sbGet('fo_mat_templates','order=created_at.desc&select=*');
-    if (!templates.length) {
-      el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px 0">No templates yet. Save your current list as one below.</div>';
-      return;
-    }
-    el.innerHTML = templates.map(t => `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px">
-        <div>
-          <div style="font-size:13px;font-weight:500">${t.name}</div>
-          <div style="font-size:11px;color:var(--text3)">${t.category} · by ${t.created_by}</div>
-        </div>
-        <div style="display:flex;gap:6px">
-          <button onclick="loadMatTemplate('${t.id}')" class="btn btn-gold btn-sm">Load</button>
-          <button onclick="deleteMatTemplate('${t.id}')" style="padding:4px 10px;background:var(--red-bg);color:var(--red);border:none;border-radius:6px;font-size:11px;cursor:pointer">✕</button>
-        </div>
-      </div>`).join('');
-  } catch(e) { el.innerHTML = '<div style="color:var(--red);font-size:12px">Error loading templates.</div>'; }
-}
+    const data = await file.arrayBuffer();
+    const wb = XLSX.read(data, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
 
-async function saveAsTemplate() {
-  const name = document.getElementById('new-tmpl-name').value.trim();
-  if (!name) { toast('Enter a template name.'); return; }
-  if (!listItems.length) { toast('Add items to the list first.'); return; }
-  try {
-    const r = await fetch(REST+'/fo_mat_templates', {
-      method:'POST', headers:{...H,'Prefer':'return=representation'},
-      body:JSON.stringify({name, category:'custom', created_by:'admin'})
-    });
-    const saved = await r.json();
-    const tid = Array.isArray(saved)?saved[0]?.id:saved?.id;
-    if (tid) {
-      // Save each item
-      for (let i=0; i<listItems.length; i++) {
-        const item = listItems[i];
-        await fetch(REST+'/fo_mat_template_items', {
-          method:'POST', headers:{...H,'Prefer':'return=minimal'},
-          body:JSON.stringify({
-            template_id:tid, name:item.name, unit:item.unit,
-            qty:item.qty, price:item.price, vendor:item.vendor,
-            cat:item.cat, order_index:i
-          })
-        });
+    // Find header row (look for "Item" or "Name" in first column)
+    let headerRow = 0;
+    for (let i=0; i<Math.min(5,rows.length); i++) {
+      const row = rows[i].map(c=>String(c).toLowerCase().trim());
+      if (row.some(c=>c.includes('item')||c.includes('name')||c.includes('supply')||c.includes('material'))) {
+        headerRow = i; break;
       }
     }
-    document.getElementById('new-tmpl-name').value='';
-    await renderMatTemplates();
-    toast(`Template "${name}" saved.`);
-  } catch(e) { toast('Error: '+e.message); }
-}
+    const headers = rows[headerRow].map(c=>String(c).toLowerCase().trim());
+    const nameIdx   = headers.findIndex(h=>h.includes('item')||h.includes('name')||h.includes('supply')||h.includes('material'));
+    const vendorIdx = headers.findIndex(h=>h.includes('vendor')||h.includes('supplier')||h.includes('store'));
+    const descIdx   = headers.findIndex(h=>h.includes('desc'));
+    const qtyIdx    = headers.findIndex(h=>h.includes('qty')||h.includes('quantity')||h.includes('count'));
+    const priceIdx  = headers.findIndex(h=>h.includes('price')||h.includes('unit')||h.includes('cost'));
+    const catIdx    = headers.findIndex(h=>h.includes('cat')||h.includes('type'));
 
-async function loadMatTemplate(templateId) {
-  try {
-    const items = await sbGet('fo_mat_template_items',`template_id=eq.${templateId}&order=order_index.asc&select=*`);
-    if (!items.length) { toast('Template is empty.'); return; }
-    if (listItems.length && !confirm('Replace current list with template items?')) return;
-    listItems = items.map(item => ({
-      id: Date.now() + Math.random(),
-      cat: item.cat || 'other',
-      name: item.name,
-      unit: item.unit || 'ea',
-      qty: item.qty || 1,
-      price: item.price || 0,
-      vendor: item.vendor || "Lowe's",
-      ai_verified: false,
-      note: ''
-    }));
+    if (nameIdx < 0) { toast('Could not find an Item/Name column. Download the blank template to see the correct format.'); return; }
+
+    const imported = [];
+    for (let i=headerRow+1; i<rows.length; i++) {
+      const row = rows[i];
+      const name = String(row[nameIdx]||'').trim();
+      if (!name) continue;
+      const price = parseFloat(String(row[priceIdx]||'0').replace(/[$,]/g,''))||0;
+      const qty   = parseFloat(String(row[qtyIdx]||'1').replace(/,/g,''))||1;
+      const vendor = vendorIdx>=0 ? String(row[vendorIdx]||'').trim() : '';
+      const desc  = descIdx>=0 ? String(row[descIdx]||'').trim() : '';
+      const cat   = catIdx>=0 ? mapCat(String(row[catIdx]||'')) : 'other';
+      imported.push({id:Date.now()+Math.random(), name, vendor, unit:'ea', qty, price, cat, ai_verified:false, note:desc});
+    }
+
+    if (!imported.length) { toast('No items found. Check the file format.'); return; }
+    const replace = listItems.length && confirm(`Replace current list with ${imported.length} imported items? (Cancel to append)`);
+    if (replace) listItems = imported;
+    else listItems = [...listItems, ...imported];
+
     renderList(); recalc();
-    closeMatTemplates();
-    toast(`Loaded ${items.length} items from template.`);
-  } catch(e) { toast('Error: '+e.message); }
+    toast(`Imported ${imported.length} items from ${file.name}.`);
+  } catch(e) { toast('Import error: '+e.message); console.error(e); }
 }
 
-async function deleteMatTemplate(id) {
-  if (!confirm('Delete this template?')) return;
-  try {
-    await fetch(REST+`/fo_mat_templates?id=eq.${id}`,{method:'DELETE',headers:H});
-    await renderMatTemplates(); toast('Template deleted.');
-  } catch(e) { toast('Error: '+e.message); }
+function mapCat(str) {
+  const s = str.toLowerCase();
+  if (s.includes('roof')) return 'roofing';
+  if (s.includes('fram')||s.includes('lumber')) return 'framing';
+  if (s.includes('dry')||s.includes('wall')) return 'drywall';
+  if (s.includes('floor')||s.includes('tile')||s.includes('lvp')) return 'flooring';
+  if (s.includes('insul')) return 'insulation';
+  if (s.includes('plumb')) return 'plumbing';
+  if (s.includes('elec')) return 'electrical';
+  if (s.includes('paint')||s.includes('finish')) return 'paint';
+  if (s.includes('concrete')||s.includes('mason')) return 'concrete';
+  if (s.includes('exter')) return 'exterior';
+  return 'other';
 }
 
-// ── Link material list to job ──
+function downloadBlankTemplate() {
+  // Create a blank workbook with correct column headers
+  const ws_data = [
+    ['Item / Material Name', 'Vendor', 'Description / Notes', 'Quantity', 'Unit Price ($)', 'Unit', 'Category'],
+    ['Example: Architectural shingles 30yr', "Lowe's", '3 bundles = 1 square', 30, 42.00, 'bundle', 'roofing'],
+    ['Example: 2x4x8 stud', "Lowe's", 'Standard framing stud', 100, 4.78, 'ea', 'framing'],
+    ['', '', '', '', '', '', ''],
+  ];
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  // Set column widths
+  ws['!cols'] = [{wch:35},{wch:15},{wch:28},{wch:10},{wch:14},{wch:10},{wch:14}];
+  // Style header row (basic)
+  XLSX.utils.book_append_sheet(wb, ws, 'Materials');
+  XLSX.writeFile(wb, 'SweetTeaBuild_MaterialList_Template.xlsx');
+  toast('Template downloaded.');
+}
+
+
 async function linkListToJob(jobId) {
   if (!jobId) return;
   const key = `matlist_${jobId}`;

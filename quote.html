@@ -722,6 +722,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
     <button class="btn btn-gold btn-full" onclick="generateProposal()">Generate Proposal</button>
     <input type="hidden" id="quote-id"/>
+    <div style="margin-bottom:8px">
+      <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);display:block;margin-bottom:4px">Quote name</label>
+      <input id="quote-title-input" type="text" placeholder="Auto from customer name…" style="width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;background:var(--s2);color:var(--text);outline:none"/>
+    </div>
     <button class="btn btn-ghost btn-full no-print" onclick="saveQuote()">💾 Save Quote</button>
     <div style="margin-top:14px">
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px">Saved Quotes</div>
@@ -1170,6 +1174,9 @@ async function saveQuote() {
   };
 
   try {
+    // Get quote title
+    const quoteTitle = document.getElementById('quote-title-input')?.value?.trim() ||
+      (info.customer ? info.customer + ' — Quote' : 'Quote ' + new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}));
     const resp = await fetch(REST+'/fo_quotes', {
       method: 'POST',
       headers: {...H, 'Prefer':'resolution=merge-duplicates,return=representation'},
@@ -1177,6 +1184,7 @@ async function saveQuote() {
         customer_name: info.customer,
         address: info.address,
         mode: currentMode,
+        quote_title: quoteTitle,
         data: state,
         total: total,
       })
@@ -1195,30 +1203,34 @@ async function saveQuote() {
 
 async function loadSavedQuotes() {
   try {
-    const rows = await fetch(REST+'/fo_quotes?order=updated_at.desc&limit=10&select=id,customer_name,address,total,mode,updated_at', {headers:H}).then(r=>r.json());
+    const rows = await fetch(REST+'/fo_quotes?order=updated_at.desc&limit=10&select=id,customer_name,address,total,mode,updated_at,quote_title,job_id', {headers:H}).then(r=>r.json());
     const el = document.getElementById('saved-quotes-list');
     if (!rows?.length) { el.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">No saved quotes yet.</div>'; return; }
       // Load jobs for linking dropdown
   let jobsForLink=[];
   try{jobsForLink=await fetch(REST+'/fo_jobs?archived=eq.false&select=id,name',{headers:H}).then(r=>r.json());}catch(e){}
-  const jobOptHtml='<option value="">— No job linked —</option>'+jobsForLink.map(j=>`<option value="${j.id}">${j.name}</option>`).join('');
+  const jobOpts=(sel='')=>'<option value="">— No job —</option>'+jobsForLink.map(j=>`<option value="${j.id}" ${j.id===sel?'selected':''}>${j.name}</option>`).join('');
 
-  el.innerHTML = rows.map(q=>`
-      <div style="border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">
-        <div onclick="loadQuote('${q.id}')" style="padding:9px 10px;cursor:pointer;background:var(--s2);transition:background .15s" onmouseover="this.style.background='rgba(226,83,28,0.06)'" onmouseout="this.style.background='var(--s2)'">
-          <div style="font-size:12px;font-weight:500;color:var(--text)">${q.customer_name||'Unnamed'}</div>
-          <div style="display:flex;justify-content:space-between;margin-top:2px">
-            <span style="font-size:10px;color:var(--text3)">${q.mode==='onsite'?'Quick':'Detailed'} · ${new Date(q.updated_at).toLocaleDateString()}</span>
-            <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--brand)">$${Number(q.total||0).toFixed(2)}</span>
-          </div>
-        </div>
-        <div style="padding:5px 8px;display:flex;gap:5px;align-items:center;border-top:1px solid var(--border);background:var(--card)">
-          <select onchange="linkQuoteToJob('${q.id}',this.value)" style="flex:1;font-size:11px;padding:3px 5px;border:1px solid var(--border2);border-radius:5px;background:var(--s2);font-family:'DM Sans',sans-serif;color:var(--text2);outline:none">
-            ${jobOptHtml.replace('</option>', q.job_id?'</option>':' selected></option>')}
-          </select>
-          <button onclick="deleteQuote('${q.id}')" style="padding:3px 8px;background:var(--red-bg);color:var(--red);border:none;border-radius:5px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✕</button>
-        </div>
-      </div>`).join('');
+  el.innerHTML = rows.map(q=>{
+    const displayName = q.quote_label || q.customer_name || 'Unnamed quote';
+    return `<div style="border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">
+      <div style="padding:8px 10px;background:var(--s2);display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)">
+        <input value="${displayName.replace(/"/g,'&quot;')}" onblur="renameQuote('${q.id}',this.value)"
+          style="flex:1;border:none;background:transparent;font-size:12px;font-weight:500;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;min-width:0"
+          placeholder="Quote name…" title="Click to rename"/>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--brand);flex-shrink:0">$${Number(q.total||0).toFixed(2)}</span>
+      </div>
+      <div style="padding:5px 8px;display:flex;gap:5px;align-items:center;background:var(--card)">
+        <span style="font-size:10px;color:var(--text3)">${q.mode==='onsite'?'Quick':'Detailed'} · ${new Date(q.updated_at).toLocaleDateString()}</span>
+        <div style="flex:1"></div>
+        <button onclick="loadQuote('${q.id}')" style="padding:3px 9px;background:var(--brand-bg);color:var(--brand);border:1px solid var(--brand-border);border-radius:5px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">Load</button>
+        <select onchange="linkQuoteToJob('${q.id}',this.value)" style="font-size:11px;padding:3px 5px;border:1px solid var(--border2);border-radius:5px;background:var(--s2);font-family:'DM Sans',sans-serif;color:var(--text2);outline:none;max-width:110px">
+          ${jobOpts(q.job_id||'')}
+        </select>
+        <button onclick="deleteQuote('${q.id}')" style="padding:3px 7px;background:var(--red-bg);color:var(--red);border:none;border-radius:5px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✕</button>
+      </div>
+    </div>`;
+  }).join('');
   } catch(e) {}
 }
 
@@ -1252,6 +1264,14 @@ async function loadQuote(id) {
     calcOnSite(); calcDetailed();
     toast('Quote loaded.');
   } catch(e) { toast('Load failed: '+e.message); }
+}
+
+async function renameQuote(id, newName) {
+  if (!newName.trim() || newName === 'Unnamed quote') return;
+  try {
+    await fetch(REST+`/fo_quotes?id=eq.${id}`, {method:'PATCH', headers:{...H,'Prefer':'return=minimal'}, body:JSON.stringify({quote_label:newName.trim()})});
+    // Don't reload — too jarring while typing
+  } catch(e) { console.warn('Rename failed:', e); }
 }
 
 async function deleteQuote(id) {
@@ -1321,58 +1341,63 @@ function showImportTab(tab) {
   loadImportTab(tab);
 }
 
+// Store import items in memory to avoid onclick attribute escaping issues
+const importItemCache = new Map();
+let importCacheKey = 0;
+
 async function loadImportTab(tab) {
   const el = document.getElementById('mat-import-content');
-  el.innerHTML = '<div style="color:var(--text3);padding:8px 0">Loading…</div>';
+  el.innerHTML = '<div style="color:var(--text3);padding:8px 0;font-size:13px">Loading…</div>';
+  importItemCache.clear();
+  importCacheKey = 0;
   try {
     if (tab === 'lists') {
-      const lists = await fetch(REST+'/fo_material_lists?order=updated_at.desc&limit=20&select=id,job_id,data', {headers:H}).then(r=>r.json()).catch(()=>[]);
+      const lists = await fetch(REST+'/fo_material_lists?order=updated_at.desc&limit=30&select=id,job_id,data,list_name,updated_at', {headers:H}).then(r=>r.json()).catch(()=>[]);
       const jobs = await fetch(REST+'/fo_jobs?archived=eq.false&select=id,name', {headers:H}).then(r=>r.json()).catch(()=>[]);
       const jMap = Object.fromEntries((jobs||[]).map(j=>[j.id,j.name]));
-      if (!lists.length) { el.innerHTML='<div style="color:var(--text3);font-size:12px">No saved lists. Create one in the Materials page.</div>'; return; }
+      if (!lists.length) { el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px 0">No saved lists yet. Create one in the Materials page.</div>'; return; }
       el.innerHTML = lists.map(l=>{
         const items = l.data?.items||[];
         const total = items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
-        const jobName = l.job_id ? (jMap[l.job_id]||'Unknown job') : 'No job linked';
-        return `<div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor=''" onclick="importMatList(${JSON.stringify(JSON.stringify(items))})">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div style="font-size:13px;font-weight:500;color:var(--text)">${jobName}</div>
-              <div style="font-size:11px;color:var(--text3)">${items.length} items · $${total.toFixed(2)}</div>
-            </div>
-            <div style="font-size:12px;color:var(--brand);font-weight:500">${matImportMode==='quick'?'Use total':'Import →'}</div>
+        const displayName = l.list_name || l.data?.list_name || (l.job_id ? (jMap[l.job_id]||'Job list') : 'Unnamed list');
+        const k = ++importCacheKey;
+        importItemCache.set('list_'+k, items);
+        return `<div onclick="importFromCache('list_${k}')" style="border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:6px;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:center" onmouseover="this.style.borderColor='var(--brand)';this.style.background='rgba(226,83,28,0.04)'" onmouseout="this.style.borderColor='';this.style.background=''">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text)">${displayName}</div>
+            <div style="font-size:11px;color:var(--text3)">${items.length} items · $${total.toFixed(2)}</div>
           </div>
+          <div style="font-size:12px;color:var(--brand);font-weight:500;flex-shrink:0;margin-left:10px">${matImportMode==='quick'?'Use total ›':'Import items ›'}</div>
         </div>`;
       }).join('');
     } else {
       const templates = await fetch(REST+'/fo_mat_templates?order=created_at.desc&select=*', {headers:H}).then(r=>r.json()).catch(()=>[]);
-      if (!templates.length) { el.innerHTML='<div style="color:var(--text3);font-size:12px">No templates. Create one in the Materials page.</div>'; return; }
+      if (!templates.length) { el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px 0">No templates yet. Create one in the Materials page.</div>'; return; }
       el.innerHTML = templates.map(t=>`
-        <div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor=''" onclick="importMatTemplate('${t.id}','${t.name}')">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><div style="font-size:13px;font-weight:500;color:var(--text)">${t.name}</div><div style="font-size:11px;color:var(--text3)">${t.category}</div></div>
-            <div style="font-size:12px;color:var(--brand);font-weight:500">${matImportMode==='quick'?'Use total':'Import →'}</div>
+        <div onclick="importMatTemplate('${t.id}','${t.name.replace(/'/g,'')}')" style="border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:6px;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:center" onmouseover="this.style.borderColor='var(--brand)';this.style.background='rgba(226,83,28,0.04)'" onmouseout="this.style.borderColor='';this.style.background=''">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text)">${t.name}</div>
+            <div style="font-size:11px;color:var(--text3)">${t.category||'Custom'}</div>
           </div>
+          <div style="font-size:12px;color:var(--brand);font-weight:500;flex-shrink:0;margin-left:10px">${matImportMode==='quick'?'Use total ›':'Import items ›'}</div>
         </div>`).join('');
     }
-  } catch(e) { el.innerHTML='<div style="color:var(--red)">Error loading: '+e.message+'</div>'; }
+  } catch(e) { console.error('Import tab error:', e); el.innerHTML='<div style="color:var(--red);font-size:12px">Error loading data: '+e.message+'<br>Make sure the SQL has been run in Supabase.</div>'; }
 }
 
-function importMatList(itemsStr) {
-  const items = JSON.parse(itemsStr);
+function importFromCache(key) {
+  const items = importItemCache.get(key) || [];
+  if (!items.length) { toast('No items in this list.'); return; }
   if (matImportMode === 'quick') {
     const total = items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
     document.getElementById('os-matcost').value = total.toFixed(2);
     calcOnSite();
     closeMatImport();
-    toast('Material cost set to $'+total.toFixed(2)+' from saved list.');
+    toast('Material estimate set to $'+total.toFixed(2)+'.');
     return;
   }
-  // Detailed mode — import as line items
-  if (matRows.length > 0 && !confirm('This will add items to your existing materials list. Continue?')) return;
-  items.forEach(item => {
-    if (item.name) addMatRow(item.name, item.vendor||'', '', item.qty||1, item.price||0);
-  });
+  if (matRows.length > 0 && !confirm('Add '+items.length+' items to your existing list?')) return;
+  items.forEach(item => { if (item.name) addMatRow(item.name, item.vendor||'', item.desc||'', item.qty||1, item.price||0); });
   closeMatImport();
   toast('Imported '+items.length+' items.');
 }
