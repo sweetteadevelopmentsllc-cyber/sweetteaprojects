@@ -545,7 +545,7 @@ function renderJobsList(jobs,allStages,delays,asgMap,fmMap){
       <div>
         <div class="jc-name">${job.name}${hasDelay?'<span class="badge b-amber" style="margin-left:7px;font-size:9px">Delay</span>':''}</div>
         <div class="jc-meta">${job.address||''}${fmNames.length?' · '+fmNames.join(', '):''}</div>
-        <div class="jc-progress"><div class="jc-bar"><div class="jc-fill" style="width:'+pct+'%"></div></div><div class="jc-pct">'+pct+'%</div></div>
+        <div class="jc-progress"><div class="jc-bar"><div class="jc-fill" style="width:${pct}%"></div></div><div class="jc-pct">${pct}%</div></div>
       </div>
       <div class="jc-right">
         ${pendSt>0?`<span class="badge b-amber">${pendSt} waiting</span>`:`<span class="badge b-gray">${done}/${total} done</span>`}

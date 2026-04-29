@@ -654,13 +654,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   try {
     allJobs = await sbGet('fo_jobs','archived=eq.false&order=created_at.desc&select=id,name');
     const sel = document.getElementById('job-select');
-    allJobs.forEach(j => {
+    (allJobs||[]).forEach(j => {
       const o = document.createElement('option');
       o.value = j.id; o.textContent = j.name;
       sel.appendChild(o);
     });
-    await loadSavedLists();
-  } catch(e) { console.warn('Init error:', e); }
+  } catch(e) { console.warn('Jobs load error:', e); allJobs=[]; }
+  // Load saved lists regardless of whether jobs loaded
+  loadSavedLists();
   // Handle import from quote builder
   const imported = sessionStorage.getItem('import_materials');
   if (imported) {
@@ -870,12 +871,24 @@ async function saveList(){
 async function loadSavedLists(){
   const el=document.getElementById('saved-lists-panel');
   if(!el)return;
+  el.innerHTML='<div style="color:var(--text3);font-size:11px;padding:4px 0">Loading…</div>';
   try{
-    const jMap=Object.fromEntries(allJobs.map(j=>[j.id,j.name]));
-    const lists=await fetch(REST+'/fo_material_lists?order=updated_at.desc&limit=20&select=id,job_id,list_name,data,updated_at',{headers:H}).then(r=>r.json()).catch(()=>[]);
-    if(!lists||!lists.length){el.innerHTML='<div style="color:var(--text3);font-size:11px;padding:4px 0">No saved lists yet.</div>';return;}
+    const jMap=Object.fromEntries((allJobs||[]).map(j=>[j.id,j.name]));
+    // Don't select list_name column — it may not exist if SQL hasn't been run yet
+    // We store list_name inside the data JSON blob too, so that's fine
+    const resp=await fetch(REST+'/fo_material_lists?order=created_at.desc&limit=20&select=id,job_id,data',{headers:H});
+    const lists=await resp.json();
+    // Guard: if Supabase returned an error object instead of an array, show empty
+    if(!Array.isArray(lists)){
+      el.innerHTML='<div style="color:var(--text3);font-size:11px;padding:4px 0">No saved lists yet.</div>';
+      return;
+    }
+    if(!lists.length){
+      el.innerHTML='<div style="color:var(--text3);font-size:11px;padding:4px 0">No saved lists yet.</div>';
+      return;
+    }
     el.innerHTML=lists.map(l=>{
-      const name=l.list_name||l.data?.list_name||(l.job_id?jMap[l.job_id]||'Job list':'Untitled');
+      const name=l.data?.list_name||(l.job_id?jMap[l.job_id]||'Job list':'Untitled');
       const items=l.data?.items||[];
       const total=items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
       const isEditing=currentListId===l.id;
@@ -890,7 +903,10 @@ async function loadSavedLists(){
         <button onclick="loadListById('${l.id}')" class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:5px;font-size:11px">${isEditing?'Reload':'Load'}</button>
       </div>`;
     }).join('');
-  }catch(e){el.innerHTML='<div style="color:var(--red);font-size:11px">Error loading lists.</div>';}
+  }catch(e){
+    console.error('loadSavedLists error:',e);
+    el.innerHTML='<div style="color:var(--red);font-size:11px">Could not load lists: '+e.message+'</div>';
+  }
 }
 
 async function loadListById(id){
@@ -901,10 +917,8 @@ async function loadListById(id){
     listItems=data.items||[];
     currentListId=id;currentListDirty=false;
     document.getElementById('list-notes').value=data.notes||'';
-    const ni=document.getElementById('list-name-input');
-    const listName=row.list_name||data.list_name||'';
-    if(ni)ni.value=listName;
-    if(row.job_id){const sel=document.getElementById('job-select');if(sel)sel.value=row.job_id;}
+    const listName=row.data?.list_name||data.list_name||'';
+    updateHiddenJobSel(row.job_id||'');
     renderList();recalc();
     showEditBanner(listName);
     document.querySelector('.center-col')?.scrollTo({top:0,behavior:'smooth'});

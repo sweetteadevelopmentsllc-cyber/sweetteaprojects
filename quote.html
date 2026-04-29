@@ -528,7 +528,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <div class="section-title">Labor</div>
         </div>
         <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Select remodel type and enter square footage. Leave blank if not applicable.</div>
-        <div class="labor-cards" style="margin-bottom:14px">
+        <div class="labor-cards" style="margin-bottom:14px;grid-template-columns:repeat(4,1fr)">
           <div class="labor-card" id="lc-light" onclick="selectLaborType('light')">
             <div class="labor-card-name">Light Remodel</div>
             <div class="labor-card-rate">$45 / sq ft</div>
@@ -540,6 +540,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <div class="labor-card" id="lc-heavy" onclick="selectLaborType('heavy')">
             <div class="labor-card-name">Heavy Remodel</div>
             <div class="labor-card-rate">$111 / sq ft</div>
+          </div>
+          <div class="labor-card" id="lc-special" onclick="selectLaborType('special')">
+            <div class="labor-card-name">Special Remodel</div>
+            <div class="labor-card-rate">Custom $/sq ft</div>
+          </div>
+        </div>
+        <!-- Custom rate input — shown only for Special Remodel -->
+        <div id="special-rate-wrap" style="display:none;margin-bottom:10px">
+          <div class="field">
+            <label>Custom labor rate ($ per sq ft)</label>
+            <div class="prefix-input">
+              <span class="prefix">$</span>
+              <input type="number" id="d-special-rate" placeholder="0" min="0" step="0.5" oninput="calcDetailed()"/>
+            </div>
           </div>
         </div>
         <div class="field-grid">
@@ -574,7 +588,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <div class="section-num">3</div>
           <div class="section-title">Foreman</div>
         </div>
-        <div class="field-grid-3">
+        <div class="field-grid" style="margin-bottom:10px">
           <div class="field">
             <label>Pay period</label>
             <select id="d-fm-period" onchange="calcDetailed()">
@@ -584,17 +598,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             </select>
           </div>
           <div class="field">
-            <label>Periods</label>
-            <input type="number" id="d-fm-count" placeholder="0" min="0" oninput="calcDetailed()"/>
-          </div>
-          <div class="field">
-            <label>Bonus ($)</label>
-            <div class="prefix-input">
-              <span class="prefix">$</span>
-              <input type="number" id="d-fm-bonus" placeholder="0" min="0" oninput="calcDetailed()"/>
-            </div>
+            <label>Number of periods</label>
+            <input type="number" id="d-fm-count" placeholder="0" min="0" step="0.5" oninput="calcDetailed()"/>
           </div>
         </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Base pay <span style="color:var(--text3);font-weight:400;font-size:9px">(80% of total — auto-calculated)</span></label>
+            <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;color:var(--text2)" id="d-fm-base-display">$0.00</div>
+          </div>
+          <div class="field">
+            <label>Bonus <span style="color:var(--text3);font-weight:400;font-size:9px">(20% of total — auto-calculated)</span></label>
+            <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;color:var(--text2)" id="d-fm-bonus-display">$0.00</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px" id="d-fm-calc-note"></div>
+        <!-- Hidden field for save/load compatibility -->
+        <input type="hidden" id="d-fm-bonus" value="0"/>
       </div>
 
       <hr class="divider"/>
@@ -619,18 +639,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           </thead>
           <tbody id="mat-body"></tbody>
         </table>
-        <button class="add-mat-btn" onclick="addMatRow()">+ Add item</button>
+        <!-- Add item button — hidden when a list is imported -->
+        <button class="add-mat-btn" onclick="addMatRow()" id="mat-add-btn">+ Add item</button>
         <button class="add-mat-btn" onclick="openMatImport()" style="border-color:var(--brand-border);color:var(--brand)">📋 Import from saved list or template</button>
-        <div class="field-grid" style="margin-top:14px">
-          <div class="field">
-            <label>Tax rate on materials (%)</label>
-            <input type="number" id="d-taxrate" placeholder="8" value="8" min="0" max="20" step="0.1" oninput="calcDetailed()"/>
-          </div>
-          <div class="field">
-            <label>Materials subtotal (pre-tax)</label>
-            <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;color:var(--text2)" id="d-mat-sub">$0.00</div>
+        <!-- Tax rate — hidden when list is imported (already taxed in materials app) -->
+        <div id="mat-tax-wrap" style="margin-top:14px">
+          <div class="field-grid">
+            <div class="field">
+              <label>Tax rate on materials (%)</label>
+              <input type="number" id="d-taxrate" placeholder="8" value="8" min="0" max="20" step="0.1" oninput="calcDetailed()"/>
+            </div>
+            <div class="field">
+              <label>Materials subtotal (pre-tax)</label>
+              <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;color:var(--text2)" id="d-mat-sub">$0.00</div>
+            </div>
           </div>
         </div>
+        <!-- Shown instead when list is imported — tax already included -->
+        <div id="mat-imported-note" style="display:none;margin-top:10px;padding:8px 12px;background:var(--green-bg);border-radius:8px;font-size:11px;color:var(--green)">
+          ✓ Imported from material list — tax already included. To add more items, import again or clear and start a new list.
+        </div>
+        <!-- Hidden input so taxrate is still accessible in calcDetailed -->
+        <input type="hidden" id="d-taxrate-hidden" value="0"/>
       </div>
 
       <hr class="divider"/>
@@ -726,6 +756,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);display:block;margin-bottom:4px">Quote name</label>
       <input id="quote-title-input" type="text" placeholder="Auto from customer name…" style="width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;background:var(--s2);color:var(--text);outline:none"/>
     </div>
+    <div style="margin-bottom:8px">
+      <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);display:block;margin-bottom:4px">Link to job</label>
+      <select id="quote-job-select" onchange="linkActiveQuoteToJob(this.value)"
+        style="width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;background:var(--s2);color:var(--text);outline:none">
+        <option value="">— No job linked —</option>
+      </select>
+    </div>
     <button class="btn btn-ghost btn-full no-print" onclick="saveQuote()">💾 Save Quote</button>
     <div style="margin-top:14px">
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px">Saved Quotes</div>
@@ -763,6 +800,7 @@ const FM_RATES = { days: 160, weeks: 700, months: 2200 };
 let currentMode = 'onsite';
 let selectedLaborType = null;
 let matRows = [];
+let matImported = false; // true when materials came from a saved list (already taxed)
 
 // ══ MODE SWITCHING ══
 function setMode(mode) {
@@ -833,16 +871,31 @@ function calcOnSite() {
 // ══ DETAILED CALCULATION ══
 function calcDetailed() {
   const sqft = num('d-sqft');
-  const sqftRate = selectedLaborType ? LABOR_RATES[selectedLaborType] : 0;
+  // Special remodel uses custom rate
+  const sqftRate = selectedLaborType === 'special'
+    ? (num('d-special-rate') || 0)
+    : (selectedLaborType ? LABOR_RATES[selectedLaborType] : 0);
   const labor = sqft * sqftRate;
   const addLabor = num('d-addlabor');
   const totalLabor = labor + addLabor;
 
   const fmPeriod = val('d-fm-period');
   const fmCount = num('d-fm-count');
-  const fmBonus = num('d-fm-bonus');
-  const fmBase = fmCount * FM_RATES[fmPeriod];
-  const fmTotal = fmBase + fmBonus;
+  // Auto-calculate: total = rate * periods, base = 80%, bonus = 20%
+  const fmTotal = fmCount * FM_RATES[fmPeriod];
+  const fmBase = fmTotal * 0.80;
+  const fmBonus = fmTotal * 0.20;
+  // Update display fields
+  const baseEl = document.getElementById('d-fm-base-display');
+  const bonusEl = document.getElementById('d-fm-bonus-display');
+  const noteEl = document.getElementById('d-fm-calc-note');
+  if (baseEl) baseEl.textContent = '$' + fmBase.toFixed(2);
+  if (bonusEl) bonusEl.textContent = '$' + fmBonus.toFixed(2);
+  if (noteEl && fmCount > 0) noteEl.textContent = fmCount + ' ' + fmPeriod + ' × $' + FM_RATES[fmPeriod] + ' = $' + fmTotal.toFixed(2) + ' total · base $' + fmBase.toFixed(2) + ' · bonus $' + fmBonus.toFixed(2);
+  else if (noteEl) noteEl.textContent = '';
+  // Store bonus in hidden field for save
+  const bonusHidden = document.getElementById('d-fm-bonus');
+  if (bonusHidden) bonusHidden.value = fmBonus.toFixed(2);
 
   // Materials
   let matSub = 0;
@@ -855,7 +908,8 @@ function calcDetailed() {
     if (totEl) totEl.textContent = fmt(rowTotal);
   });
 
-  const taxRate = num('d-taxrate') / 100;
+  // Tax is 0 when materials were imported (already taxed in materials app)
+  const taxRate = matImported ? 0 : num('d-taxrate') / 100;
   const matTax = matSub * taxRate;
   const matTotal = matSub + matTax;
 
@@ -895,9 +949,12 @@ function updateSummary(labor, foreman, mat, tax, waste, cogs, invoice, profit, m
 // ══ LABOR TYPE SELECTION ══
 function selectLaborType(type) {
   selectedLaborType = type;
-  ['light','mid','heavy'].forEach(t => {
-    document.getElementById('lc-'+t).classList.toggle('selected', t === type);
+  ['light','mid','heavy','special'].forEach(t => {
+    const el = document.getElementById('lc-'+t);
+    if (el) el.classList.toggle('selected', t === type);
   });
+  const wrap = document.getElementById('special-rate-wrap');
+  if (wrap) wrap.style.display = type === 'special' ? 'block' : 'none';
   calcDetailed();
 }
 
@@ -1185,6 +1242,7 @@ async function saveQuote() {
         address: info.address,
         mode: currentMode,
         quote_title: quoteTitle,
+        job_id: document.getElementById('quote-job-select')?.value || null,
         data: state,
         total: total,
       })
@@ -1304,6 +1362,11 @@ async function loadQuote(id) {
       }, 200);
     }
 
+    // Pre-select the linked job if any
+    if (q.job_id) {
+      const jobSel = document.getElementById('quote-job-select');
+      if (jobSel) jobSel.value = q.job_id;
+    }
     toast(`Quote loaded${hasMaterials ? ' with '+savedMats.length+' material item'+(savedMats.length!==1?'s':'') : ''}.`);
   } catch(e) {
     console.error('loadQuote error:', e);
@@ -1325,6 +1388,17 @@ async function deleteQuote(id) {
     await fetch(REST+`/fo_quotes?id=eq.${id}`, {method:'DELETE',headers:H});
     loadSavedQuotes(); toast('Quote deleted.');
   } catch(e) { toast('Error: '+e.message); }
+}
+
+async function linkActiveQuoteToJob(jobId) {
+  // Link the currently open quote to a job
+  const quoteId = document.getElementById('quote-id').value;
+  if (!quoteId) {
+    // Not saved yet — just store for when it does save (handled in saveQuote via job_id field)
+    toast(jobId ? 'Job linked — save the quote to persist.' : 'Job link cleared.');
+    return;
+  }
+  await linkQuoteToJob(quoteId, jobId);
 }
 
 async function linkQuoteToJob(quoteId, jobId) {
@@ -1441,10 +1515,12 @@ function importFromCache(key) {
     toast('Material estimate set to $'+total.toFixed(2)+'.');
     return;
   }
-  if (matRows.length > 0 && !confirm('Add '+items.length+' items to your existing list?')) return;
+  // Replace existing rows when importing a list
+  document.getElementById('mat-body').innerHTML = ''; matRows = [];
   items.forEach(item => { if (item.name) addMatRow(item.name, item.vendor||'', item.desc||'', item.qty||1, item.price||0); });
+  setMatImported(true);
   closeMatImport();
-  toast('Imported '+items.length+' items.');
+  toast('Imported '+items.length+' items — tax already included.');
 }
 
 async function importMatTemplate(templateId, name) {
@@ -1461,8 +1537,9 @@ async function importMatTemplate(templateId, name) {
     if (!items.length) { toast('Template has no items.'); return; }
     if (matRows.length > 0 && !confirm('Add '+items.length+' items from "'+name+'" to your list?')) return;
     items.forEach(item => { if(item.name) addMatRow(item.name, item.vendor||'', '', item.qty||1, item.price||0); });
+    setMatImported(true);
     closeMatImport();
-    toast('Imported '+items.length+' items from template.');
+    toast('Imported '+items.length+' items from template — tax already included.');
   } catch(e) { toast('Error: '+e.message); }
 }
 
@@ -1477,6 +1554,20 @@ document.getElementById('proposal-modal').addEventListener('click', function(e) 
 
 // ══ INIT ══
 document.getElementById('d-date').value = new Date().toISOString().split('T')[0];
+// Populate job selector in summary panel
+(async () => {
+  try {
+    const jobs = await fetch(REST+'/fo_jobs?archived=eq.false&select=id,name&order=created_at.desc', {headers:H}).then(r=>r.json()).catch(()=>[]);
+    const sel = document.getElementById('quote-job-select');
+    if (sel && jobs.length) {
+      jobs.forEach(j => {
+        const o = document.createElement('option');
+        o.value = j.id; o.textContent = j.name;
+        sel.appendChild(o);
+      });
+    }
+  } catch(e) {}
+})();
 loadSavedQuotes();
 const validDate = new Date(); validDate.setDate(validDate.getDate() + 30);
 document.getElementById('d-valid').value = validDate.toISOString().split('T')[0];
