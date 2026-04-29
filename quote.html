@@ -1159,7 +1159,7 @@ async function saveQuote() {
     d_desc: val('d-desc'), d_date: val('d-date'),
     d_valid: val('d-valid'), d_start: val('d-start'),
     d_sqft: val('d-sqft'), selectedLaborType,
-    d_addlabor: val('d-addlabor'), d_addlabor_note: val('d-addlabor_note'),
+    d_addlabor: val('d-addlabor'), d_addlabor_note: val('d-addlabor-note'),
     d_fm_period: val('d-fm-period'), d_fm_count: val('d-fm-count'),
     d_fm_bonus: val('d-fm-bonus'),
     d_taxrate: val('d-taxrate'), d_waste: val('d-waste'), d_margin: val('d-margin'),
@@ -1237,33 +1237,78 @@ async function loadSavedQuotes() {
 async function loadQuote(id) {
   try {
     const rows = await fetch(REST+`/fo_quotes?id=eq.${id}&select=*`, {headers:H}).then(r=>r.json());
-    if (!rows?.length) return;
-    const q = rows[0]; const s = q.data || {};
+    if (!rows?.length) { toast('Quote not found.'); return; }
+    const q = rows[0];
+    const s = q.data || {};
+
+    // Store ID so re-save updates the same record
     document.getElementById('quote-id').value = q.id;
-    setMode(s.mode||'onsite');
-    // Restore on-site fields
+
+    // Restore quote title
+    const titleInput = document.getElementById('quote-title-input');
+    if (titleInput) titleInput.value = q.quote_title || q.customer_name || '';
+
+    // If materials exist, force detailed mode so they're visible
+    const hasMaterials = (s.matRows||[]).filter(m=>m.name).length > 0;
+    const mode = hasMaterials ? 'detailed' : (s.mode || 'onsite');
+    setMode(mode);
+
+    // ── Restore on-site fields ──
     const osFields = {
-      'os-customer':s.os_customer,'os-address':s.os_address,'os-jobtype':s.os_jobtype,
-      'os-sqft':s.os_sqft,'os-fm-period':s.os_fm_period,'os-fm-count':s.os_fm_count,
-      'os-matcost':s.os_matcost,'os-taxrate':s.os_taxrate,'os-margin':s.os_margin,'os-waste':s.os_waste,
+      'os-customer':s.os_customer, 'os-address':s.os_address, 'os-jobtype':s.os_jobtype,
+      'os-sqft':s.os_sqft, 'os-fm-period':s.os_fm_period, 'os-fm-count':s.os_fm_count,
+      'os-matcost':s.os_matcost, 'os-taxrate':s.os_taxrate, 'os-margin':s.os_margin, 'os-waste':s.os_waste,
     };
-    Object.entries(osFields).forEach(([id,v])=>{ if(v!==undefined && document.getElementById(id)) document.getElementById(id).value=v; });
-    // Restore detailed fields
+    Object.entries(osFields).forEach(([elId,v]) => {
+      if (v !== undefined && v !== null) {
+        const el = document.getElementById(elId);
+        if (el) el.value = v;
+      }
+    });
+
+    // ── Restore detailed fields ──
     const dFields = {
-      'd-customer':s.d_customer,'d-address':s.d_address,'d-desc':s.d_desc,'d-date':s.d_date,
-      'd-valid':s.d_valid,'d-start':s.d_start,'d-sqft':s.d_sqft,
-      'd-addlabor':s.d_addlabor,'d-fm-period':s.d_fm_period,'d-fm-count':s.d_fm_count,
-      'd-fm-bonus':s.d_fm_bonus,'d-taxrate':s.d_taxrate,'d-waste':s.d_waste,'d-margin':s.d_margin,
-      'd-scope':s.d_scope,'d-exclusions':s.d_exclusions,'d-terms':s.d_terms,
+      'd-customer':s.d_customer, 'd-address':s.d_address, 'd-desc':s.d_desc,
+      'd-date':s.d_date, 'd-valid':s.d_valid, 'd-start':s.d_start,
+      'd-sqft':s.d_sqft, 'd-addlabor':s.d_addlabor, 'd-addlabor-note':s.d_addlabor_note||s['d-addlabor-note']||'',
+      'd-fm-period':s.d_fm_period, 'd-fm-count':s.d_fm_count, 'd-fm-bonus':s.d_fm_bonus,
+      'd-taxrate':s.d_taxrate, 'd-waste':s.d_waste, 'd-margin':s.d_margin,
+      'd-scope':s.d_scope, 'd-exclusions':s.d_exclusions, 'd-terms':s.d_terms,
     };
-    Object.entries(dFields).forEach(([id,v])=>{ if(v!==undefined && document.getElementById(id)) document.getElementById(id).value=v; });
+    Object.entries(dFields).forEach(([elId,v]) => {
+      if (v !== undefined && v !== null) {
+        const el = document.getElementById(elId);
+        if (el) el.value = v;
+      }
+    });
+
+    // ── Restore labor type selection ──
     if (s.selectedLaborType) selectLaborType(s.selectedLaborType);
-    // Restore materials
-    document.getElementById('mat-body').innerHTML=''; matRows=[];
-    (s.matRows||[]).forEach(m=>addMatRow(m.name,m.vendor,m.desc,m.qty,m.price));
-    calcOnSite(); calcDetailed();
-    toast('Quote loaded.');
-  } catch(e) { toast('Load failed: '+e.message); }
+
+    // ── Restore material rows ──
+    document.getElementById('mat-body').innerHTML = '';
+    matRows = [];
+    const savedMats = (s.matRows || []).filter(m => m.name);
+    savedMats.forEach(m => addMatRow(m.name || '', m.vendor || '', m.desc || '', m.qty || 1, m.price || 0));
+
+    // ── Trigger recalculations ──
+    calcOnSite();
+    calcDetailed();
+
+    // ── Scroll to materials section if materials were loaded ──
+    if (hasMaterials) {
+      setTimeout(() => {
+        const matSection = document.querySelector('#mode-detailed .section:nth-child(4)');
+        const matTable = document.getElementById('mat-body');
+        if (matTable) matTable.closest('.section')?.scrollIntoView({behavior:'smooth', block:'start'});
+      }, 200);
+    }
+
+    toast(`Quote loaded${hasMaterials ? ' with '+savedMats.length+' material item'+(savedMats.length!==1?'s':'') : ''}.`);
+  } catch(e) {
+    console.error('loadQuote error:', e);
+    toast('Load failed: ' + e.message);
+  }
 }
 
 async function renameQuote(id, newName) {
