@@ -1261,7 +1261,15 @@ async function saveQuote() {
 
 async function loadSavedQuotes() {
   try {
-    const rows = await fetch(REST+'/fo_quotes?order=updated_at.desc&limit=10&select=id,customer_name,address,total,mode,updated_at,quote_title,job_id', {headers:H}).then(r=>r.json());
+    // Only select columns that definitely exist (created_at is always there)
+    const resp = await fetch(REST+'/fo_quotes?order=created_at.desc&limit=10&select=id,customer_name,total,mode,created_at,job_id', {headers:H});
+    const rows = await resp.json();
+    // Guard: if Supabase returned an error object, show empty state
+    if (!Array.isArray(rows)) {
+      const el = document.getElementById('saved-quotes-list');
+      if (el) el.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">No saved quotes yet.</div>';
+      return;
+    }
     const el = document.getElementById('saved-quotes-list');
     if (!rows?.length) { el.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">No saved quotes yet.</div>'; return; }
       // Load jobs for linking dropdown
@@ -1279,7 +1287,7 @@ async function loadSavedQuotes() {
         <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--brand);flex-shrink:0">$${Number(q.total||0).toFixed(2)}</span>
       </div>
       <div style="padding:5px 8px;display:flex;gap:5px;align-items:center;background:var(--card)">
-        <span style="font-size:10px;color:var(--text3)">${q.mode==='onsite'?'Quick':'Detailed'} · ${new Date(q.updated_at).toLocaleDateString()}</span>
+        <span style="font-size:10px;color:var(--text3)">${q.mode==='onsite'?'Quick':'Detailed'} · ${new Date(q.created_at).toLocaleDateString()}</span>
         <div style="flex:1"></div>
         <button onclick="loadQuote('${q.id}')" style="padding:3px 9px;background:var(--brand-bg);color:var(--brand);border:1px solid var(--brand-border);border-radius:5px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">Load</button>
         <select onchange="linkQuoteToJob('${q.id}',this.value)" style="font-size:11px;padding:3px 5px;border:1px solid var(--border2);border-radius:5px;background:var(--s2);font-family:'DM Sans',sans-serif;color:var(--text2);outline:none;max-width:110px">

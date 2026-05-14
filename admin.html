@@ -978,17 +978,23 @@ async function openJobDetail(jobId) {
   }
 
   // Linked material list
-  // Try by job_id first, then fall back to the stable id pattern matlist_{jobId}
-  let matLists = await sbGet('fo_material_lists',`job_id=eq.${jobId}&limit=1&select=id,list_name,data,updated_at`);
+  // Try three ways: by job_id column, by stable ID, or by job_id stored inside data blob
+  let matLists = await sbGet('fo_material_lists',`job_id=eq.${jobId}&limit=1&select=id,data`).catch(()=>[]);
   if (!matLists?.length) {
-    matLists = await sbGet('fo_material_lists',`id=eq.matlist_${jobId}&select=id,list_name,data,updated_at`);
+    matLists = await sbGet('fo_material_lists',`id=eq.matlist_${jobId}&select=id,data`).catch(()=>[]);
+  }
+  if (!matLists?.length) {
+    // Last resort: load recent lists and find one whose data.job_id matches
+    const recent = await sbGet('fo_material_lists',`order=created_at.desc&limit=50&select=id,data`).catch(()=>[]);
+    const match = (recent||[]).find(l=>l.data?.job_id===jobId);
+    if (match) matLists = [match];
   }
   const jdMatEl = document.getElementById('jd-materials');
   if (matLists?.length) {
     const ml = matLists[0];
     const items = ml.data?.items || [];
     const subtotal = items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
-    const listName = ml.list_name || ml.data?.list_name || 'Material List';
+    const listName = ml.data?.list_name || 'Material List';
     jdMatEl.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--s2)">
       <div>
         <div style="font-size:13px;font-weight:500">${listName}</div>

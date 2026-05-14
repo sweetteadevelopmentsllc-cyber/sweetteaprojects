@@ -858,7 +858,7 @@ async function saveList(){
   const payload={items:listItems,notes:document.getElementById('list-notes').value,list_name:listName,saved_at:new Date().toISOString(),job_id:jobId||null};
   const key=currentListId||(jobId?'matlist_'+jobId:'matlist_standalone_'+Date.now());
   try{
-    await fetch(REST+'/fo_material_lists',{method:'POST',headers:{...H,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:key,job_id:jobId||null,list_name:listName,data:payload})});
+    await fetch(REST+'/fo_material_lists',{method:'POST',headers:{...H,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:key,job_id:jobId||null,data:payload})});
     currentListId=key;currentListDirty=false;
     document.getElementById('last-saved').textContent='Saved '+new Date().toLocaleTimeString();
     showEditBanner(listName);
