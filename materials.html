@@ -855,7 +855,8 @@ async function saveList(){
   let listName=(document.getElementById('hidden-list-name')?.value||'').trim();
   if(!listName&&jobId){const job=allJobs.find(j=>j.id===jobId);if(job)listName=job.name+' — Material List';}
   if(!listName){ openNewListModal(true); toast('Please name this list before saving.'); return; }
-  const payload={items:listItems,notes:document.getElementById('list-notes').value,list_name:listName,saved_at:new Date().toISOString(),job_id:jobId||null};
+  const taxRate=parseFloat(document.getElementById('tax-rate').value)||8;
+  const payload={items:listItems,notes:document.getElementById('list-notes').value,list_name:listName,tax_rate:taxRate,saved_at:new Date().toISOString(),job_id:jobId||null};
   const key=currentListId||(jobId?'matlist_'+jobId:'matlist_standalone_'+Date.now());
   try{
     await fetch(REST+'/fo_material_lists',{method:'POST',headers:{...H,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:key,job_id:jobId||null,data:payload})});
@@ -918,6 +919,10 @@ async function loadListById(id){
     currentListId=id;currentListDirty=false;
     document.getElementById('list-notes').value=data.notes||'';
     const listName=row.data?.list_name||data.list_name||'';
+    if (data.tax_rate !== undefined) {
+      const tr = document.getElementById('tax-rate');
+      if (tr) tr.value = data.tax_rate;
+    }
     updateHiddenJobSel(row.job_id||'');
     renderList();recalc();
     showEditBanner(listName);
@@ -954,13 +959,9 @@ function openNewListModal(editingNameOnly) {
   nlmEditingNameOnly = editingNameOnly;
   // Populate job dropdown
   const sel = document.getElementById('nlm-job');
-  // Only rebuild if empty (init already populated it)
-  if (sel.options.length <= 1) {
-    sel.innerHTML = '<option value="">— No job link —</option>' +
-      allJobs.map(j=>`<option value="${j.id}">${j.name}</option>`).join('');
-  } else {
-    sel.value = ''; // reset selection
-  }
+  // Always rebuild to ensure latest jobs are shown
+  sel.innerHTML = '<option value="">— No job link —</option>' +
+    (allJobs||[]).map(j=>`<option value="${j.id}">${j.name}</option>`).join('');
   // Pre-fill if editing
   const curName = document.getElementById('ctx-name')?.textContent||'';
   document.getElementById('nlm-name').value = editingNameOnly ? (curName==='Untitled List'?'':curName) : '';
@@ -993,16 +994,21 @@ function autoFillNlmName() {
 
 function applyNameChange() {
   const name = document.getElementById('nlm-name').value.trim();
-  const jobId = document.getElementById('nlm-job').value;
-  if (name) {
-    const ctxName = document.getElementById('ctx-name');
-    if (ctxName) ctxName.textContent = name;
-    document.getElementById('nlm-job').dataset.current = jobId;
-    // Update job select on toolbar (hidden but used for saving)
-    updateHiddenJobSel(jobId);
-    updateHiddenNameInput(name);
+  if (!name) {
+    document.getElementById('nlm-name').style.borderColor = 'var(--red)';
+    document.getElementById('nlm-name').focus();
+    toast('Please enter a list name.');
+    return;
   }
+  const jobId = document.getElementById('nlm-job').value;
+  const ctxName = document.getElementById('ctx-name');
+  if (ctxName) ctxName.textContent = name;
+  document.getElementById('nlm-job').dataset.current = jobId;
+  updateHiddenJobSel(jobId);
+  updateHiddenNameInput(name);
   closeNewListModal();
+  // Save immediately — user just set the name so proceed with save
+  saveList();
 }
 
 function updateHiddenJobSel(jobId) {
